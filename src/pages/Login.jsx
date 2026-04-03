@@ -1,55 +1,131 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Lock, Mail, Key } from 'lucide-react';
+import { Lock, Mail, Key, Shield, Zap, ChevronRight } from 'lucide-react';
+import ParticleBackground from '../components/ParticleBackground';
 
 const Login = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('login');
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-      {/* Background shape */}
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '400px', height: '400px', background: 'var(--color-primary)', filter: 'blur(150px)', opacity: 0.1, borderRadius: '50%', zIndex: -1 }}></div>
+    <div className="bg-grid" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'var(--color-bg)', position: 'relative', overflow: 'hidden' }}>
+      
+      {/* Particle Background Component */}
+      <div style={{ position: 'absolute', inset: 0, opacity: 0.6 }}>
+        <ParticleBackground color="#39FF14" particleCount={50} />
+      </div>
 
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '440px', padding: '3rem 2.5rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{ background: 'var(--color-primary)', width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', boxShadow: '0 0 15px var(--color-primary-dim)' }}>
-            <Lock size={24} color="#000" />
+      {/* Layered Fog Effects */}
+      <div style={{ 
+        position: 'absolute', 
+        width: '600px', 
+        height: '600px', 
+        background: 'radial-gradient(circle, var(--color-cyan-glow) 0%, transparent 70%)', 
+        filter: 'blur(80px)', 
+        borderRadius: '50%', 
+        top: '50%', 
+        left: '50%', 
+        transform: 'translate(-50%, -50%)', 
+        zIndex: 0,
+        animation: 'glowPulse 8s ease-in-out infinite'
+      }}></div>
+
+      <div style={{ textAlign: 'center', marginBottom: '2rem', position: 'relative', zIndex: 10 }}>
+        <h1 style={{ fontSize: '2.5rem', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>
+          Secure<span className="text-neon">Vault</span>
+        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', opacity: 0.8 }}>
+          <Zap size={14} className="text-neon" />
+          <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em' }}>Next-Gen Cybersecurity</span>
+          <Zap size={14} className="text-neon" />
+        </div>
+      </div>
+
+      {/* Login Card */}
+      <div className="glass-panel-elevated" style={{ 
+        width: '100%', 
+        maxWidth: '420px', 
+        padding: '2.5rem', 
+        position: 'relative', 
+        zIndex: 10,
+        border: '1px solid rgba(0, 209, 255, 0.1)'
+      }}>
+        
+        {/* Tab System */}
+        <div className="auth-tabs">
+          <div 
+            className={`auth-tab ${activeTab === 'login' ? 'active' : ''}`}
+            onClick={() => setActiveTab('login')}
+          >
+            Login
           </div>
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Access <span className="text-neon">Vault</span></h1>
-          <p className="text-dim">Enter your credentials to proceed.</p>
+          <div 
+            className={`auth-tab ${activeTab === 'register' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('register');
+              navigate('/register');
+            }}
+          >
+            Register
+          </div>
         </div>
 
         <form onSubmit={(e) => { e.preventDefault(); navigate('/dashboard'); }}>
           <div className="input-group">
-            <label>Username or Email</label>
-            <div style={{ position: 'relative' }}>
-              <Mail size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-dim)' }} />
-              <input type="text" className="input-control" placeholder="user@example.com" style={{ paddingLeft: '2.75rem' }} required />
-            </div>
+            <label>Email Address</label>
+            <input 
+              type="email" 
+              className="input-control" 
+              placeholder="operator@securevault.io" 
+              style={{ background: 'rgba(0,0,0,0.2)' }}
+              required 
+            />
           </div>
 
-          <div className="input-group" style={{ marginBottom: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label>Password</label>
-              <a href="#" style={{ fontSize: '0.875rem' }}>Forgot password?</a>
-            </div>
-            <div style={{ position: 'relative' }}>
-              <Key size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-dim)' }} />
-              <input type="password" className="input-control" placeholder="••••••••" style={{ paddingLeft: '2.75rem' }} required />
-            </div>
+          <div className="input-group" style={{ marginBottom: '2rem' }}>
+            <label>Master Password</label>
+            <input 
+              type="password" 
+              className Bagley="input-control" 
+              placeholder="••••••••" 
+              style={{ background: 'rgba(0,0,0,0.2)' }}
+              required 
+            />
           </div>
 
-          <button type="submit" className="btn" style={{ width: '100%', padding: '0.875rem', fontSize: '1.125rem' }}>
-            Log In Subsystem
+          <button type="submit" className="btn" style={{ 
+            width: '100%', 
+            padding: '1rem', 
+            background: 'linear-gradient(135deg, var(--color-cyan) 0%, var(--color-primary) 100%)',
+            color: '#000',
+            fontWeight: 800,
+            fontSize: '1rem'
+          }}>
+            <Zap size={18} fill="currentColor" /> Sign In
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--color-bg-border)' }}>
-          <p className="text-dim" style={{ fontSize: '0.875rem' }}>
-            Don't have an access key? <Link to="/register" style={{ fontWeight: 600 }}>Request Access</Link>
-          </p>
+        <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+          <a href="#" style={{ fontSize: '0.75rem', opacity: 0.6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+            Forgot password? <Lock size={12} />
+          </a>
         </div>
       </div>
+
+      {/* Footer Credential */}
+      <div style={{ 
+        marginTop: '2rem', 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '0.5rem', 
+        opacity: 0.5,
+        fontSize: '0.75rem',
+        fontWeight: 500
+      }}>
+        <Shield size={14} className="text-neon" />
+        <span>Protected by end-to-end encryption</span>
+      </div>
+
     </div>
   );
 };

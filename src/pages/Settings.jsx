@@ -1,74 +1,174 @@
-import React from 'react';
-import { Key, Shield, User, LogOut, Terminal } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Mail, KeyRound, Lock, Cloud, Cpu, CheckCircle2, Save, Eye, EyeOff } from 'lucide-react';
 
 const Settings = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
+
+  const systemStatus = [
+    { icon: <Lock size={20} />, label: 'Encryption Status', status: 'Active', color: 'var(--color-primary)' },
+    { icon: <Cloud size={20} />, label: 'Cloud Connection', status: 'Connected', color: 'var(--color-primary)' },
+    { icon: <Cpu size={20} />, label: 'AI Detection System', status: 'Running', color: 'var(--color-primary)' },
+  ];
+
   return (
-    <div style={{ padding: '2.5rem', maxWidth: '800px' }}>
-      <header style={{ marginBottom: '3rem' }}>
-        <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>System Preferences</h1>
-        <p className="text-dim">Configure your security algorithms, access keys, and user profile.</p>
+    <div style={{ padding: '2.5rem', maxWidth: '720px' }}>
+      {/* Page Header */}
+      <header style={{ marginBottom: '2.5rem' }}>
+        <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Settings</h1>
+        <p className="text-dim">Manage your profile and monitor system status.</p>
       </header>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-        
-        {/* Profile Settings */}
-        <section className="glass-panel" style={{ padding: '2rem', border: '1px solid var(--color-bg-border)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--color-bg-border)', paddingBottom: '1rem' }}>
-            <User color="var(--color-primary)" />
+      {/* ──────────────── Operator Profile ──────────────── */}
+      <section className="card" style={{ marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
+          {/* Avatar Circle */}
+          <div style={{
+            width: '44px', height: '44px', borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--color-primary-fixed), var(--color-primary-container))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 0 18px var(--color-primary-glow)',
+          }}>
+            <User size={22} color="#022100" />
+          </div>
+          <div>
             <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Operator Profile</h2>
+            <p className="text-dim" style={{ fontSize: '0.8125rem', margin: 0 }}>Update your personal information</p>
           </div>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) minmax(200px, 1fr)', gap: '1.5rem' }}>
-            <div className="input-group">
-              <label>Codename / Username</label>
-              <input type="text" className="input-control" defaultValue="Agent007" />
-            </div>
-            <div className="input-group">
-              <label>Contact Endpoint (Email)</label>
-              <input type="email" className="input-control" defaultValue="agent@secure.sys" />
-            </div>
-            <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-              <label>Update Master Password</label>
-              <input type="password" className="input-control" placeholder="Enter new master password" />
-            </div>
-          </div>
-          
-          <div style={{ marginTop: '0.5rem', textAlign: 'right' }}>
-             <button className="btn">Save Profile Changes</button>
-          </div>
-        </section>
+        </div>
 
-        {/* Security & KMS */}
-        <section className="glass-panel" style={{ padding: '2rem', border: '1px solid var(--color-bg-border)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--color-bg-border)', paddingBottom: '1rem' }}>
-            <Shield color="var(--color-primary)" />
-            <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Cryptography & Infrastructure</h2>
-          </div>
-          
+        {/* Form Fields */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem 1.5rem' }}>
+          {/* Username */}
           <div className="input-group">
-            <label style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>AWS KMS Target ARN</span>
-              <span style={{ color: 'var(--color-success)', fontSize: '0.75rem' }}>Verified</span>
-            </label>
-            <input type="text" className="input-control" defaultValue="arn:aws:kms:us-east-1:123456789012:key/mrk-8e2b..." readOnly style={{ fontFamily: 'monospace', color: 'var(--color-text-dim)' }} />
-          </div>
-
-          <div className="input-group">
-            <label>API Access Key</label>
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <input type="password" className="input-control" defaultValue="sk_live_1234567890abcdef" readOnly style={{ fontFamily: 'monospace', flex: 1 }} />
-              <button className="btn btn-secondary">Regenerate</button>
+            <label>Codename / Username</label>
+            <div style={{ position: 'relative' }}>
+              <User size={15} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-dim)', opacity: 0.5 }} />
+              <input
+                type="text"
+                className="input-control"
+                defaultValue="Agent007"
+                style={{ paddingLeft: '2.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-outline-variant)', borderBottom: '1px solid var(--color-outline-variant)' }}
+              />
             </div>
           </div>
 
-          <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px' }}>
-            <h4 style={{ color: 'var(--color-danger)', margin: '0 0 0.5rem 0' }}>Danger Zone</h4>
-            <p className="text-dim" style={{ fontSize: '0.875rem', margin: '0 0 1rem 0' }}>Revoke all active sessions and purge local cache.</p>
-            <button className="btn" style={{ background: 'var(--color-danger)', color: '#fff', border: 'none' }}>Emergency Purge</button>
+          {/* Email */}
+          <div className="input-group">
+            <label>Email Address</label>
+            <div style={{ position: 'relative' }}>
+              <Mail size={15} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-dim)', opacity: 0.5 }} />
+              <input
+                type="email"
+                className="input-control"
+                defaultValue="agent@secure.sys"
+                style={{ paddingLeft: '2.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-outline-variant)', borderBottom: '1px solid var(--color-outline-variant)' }}
+              />
+            </div>
           </div>
-        </section>
 
-      </div>
+          {/* Password — full width  */}
+          <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+            <label>Change Password</label>
+            <div style={{ position: 'relative' }}>
+              <KeyRound size={15} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-dim)', opacity: 0.5 }} />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                className="input-control"
+                placeholder="Enter new password"
+                style={{ paddingLeft: '2.5rem', paddingRight: '2.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-outline-variant)', borderBottom: '1px solid var(--color-outline-variant)' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', cursor: 'pointer', padding: '2px',
+                  color: 'var(--color-text-dim)', opacity: 0.6, transition: 'opacity 0.2s',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
+                onMouseLeave={(e) => e.currentTarget.style.opacity = 0.6}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'flex-end' }}>
+          <button
+            className="btn"
+            onClick={handleSave}
+            style={{
+              padding: '0.7rem 1.75rem', fontSize: '0.8125rem',
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+            }}
+          >
+            {saved ? (
+              <><CheckCircle2 size={16} /> Saved Successfully</>
+            ) : (
+              <><Save size={16} /> Save Profile Changes</>
+            )}
+          </button>
+        </div>
+      </section>
+
+      {/* ──────────────── System Status ──────────────── */}
+      <section className="card">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.75rem' }}>
+          <div style={{ width: '28px', height: '3px', background: 'var(--color-primary)', borderRadius: '2px' }}></div>
+          <h2 style={{ fontSize: '1.25rem', margin: 0 }}>System Status</h2>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+          {systemStatus.map((item, i) => (
+            <div
+              key={i}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '1.125rem 0',
+                borderBottom: i !== systemStatus.length - 1 ? '1px solid var(--color-outline)' : 'none',
+              }}
+            >
+              {/* Left — Icon + Label */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{
+                  width: '38px', height: '38px', borderRadius: 'var(--radius-md)',
+                  background: 'var(--color-surface-container-lowest)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: item.color,
+                }}>
+                  {item.icon}
+                </div>
+                <span style={{ fontWeight: 500, fontSize: '0.9375rem' }}>{item.label}</span>
+              </div>
+
+              {/* Right — Status Badge */}
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                padding: '0.3rem 0.875rem',
+                background: 'var(--color-success-bg)',
+                borderRadius: 'var(--radius-full)',
+                border: '1px solid rgba(57, 255, 20, 0.12)',
+              }}>
+                <div className="status-orb status-orb--active"></div>
+                <span style={{
+                  fontSize: '0.75rem', fontWeight: 600, color: item.color,
+                  textTransform: 'uppercase', letterSpacing: '0.04em',
+                }}>
+                  {item.status}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 };

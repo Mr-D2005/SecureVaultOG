@@ -9,7 +9,7 @@ import Encrypt from './pages/Encrypt';
 import Decrypt from './pages/Decrypt';
 import Steganography from './pages/Steganography';
 import Detection from './pages/Detection';
-import Files from './pages/Files';
+
 import Settings from './pages/Settings';
 import DashboardLayout from './components/DashboardLayout';
 
@@ -27,7 +27,7 @@ function App() {
           <Route path="/decrypt" element={<Decrypt />} />
           <Route path="/steganography" element={<Steganography />} />
           <Route path="/detection" element={<Detection />} />
-          <Route path="/files" element={<Files />} />
+
           <Route path="/settings" element={<Settings />} />
         </Route>
       </Routes>
