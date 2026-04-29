@@ -169,15 +169,22 @@ const ForgotPassword = () => {
     setResendCount(c => c + 1);
     setResendTimer(60);
     setOtp(Array(6).fill(''));
-    setOtpError('');
+    setOtpError('Sending new code...');
     // Re-send the recovery email
     try {
-      await fetch('/api/auth/forgot-password', {
+      const res = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-    } catch (err) { /* silent fail */ }
+      if (res.ok) {
+        setOtpError('New code sent successfully!');
+      } else {
+        setOtpError('Failed to send new code. Please check server logs.');
+      }
+    } catch (err) {
+      setOtpError('Network error. Failed to send new code.');
+    }
   };
 
   // ===== STEP 3: Reset Password =====
