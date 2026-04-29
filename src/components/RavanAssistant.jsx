@@ -224,15 +224,33 @@ const RavanAssistant = () => {
       return finalizeResponse(result);
     }
 
+    if (workflow === 'encrypt_message') {
+      setWorkflow(null);
+      const textBlob = new Blob([command], { type: 'text/plain' });
+      const virtualFile = new File([textBlob], "secret_note.txt", { type: 'text/plain' });
+      setSelectedFile(virtualFile);
+      finalizeResponse({
+        text: "Neural link established. Synthesizing secret as 'secret_note.txt' and initiating vault seal...",
+        content: <p>📝 Secret synthesized. Engaging AWS KMS Envelope Encryption...</p>
+      });
+      setTimeout(async () => {
+        const result = await executeEncrypt(virtualFile);
+        finalizeResponse(result);
+      }, 1000);
+      return;
+    }
+
     if (cmdLower === 'encrypt text' || cmdLower === 'encrypt message') {
-      return finalizeResponse("Acknowledged. Please type the secret message you wish to seal in the vault.");
+      setWorkflow('encrypt_message');
+      return finalizeResponse("Acknowledged. The vault is open. Please type the secret message or payload you wish to seal in the vault.");
     }
 
     if (cmdLower.includes('encrypt this') || cmdLower === 'encrypt') {
       if (!activeFile) {
-        // If no file, we assume the user is encrypting the previous message or wants to type one
-        return finalizeResponse("Staging area empty. Please upload a file or type the message you wish to encrypt.");
+        setWorkflow('encrypt_message');
+        return finalizeResponse("Staging area empty. Please type the message you wish to encrypt, or upload a file for sealing.");
       }
+
       return finalizeResponse(await executeEncrypt(activeFile));
     }
     if (cmdLower.includes('decrypt this') || cmdLower === 'decrypt') {
@@ -478,10 +496,24 @@ const RavanAssistant = () => {
       window.dispatchEvent(new CustomEvent('ravan-data-changed'));
       
       return {
-        text: `✅ Asset sealed successfully! Asset ID: ${data.assetId}.`,
+        text: `✅ Asset sealed successfully! Asset ID: ${data.assetId}. I have generated your Master Link Key.`,
         content: (
           <div className="success-download-zone">
             <p>✅ Asset sealed successfully! Asset ID: <strong>{data.assetId}</strong></p>
+            <div className="pem-preview-box" style={{ 
+              background: 'rgba(0,0,0,0.4)', 
+              padding: '1rem', 
+              borderRadius: '8px', 
+              border: '1px solid var(--color-primary)', 
+              margin: '1rem 0',
+              fontFamily: 'monospace',
+              fontSize: '0.7rem',
+              whiteSpace: 'pre-wrap',
+              color: 'var(--color-primary)',
+              boxShadow: 'inset 0 0 10px rgba(0, 255, 255, 0.1)'
+            }}>
+              {pemContent}
+            </div>
             <button className="manual-download-btn" onClick={() => triggerDownload(url, fileName)}>
               <UploadCloud size={16} /> Download .PEM Key
             </button>
@@ -489,6 +521,7 @@ const RavanAssistant = () => {
           </div>
         )
       };
+
     } catch (err) {
       return `Vault access error: ${err.message}`;
     }

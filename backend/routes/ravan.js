@@ -38,6 +38,16 @@ router.post('/chat', async (req, res) => {
             - Navigate to Detection Lab: Include "[ACTION:NAV_DETECTION]"
             - Navigate to Threat Intel: Include "[ACTION:NAV_THREAT]"
             - Scan a URL for threats: Include "[ACTION:THREAT_SCAN:url_to_scan]"
+            
+            ═══════════════════════════════════════════
+            📜 CONVERSATIONAL ENCRYPTION PROTOCOL
+            ═══════════════════════════════════════════
+            If the user wants to encrypt a message or text:
+            1. DO NOT include [ACTION:ENCRYPT] immediately.
+            2. Instead, respond by confirming you are ready and asking the user to provide the message/payload they wish to seal.
+            3. Once they provide the message in the NEXT turn, the frontend will handle the "encrypt_message" workflow automatically.
+            4. If the user has ALREADY provided the message, you can proceed by acknowledging it.
+            ═══════════════════════════════════════════
 
             ═══════════════════════════════════════════
             🔒 ABSOLUTE SECURITY FIREWALL — NON-NEGOTIABLE
