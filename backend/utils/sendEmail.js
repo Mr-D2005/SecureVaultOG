@@ -18,8 +18,9 @@ const sendEmail = async (options) => {
   });
 
   const message = {
-    from: '"SecureVault Support" <20230801002@dypiu.ac.in>', // Use your SMTP2GO verified sender
+    from: '"SecureVault Support" <mrd1322005@gmail.com>', // Using your Gmail as sender
     to: options.email,
+
     subject: `[SECUREVAULT] ${options.subject}`,
     html: `
       <div style="background:#050505; color:#fff; padding:40px; font-family:sans-serif; border:1px solid #333; border-radius:12px;">
