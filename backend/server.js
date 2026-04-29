@@ -95,8 +95,24 @@ app.get('/api/health/aws', async (req, res) => {
   }
 
 
+  try {
+    const { KMSClient, ListKeysCommand } = require('@aws-sdk/client-kms');
+    const kms = new KMSClient({ 
+      region: process.env.AWS_REGION || 'ap-south-1',
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+      }
+    });
+    await kms.send(new ListKeysCommand({ Limit: 1 }));
+    diagnostics.kms = 'REACHABLE';
+  } catch (e) {
+    diagnostics.kms = `FAILED: ${e.message}`;
+  }
+
   res.json(diagnostics);
 });
+
 
 
 
