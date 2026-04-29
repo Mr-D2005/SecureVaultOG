@@ -3,7 +3,7 @@ services:
   - type: web
     name: securevault-python-core
     env: python
-    region: singapore # Change to your preferred region
+    region: singapore
     plan: free
     rootDir: backend
     buildCommand: pip install flask boto3 cryptography
@@ -11,7 +11,14 @@ services:
     envVars:
       - key: PORT
         value: 5002
-      - fromGroup: securevault-secrets # We will define this group in Render dashboard
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        value: ap-south-1
+      - key: KMS_KEY_ID
+        sync: false
 
   # 2. Node.js Main App (Frontend + Backend)
   - type: web
@@ -27,4 +34,35 @@ services:
           name: securevault-python-core
           type: web
           property: host
-      - fromGroup: securevault-secrets
+      - key: PORT
+        value: 5001
+      - key: RDS_HOSTNAME
+        sync: false
+      - key: RDS_DB_NAME
+        sync: false
+      - key: RDS_USERNAME
+        sync: false
+      - key: RDS_PASSWORD
+        sync: false
+      - key: RDS_PORT
+        value: "3306"
+      - key: JWT_SECRET
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SMTP_EMAIL
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        value: ap-south-1
+      - key: AWS_S3_BUCKET
+        sync: false
+      - key: KMS_KEY_ID
+        sync: false
