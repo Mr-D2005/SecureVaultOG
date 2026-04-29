@@ -153,5 +153,7 @@ def unseal_asset():
         return jsonify({"msg": "Asset unsealing failed in Python core", "details": str(e)}), 500
 
 if __name__ == '__main__':
-    print("--- [PYTHON ENCRYPTION MICROSERVICE STARTING ON PORT 5002] ---")
-    app.run(host='0.0.0.0', port=5002)
+    port = int(os.environ.get("PORT", 5002))
+    print(f"--- [PYTHON ENCRYPTION MICROSERVICE STARTING ON PORT {port}] ---")
+    app.run(host='0.0.0.0', port=port)
+
