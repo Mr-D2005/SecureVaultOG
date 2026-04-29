@@ -22,16 +22,9 @@ exports.register = async (req, res) => {
     try {
       await sendEmail({
         email: user.email,
-        subject: 'Welcome to SecureVault',
-        message: `Your operator identity has been successfully registered in the AWS RDS Ledger. Access Code: ${token.substring(0, 8)}...`,
-        html: `
-          <div style="background:#f9fafb; padding:20px; font-family:sans-serif; color:#1f2937; border:1px solid #e5e7eb; border-radius:8px;">
-            <h2 style="color:#4f46e5; margin-bottom:16px;">Identity Manifest Initiated</h2>
-            <p>Welcome Operator. Your vault credentials have been etched into the secure cloud ledger.</p>
-            <p style="margin-top:20px; font-size:14px; font-weight:600; color:#4338ca;">OPERATOR_EMAIL: ${user.email}</p>
-            <p style="font-size:12px; color:#6b7280; margin-top:30px;">This is an automated system dispatch. Do not respond.</p>
-          </div>
-        `
+        subject: 'Welcome to SecureVault Protocol',
+        message: `Welcome Operator. Your identity manifest has been successfully etched into the AWS RDS Ledger. Your vault is now ready for deployment.`,
+        link: `${process.env.FRONTEND_URL || 'https://securevault-omega.vercel.app'}/login`
       });
     } catch (e) {
       console.error('Welcome email dispatch failed during registration', e);
@@ -85,18 +78,10 @@ exports.forgotPassword = async (req, res) => {
     await sendEmail({
       email: user.email,
       subject: 'Identity Recovery Protocol',
-      message: `Your 6-digit verification code: ${otp}. Expires in 10 minutes.`,
-      html: `
-        <div style="background:#fef2f2; padding:20px; font-family:sans-serif; color:#991b1b; border:1px solid #fecaca; border-radius:8px;">
-          <h2 style="color:#dc2626; margin-bottom:16px;">Recovery Code Dispatch</h2>
-          <p>An identity recovery scan was initiated. Use the following code to re-seal your vault:</p>
-          <div style="background:#ffffff; padding:15px; border:1px solid #f87171; text-align:center; font-size:32px; letter-spacing:8px; font-weight:700; margin:20px 0;">
-            ${otp}
-          </div>
-          <p style="font-size:12px; color:#b91c1c;">TIMEOUT: 10 MINUTES | PORT_SOURCE: WEB_GATEWAY</p>
-        </div>
-      `
+      message: `An identity recovery scan was initiated. Use the following 6-digit synchronization code to re-seal your vault:\n\nCODE: ${otp}\n\nThis code will expire in 10 minutes.`,
+      link: `${process.env.FRONTEND_URL || 'https://securevault-omega.vercel.app'}/reset-password`
     });
+
 
     res.status(200).json({ msg: 'Recovery code dispatched' });
   } catch (err) {

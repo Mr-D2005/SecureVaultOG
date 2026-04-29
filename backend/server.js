@@ -123,12 +123,23 @@ app.get('*', (req, res) => {
 
 const PORT = process.env.PORT || 5001;
 
+// Ensure CRITICAL secrets have fallbacks to prevent registration crashes
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'SECUREVAULT_CORE_EMERGENCY_SECRET_2026';
+process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+
 const startServer = async () => {
   initDB();
-  app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`--- [SECUREVAULT NODE ONLINE: PORT ${PORT}] ---`);
+  });
+
+  // Handle Unhandled Rejections (Prevents server from hanging on async errors)
+  process.on('unhandledRejection', (err) => {
+    console.error(`--- [PROTOCOL FAILURE: UNHANDLED_REJECTION] ---`, err.message);
+    // In production, we don't want to kill the server, just log the failure
   });
 };
 
 startServer();
+
 
