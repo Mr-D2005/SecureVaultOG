@@ -49,6 +49,8 @@ router.post('/data', async (req, res) => {
 
         // Phase 1: Upload PLAIN Asset to S3 Blacksite
         const s3Url = await uploadToS3(data);
+        const downloadUrl = null;
+
 
         // Phase 2: Seal the S3 URL via Python (Envelope Encryption)
         const pyRes = await robustFetch('/seal', {
