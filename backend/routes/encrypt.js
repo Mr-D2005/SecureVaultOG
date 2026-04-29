@@ -5,6 +5,22 @@ const { uploadToS3, fetchFromS3 } = require('../utils/s3_vault');
 
 const PYTHON_MICROSERVICE_URL = process.env.PYTHON_MICROSERVICE_URL || 'http://localhost:5002';
 
+// --- ROBUST FETCH GATEWAY (With Retry Logic for Cold Starts) ---
+const robustFetch = async (url, options, retries = 3) => {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const res = await fetch(url, options);
+            if (res.ok) return res;
+            // If server is starting up, it might return 500-504
+            if (res.status >= 500) throw new Error(`Server status ${res.status}`);
+        } catch (err) {
+            console.log(`--- [RETRYING CONNECTION: ${i+1}/${retries}] ---`);
+            if (i === retries - 1) throw err;
+            await new Promise(r => setTimeout(r, 3000)); // Wait 3s for wakeup
+        }
+    }
+};
+
 /**
  * @route   POST /api/encrypt/data
  * @desc    Shielded Link Protocol: Upload to S3, Seal the Link
@@ -16,17 +32,16 @@ router.post('/data', async (req, res) => {
 
         // Phase 1: Upload PLAIN Asset to S3 Blacksite
         const s3Url = await uploadToS3(data);
-        const downloadUrl = null;
 
         // Phase 2: Seal the S3 URL via Python (Envelope Encryption)
-        const pyRes = await fetch(`${PYTHON_MICROSERVICE_URL}/seal`, {
+        const pyRes = await robustFetch(`${PYTHON_MICROSERVICE_URL}/seal`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ data: s3Url, type: 'url', name })
         });
 
         const pyData = await pyRes.json();
-        if (!pyRes.ok) throw new Error(pyData.details || 'Cipher Core Fault');
+
 
         // Phase 3: Archive Shielded Metadata in RDS Ledger
         const entry = await EncryptedData.create({
@@ -70,14 +85,14 @@ router.post('/unseal', async (req, res) => {
         }
 
         // Phase 1: Unseal S3 Link via Python
-        const pyRes = await fetch(`${PYTHON_MICROSERVICE_URL}/unseal`, {
+        const pyRes = await robustFetch(`${PYTHON_MICROSERVICE_URL}/unseal`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ciphertext: sealedUrl, sealedKey, iv })
         });
 
         const pyData = await pyRes.json();
-        if (!pyRes.ok) throw new Error(pyData.details || 'Unseal Core Fault');
+
 
         const resolvedS3Url = pyData.decryptedData;
 
