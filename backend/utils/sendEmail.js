@@ -30,7 +30,8 @@ const sendEmail = async (options) => {
 
   // 2. Define the email options with premium cinematic branding
   const message = {
-    from: `"SecureVault Protocol" <${process.env.SMTP_EMAIL}>`,
+    from: process.env.SMTP_EMAIL,
+
     to: options.email,
     subject: `[SECUREVAULT] ${options.subject}`,
     html: `
