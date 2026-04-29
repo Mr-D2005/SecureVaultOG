@@ -1,9 +1,6 @@
 const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
 const crypto = require('crypto');
-const dotenv = require('dotenv');
-
-dotenv.config({ path: './config.env' });
-
+// Environment variables are loaded once in server.js
 const s3Client = new S3Client({
     region: process.env.AWS_REGION || 'eu-north-1',
     credentials: {
@@ -11,6 +8,7 @@ const s3Client = new S3Client({
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     }
 });
+
 
 const uploadToS3 = async (ciphertext) => {
     const bucket = process.env.AWS_S3_BUCKET || 'secvaults3';
@@ -42,8 +40,9 @@ const fetchFromS3 = async (s3Url) => {
         return body;
     } catch (err) {
         console.error('--- [S3_RECOVERY_FAILURE] ---', err);
-        throw new Error('Could not retrieve asset from S3 Blacksite');
+        throw new Error(`S3 Blacksite Retrieval Failed: ${err.message}`);
     }
 };
+
 
 module.exports = { uploadToS3, fetchFromS3 };
