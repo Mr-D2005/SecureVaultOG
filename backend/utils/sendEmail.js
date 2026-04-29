@@ -9,8 +9,9 @@ const sendEmail = async (options) => {
   }
 
   const payload = {
-    from: 'SecureVault <onboarding@resend.dev>', // You can change this once you verify your domain
+    from: process.env.RESEND_FROM || 'SecureVault <onboarding@resend.dev>', 
     to: options.email,
+
     subject: `[SECUREVAULT] ${options.subject}`,
     html: `
       <div style="background:#050505; color:#fff; padding:40px; font-family:sans-serif; border:1px solid #333; border-radius:12px;">
