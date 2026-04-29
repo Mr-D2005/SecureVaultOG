@@ -45,7 +45,7 @@ app.get('*', (req, res) => {
 const PORT = process.env.PORT || 5001;
 
 const startServer = async () => {
-  await initDB();
+  initDB();
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`--- [SECUREVAULT NODE ONLINE: PORT ${PORT}] ---`);
   });

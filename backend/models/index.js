@@ -65,15 +65,16 @@ const ThreatScan = sequelize.define('ThreatScan', {
 }, { timestamps: true });
 
 const initDB = async () => {
-  try {
-    await sequelize.authenticate();
-    // Use sync without alter to avoid RDS 'Too many keys' constraint error
-    await sequelize.sync();
-    console.log('--- [IDENTITY LEDGER PULSE NOMINAL: AWS RDS LINK ACTIVE] ---');
-  } catch (err) {
-    console.error('--- [LEDGER LINK FAILURE: KMS_RDS_HANDSHAKE_VOID] ---', err);
-    // Still start the server even if DB sync fails
-  }
+  console.log('--- [IDENTITY LEDGER PULSE: INITIATING CONNECT...] ---');
+  sequelize.authenticate()
+    .then(async () => {
+      await sequelize.sync();
+      console.log('--- [IDENTITY LEDGER PULSE NOMINAL: AWS RDS LINK ACTIVE] ---');
+    })
+    .catch(err => {
+      console.error('--- [LEDGER LINK FAILURE: KMS_RDS_HANDSHAKE_VOID] ---', err.message);
+    });
 };
+
 
 module.exports = { sequelize, User, EncryptedData, ThreatScan, initDB };
