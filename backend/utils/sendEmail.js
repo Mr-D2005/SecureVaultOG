@@ -18,8 +18,9 @@ const sendEmail = async (options) => {
   });
 
   const message = {
-    from: '"SecureVault Support" <mrd1322005@gmail.com>', // Using your Gmail as sender
+    from: '"SecureVault Support" <20230801002@dypiu.ac.in>', // Testing with authorized ID
     to: options.email,
+
 
     subject: `[SECUREVAULT] ${options.subject}`,
     html: `
