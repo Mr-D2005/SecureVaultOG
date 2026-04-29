@@ -16,10 +16,14 @@ const sendEmail = async (options) => {
       user: process.env.SMTP_EMAIL,
       pass: process.env.SMTP_PASSWORD
     },
+    connectionTimeout: 30000, // 30 seconds
+    greetingTimeout: 30000,   // 30 seconds
+    socketTimeout: 30000,     // 30 seconds
     tls: {
       rejectUnauthorized: false
     }
   });
+
 
   // 1. Verify connection (Await for it to be sure)
   try {
