@@ -7,26 +7,35 @@ const PYTHON_INTERNAL_URL = 'http://securevault-python-core:5002';
 const PYTHON_PUBLIC_URL = 'https://securevault-python-core.onrender.com';
 const PYTHON_MICROSERVICE_URL = process.env.PYTHON_MICROSERVICE_URL || PYTHON_INTERNAL_URL;
 
-// --- ROBUST FETCH GATEWAY (With Dual-Link Failover) ---
+// --- ROBUST FETCH GATEWAY (With Deep Diagnostics) ---
 const robustFetch = async (endpoint, options, retries = 2) => {
-    // Endpoints: /seal, /unseal, /health
-    const urls = [PYTHON_MICROSERVICE_URL, PYTHON_PUBLIC_URL];
-    
+    const urls = [PYTHON_INTERNAL_URL, PYTHON_PUBLIC_URL];
+    let lastError = null;
+
     for (const baseUrl of urls) {
         const fullUrl = `${baseUrl}${endpoint}`;
         for (let i = 0; i < retries; i++) {
             try {
                 console.log(`--- [SENTINEL LINK ATTEMPT]: ${fullUrl} (Try ${i+1}) ---`);
-                const res = await fetch(fullUrl, options);
+                const res = await fetch(fullUrl, {
+                    ...options,
+                    // Force IPv4 if IPv6 is acting up on Render
+                    signal: AbortSignal.timeout(15000)
+                });
                 if (res.ok) return res;
+                const errorData = await res.json().catch(() => ({}));
+                lastError = `Status ${res.status}: ${errorData.details || 'Unknown Core Error'}`;
             } catch (err) {
-                console.error(`--- [LINK_FAULT]: ${fullUrl} → ${err.message} ---`);
-                if (i === retries - 1 && baseUrl === urls[urls.length - 1]) throw err;
+                lastError = `${err.name}: ${err.message}`;
+                console.error(`--- [LINK_FAULT]: ${fullUrl} → ${lastError} ---`);
+                if (i === retries - 1 && baseUrl === urls[urls.length - 1]) throw new Error(lastError);
                 await new Promise(r => setTimeout(r, 2000));
             }
         }
     }
+    throw new Error(lastError || 'Gateway Timeout');
 };
+
 
 
 /**
@@ -42,11 +51,12 @@ router.post('/data', async (req, res) => {
         const s3Url = await uploadToS3(data);
 
         // Phase 2: Seal the S3 URL via Python (Envelope Encryption)
-        const pyRes = await robustFetch(`${PYTHON_MICROSERVICE_URL}/seal`, {
+        const pyRes = await robustFetch('/seal', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ data: s3Url, type: 'url', name })
         });
+
 
         const pyData = await pyRes.json();
 
