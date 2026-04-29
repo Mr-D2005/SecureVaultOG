@@ -1,17 +1,29 @@
 const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
-  // 1. Create a transporter with explicit settings for Gmail
+  // 1. Create a transporter with forensic logging enabled
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: 465,
-    secure: true, // true for 465
+    service: 'gmail', // This is much more reliable for Gmail accounts
     auth: {
       user: process.env.SMTP_EMAIL,
       pass: process.env.SMTP_PASSWORD
     },
+    debug: true,   // Show SMTP traffic in logs
+    logger: true,  // Log information to console
     tls: {
       rejectUnauthorized: false
+    }
+  });
+
+  // Verify connection configuration immediately
+  transporter.verify(function (error, success) {
+    if (error) {
+      console.error('--- [SMTP CONNECTION FAILURE] ---');
+      console.error('ERROR:', error.message);
+      console.error('USER:', process.env.SMTP_EMAIL ? 'PROVIDED' : 'MISSING');
+      console.error('PASS:', process.env.SMTP_PASSWORD ? 'PROVIDED' : 'MISSING');
+    } else {
+      console.log('--- [SMTP CONNECTION ESTABLISHED: UPLINK READY] ---');
     }
   });
 
