@@ -43,7 +43,7 @@ const ForgotPassword = () => {
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpSuccess, setOtpSuccess] = useState(false);
   const [otpShake, setOtpShake] = useState(false);
-  const [resendTimer, setResendTimer] = useState(60);
+  const [resendTimer, setResendTimer] = useState(10);
   const [resendCount, setResendCount] = useState(0);
 
   // Step 3 state
@@ -97,7 +97,7 @@ const ForgotPassword = () => {
       setEmailLoading(false);
       // Always advance (don't reveal if email exists - backend does this too)
       goToStep(1);
-      setResendTimer(60);
+      setResendTimer(10);
     } catch (err) {
       setEmailLoading(false);
       setEmailError('Cannot connect to server. Please ensure the backend is running.');
@@ -167,7 +167,7 @@ const ForgotPassword = () => {
   const handleResend = async () => {
     if (resendTimer > 0 || resendCount >= 3) return;
     setResendCount(c => c + 1);
-    setResendTimer(60);
+    setResendTimer(10);
     setOtp(Array(6).fill(''));
     setOtpError('Sending new code...');
     // Re-send the recovery email
