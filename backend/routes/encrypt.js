@@ -3,23 +3,31 @@ const router = express.Router();
 const { EncryptedData } = require('../models/index');
 const { uploadToS3, fetchFromS3 } = require('../utils/s3_vault');
 
-const PYTHON_MICROSERVICE_URL = process.env.PYTHON_MICROSERVICE_URL || 'http://localhost:5002';
+const PYTHON_INTERNAL_URL = 'http://securevault-python-core:5002';
+const PYTHON_PUBLIC_URL = 'https://securevault-python-core.onrender.com';
+const PYTHON_MICROSERVICE_URL = process.env.PYTHON_MICROSERVICE_URL || PYTHON_INTERNAL_URL;
 
-// --- ROBUST FETCH GATEWAY (With Retry Logic for Cold Starts) ---
-const robustFetch = async (url, options, retries = 3) => {
-    for (let i = 0; i < retries; i++) {
-        try {
-            const res = await fetch(url, options);
-            if (res.ok) return res;
-            // If server is starting up, it might return 500-504
-            if (res.status >= 500) throw new Error(`Server status ${res.status}`);
-        } catch (err) {
-            console.log(`--- [RETRYING CONNECTION: ${i+1}/${retries}] ---`);
-            if (i === retries - 1) throw err;
-            await new Promise(r => setTimeout(r, 3000)); // Wait 3s for wakeup
+// --- ROBUST FETCH GATEWAY (With Dual-Link Failover) ---
+const robustFetch = async (endpoint, options, retries = 2) => {
+    // Endpoints: /seal, /unseal, /health
+    const urls = [PYTHON_MICROSERVICE_URL, PYTHON_PUBLIC_URL];
+    
+    for (const baseUrl of urls) {
+        const fullUrl = `${baseUrl}${endpoint}`;
+        for (let i = 0; i < retries; i++) {
+            try {
+                console.log(`--- [SENTINEL LINK ATTEMPT]: ${fullUrl} (Try ${i+1}) ---`);
+                const res = await fetch(fullUrl, options);
+                if (res.ok) return res;
+            } catch (err) {
+                console.error(`--- [LINK_FAULT]: ${fullUrl} → ${err.message} ---`);
+                if (i === retries - 1 && baseUrl === urls[urls.length - 1]) throw err;
+                await new Promise(r => setTimeout(r, 2000));
+            }
         }
     }
 };
+
 
 /**
  * @route   POST /api/encrypt/data
@@ -85,11 +93,12 @@ router.post('/unseal', async (req, res) => {
         }
 
         // Phase 1: Unseal S3 Link via Python
-        const pyRes = await robustFetch(`${PYTHON_MICROSERVICE_URL}/unseal`, {
+        const pyRes = await robustFetch('/unseal', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ciphertext: sealedUrl, sealedKey, iv })
         });
+
 
         const pyData = await pyRes.json();
 
