@@ -37,10 +37,15 @@ exports.register = async (req, res) => {
 
     res.status(201).json({ token, user: { id: user.id, email: user.email, username: user.username } });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Registration sequence failed' });
+    console.error('REGISTRATION_ERROR:', err);
+    res.status(500).json({ 
+      msg: 'Registration sequence failed', 
+      error: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined 
+    });
   }
 };
+
 
 // --- Login: Identity Handshake ---
 exports.login = async (req, res) => {
@@ -91,9 +96,11 @@ exports.forgotPassword = async (req, res) => {
 
     res.status(200).json({ msg: 'Recovery code dispatched' });
   } catch (err) {
-    res.status(500).json({ msg: 'Recovery dispatch failed' });
+    console.error('FORGOT_PASSWORD_ERROR:', err);
+    res.status(500).json({ msg: 'Recovery dispatch failed', error: err.message });
   }
 };
+
 
 // --- Verify OTP: Protocol Handshake ---
 exports.verifyOtp = async (req, res) => {

@@ -182,8 +182,9 @@ router.post('/detect', async (req, res) => {
         });
     } catch (err) {
         console.error('--- [STEGO DETECTION FAULT] ---', err);
-        res.status(500).json({ msg: 'Stego detection failed', details: err.message });
+        res.status(500).json({ msg: 'Stego detection failed', error: err.message });
     }
 });
+
 
 module.exports = router;
