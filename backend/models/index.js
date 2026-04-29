@@ -15,16 +15,17 @@ const sequelize = new Sequelize(
       ssl: {
         rejectUnauthorized: false
       },
-      connectTimeout: 60000 // 60s timeout for initial connection
+      connectTimeout: 10000 // 10s timeout to prevent hanging
     },
     pool: {
       max: 5,
       min: 0,
-      acquire: 30000,
+      acquire: 10000,
       idle: 10000
     }
   }
 );
+
 
 
 // --- User Model ---
