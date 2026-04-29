@@ -28,7 +28,6 @@ const sequelize = new Sequelize(
 
 
 
-// --- User Model ---
 const User = sequelize.define('User', {
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   email: { type: DataTypes.STRING, unique: true, allowNull: false },
@@ -36,7 +35,7 @@ const User = sequelize.define('User', {
   password: { type: DataTypes.STRING, allowNull: false },
   otp: { type: DataTypes.STRING, allowNull: true },
   otpExpiry: { type: DataTypes.DATE, allowNull: true }
-}, { timestamps: true });
+}, { timestamps: true, freezeTableName: true });
 
 // --- EncryptedData Model (Audit Trail for Encrypted Messages/Files) ---
 const EncryptedData = sequelize.define('EncryptedData', {
@@ -49,7 +48,7 @@ const EncryptedData = sequelize.define('EncryptedData', {
   iv: { type: DataTypes.TEXT, allowNull: true }, // Init vector
   s3_url: { type: DataTypes.STRING, allowNull: true }, // Deprecated but kept for compatibility
   status: { type: DataTypes.STRING, defaultValue: 'VERIFIED' }
-}, { timestamps: true });
+}, { timestamps: true, freezeTableName: true });
 
 // --- ThreatScan Model (Forensic Analysis Persistence) ---
 const ThreatScan = sequelize.define('ThreatScan', {
@@ -62,19 +61,21 @@ const ThreatScan = sequelize.define('ThreatScan', {
   logs: { type: DataTypes.JSON, allowNull: true },
   tarpitActivated: { type: DataTypes.BOOLEAN, defaultValue: false },
   trapUrl: { type: DataTypes.STRING, allowNull: true }
-}, { timestamps: true });
+}, { timestamps: true, freezeTableName: true });
 
 const initDB = async () => {
   console.log('--- [IDENTITY LEDGER PULSE: INITIATING CONNECT...] ---');
   sequelize.authenticate()
     .then(async () => {
-      await sequelize.sync();
+      // alter: true will automatically add missing columns to your existing manual tables
+      await sequelize.sync({ alter: true });
       console.log('--- [IDENTITY LEDGER PULSE NOMINAL: AWS RDS LINK ACTIVE] ---');
     })
     .catch(err => {
       console.error('--- [LEDGER LINK FAILURE: KMS_RDS_HANDSHAKE_VOID] ---', err.message);
     });
 };
+
 
 
 module.exports = { sequelize, User, EncryptedData, ThreatScan, initDB };
