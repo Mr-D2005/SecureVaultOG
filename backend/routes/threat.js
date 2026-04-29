@@ -240,10 +240,16 @@ router.get('/trap/:id', (req, res) => {
     'Content-Type': 'text/plain',
     'Transfer-Encoding': 'chunked',
     'X-Content-Type-Options': 'nosniff',
-    'Cache-Control': 'no-cache'
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive'
   });
 
+  res.write("--- [SECUREVAULT IRON-TARPIT ENGAGED] ---\n");
+  res.write("STATUS: ATTACKER_NEUTRALIZED\n");
+  res.write("LOGGING: ACTIVE_TRACE_IN_PROGRESS\n\n");
+
   const interval = setInterval(() => {
+
     try {
       const junk = `SENTINEL_SYSCALL_INTERRUPT_BLOCK_${crypto.randomBytes(32).toString('hex')}\n`;
       res.write(junk);
