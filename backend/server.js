@@ -64,7 +64,6 @@ app.get('/api/health/aws', async (req, res) => {
     // Test Write: Create a temporary diagnostic entry
     diagnostics.rds = 'CONNECTED (READ_ONLY)';
 
-    const { ThreatScan } = require('./models/index');
     const testEntry = await ThreatScan.create({ 
       targetUrl: 'DIAGNOSTIC_PROBE', 
       hostname: 'internal',
@@ -72,6 +71,7 @@ app.get('/api/health/aws', async (req, res) => {
     });
     await testEntry.destroy();
     diagnostics.rds = 'CONNECTED (READ_WRITE)';
+
   } catch (e) {
     diagnostics.rds = `RDS_FAIL: ${e.message}`;
   }
