@@ -39,6 +39,46 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'UP', service: 'SECUREVAULT_CORE_STABLE' });
 });
 
+// --- AWS CONNECTIVITY PROBE ---
+app.get('/api/health/aws', async (req, res) => {
+  const diagnostics = { rds: 'PENDING', s3: 'PENDING', kms: 'PENDING', env: {} };
+  
+  // Check Env Vars (Masked)
+  diagnostics.env = {
+    AWS_REGION: process.env.AWS_REGION || 'NOT_SET',
+    HAS_ACCESS_KEY: !!process.env.AWS_ACCESS_KEY_ID,
+    HAS_SECRET_KEY: !!process.env.AWS_SECRET_ACCESS_KEY,
+    S3_BUCKET: process.env.AWS_S3_BUCKET || 'secvaults3'
+  };
+
+  try {
+    const { sequelize } = require('./models/index');
+    await sequelize.authenticate();
+    diagnostics.rds = 'CONNECTED';
+  } catch (e) {
+    diagnostics.rds = `FAILED: ${e.message}`;
+  }
+
+  try {
+    const { S3Client, ListBucketsCommand } = require('@aws-sdk/client-s3');
+    const s3 = new S3Client({ 
+      region: process.env.AWS_REGION || 'us-east-1',
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+      }
+    });
+    await s3.send(new ListBucketsCommand({}));
+    diagnostics.s3 = 'REACHABLE';
+  } catch (e) {
+    diagnostics.s3 = `FAILED: ${e.message}`;
+  }
+
+  res.json(diagnostics);
+});
+
+
+
 // --- CATCH-ALL ROUTE ---
 // All other requests should serve the React app's index.html
 app.get('*', (req, res) => {
