@@ -43,7 +43,7 @@ const ForgotPassword = () => {
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpSuccess, setOtpSuccess] = useState(false);
   const [otpShake, setOtpShake] = useState(false);
-  const [resendTimer, setResendTimer] = useState(0);
+  const [resendTimer, setResendTimer] = useState(60);
   const [resendCount, setResendCount] = useState(0);
 
   // Step 3 state
@@ -97,7 +97,7 @@ const ForgotPassword = () => {
       setEmailLoading(false);
       // Always advance (don't reveal if email exists - backend does this too)
       goToStep(1);
-      setResendTimer(0);
+      setResendTimer(60);
     } catch (err) {
       setEmailLoading(false);
       setEmailError('Cannot connect to server. Please ensure the backend is running.');
@@ -165,9 +165,9 @@ const ForgotPassword = () => {
   };
 
   const handleResend = async () => {
-    if (resendTimer > 0 || resendCount >= 999) return;
+    if (resendTimer > 0 || resendCount >= 3) return;
     setResendCount(c => c + 1);
-    setResendTimer(0);
+    setResendTimer(60);
     setOtp(Array(6).fill(''));
     setOtpError('');
     // Re-send the recovery email
@@ -345,7 +345,7 @@ const ForgotPassword = () => {
                 )}
 
                 <div className="otp-resend">
-                  {resendCount >= 999 ? (
+                  {resendCount >= 3 ? (
                     <span className="otp-resend-blocked">Too many attempts. Try again in 10 mins.</span>
                   ) : resendTimer > 0 ? (
                     <span className="otp-resend-wait">Resend in 00:{resendTimer.toString().padStart(2, '0')}</span>
