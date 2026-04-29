@@ -30,10 +30,8 @@ services:
     startCommand: npm start
     envVars:
       - key: PYTHON_MICROSERVICE_URL
-        fromService:
-          name: securevault-python-core
-          type: web
-          property: host
+        value: http://securevault-python-core:5002
+
       - key: PORT
         value: 5001
       - key: RDS_HOSTNAME
