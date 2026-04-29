@@ -60,7 +60,25 @@ app.get('/api/health/aws', async (req, res) => {
   }
 
   try {
-    const { S3Client, ListBucketsCommand } = require('@aws-sdk/client-s3');
+    const { sequelize } = require('./models/index');
+    await sequelize.authenticate();
+    // Test Write: Create a temporary diagnostic entry
+    // (Assuming there is a table we can write to, like ThreatScan)
+    diagnostics.rds = 'CONNECTED (READ_ONLY)';
+    const { ThreatScan } = require('./models/index');
+    const testEntry = await ThreatScan.create({ 
+      targetUrl: 'DIAGNOSTIC_PROBE', 
+      hostname: 'internal',
+      logs: ['PERM_TEST']
+    });
+    await testEntry.destroy();
+    diagnostics.rds = 'CONNECTED (READ_WRITE)';
+  } catch (e) {
+    diagnostics.rds = `RDS_FAIL: ${e.message}`;
+  }
+
+  try {
+    const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
     const s3 = new S3Client({ 
       region: process.env.AWS_REGION || 'us-east-1',
       credentials: {
@@ -68,11 +86,14 @@ app.get('/api/health/aws', async (req, res) => {
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
       }
     });
-    await s3.send(new ListBucketsCommand({}));
-    diagnostics.s3 = 'REACHABLE';
+    const bucket = process.env.AWS_S3_BUCKET || 'secvaults3';
+    await s3.send(new PutObjectCommand({ Bucket: bucket, Key: 'DIAG_TEST', Body: 'PROBE' }));
+    await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: 'DIAG_TEST' }));
+    diagnostics.s3 = 'REACHABLE (READ_WRITE)';
   } catch (e) {
-    diagnostics.s3 = `FAILED: ${e.message}`;
+    diagnostics.s3 = `S3_FAIL: ${e.message}`;
   }
+
 
   res.json(diagnostics);
 });
