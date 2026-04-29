@@ -45,6 +45,7 @@ const ForgotPassword = () => {
   const [otpShake, setOtpShake] = useState(false);
   const [resendTimer, setResendTimer] = useState(10);
   const [resendCount, setResendCount] = useState(0);
+  const [resendMessage, setResendMessage] = useState('');
 
   // Step 3 state
   const [newPassword, setNewPassword] = useState('');
@@ -169,7 +170,8 @@ const ForgotPassword = () => {
     setResendCount(c => c + 1);
     setResendTimer(10);
     setOtp(Array(6).fill(''));
-    setOtpError('Sending new code...');
+    setOtpError('');
+    setResendMessage('Sending new code...');
     // Re-send the recovery email
     try {
       const res = await fetch('/api/auth/forgot-password', {
@@ -178,12 +180,15 @@ const ForgotPassword = () => {
         body: JSON.stringify({ email }),
       });
       if (res.ok) {
-        setOtpError('New code sent successfully!');
+        setResendMessage('New code sent successfully! Check inbox.');
+        setTimeout(() => setResendMessage(''), 5000); // Clear after 5s
       } else {
         setOtpError('Failed to send new code. Please check server logs.');
+        setResendMessage('');
       }
     } catch (err) {
       setOtpError('Network error. Failed to send new code.');
+      setResendMessage('');
     }
   };
 
@@ -360,6 +365,16 @@ const ForgotPassword = () => {
                     <button className="otp-resend-btn" onClick={handleResend}>Resend Code →</button>
                   )}
                 </div>
+
+                {resendMessage && (
+                  <motion.p 
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{ textAlign: 'center', color: '#00ffcc', fontSize: '0.85rem', marginTop: '0.5rem' }}
+                  >
+                    {resendMessage}
+                  </motion.p>
+                )}
 
                 <KineticButton 
                   onClick={handleVerifyOtp} 
