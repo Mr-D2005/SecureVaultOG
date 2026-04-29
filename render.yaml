@@ -6,8 +6,9 @@ services:
     region: singapore
     plan: free
     rootDir: backend
-    buildCommand: pip install flask boto3 cryptography
+    buildCommand: pip install -r requirements.txt
     startCommand: python encryption_core.py
+
     envVars:
       - key: PORT
         value: 5002
