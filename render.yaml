@@ -30,7 +30,10 @@ services:
     startCommand: npm start
     envVars:
       - key: PYTHON_MICROSERVICE_URL
-        value: http://securevault-python-core:5002
+        fromService:
+          name: securevault-python-core
+          type: web
+          property: url
 
       - key: PORT
         value: 5001
