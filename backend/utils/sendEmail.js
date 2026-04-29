@@ -1,37 +1,38 @@
 const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
-  // 1. Create a transporter with forensic logging enabled
+  console.log('--- [INITIATING SECURE DISPATCH] ---');
+  console.log('RECIPIENT:', options.email);
+  
+  // Verify credentials exist
+  if (!process.env.SMTP_EMAIL || !process.env.SMTP_PASSWORD) {
+    console.error('❌ [CRITICAL] SMTP Credentials missing from environment!');
+    return;
+  }
+
   const transporter = nodemailer.createTransport({
-    service: 'gmail', // This is much more reliable for Gmail accounts
+    service: 'gmail',
     auth: {
       user: process.env.SMTP_EMAIL,
       pass: process.env.SMTP_PASSWORD
     },
-    debug: true,   // Show SMTP traffic in logs
-    logger: true,  // Log information to console
     tls: {
       rejectUnauthorized: false
     }
   });
 
-  // Verify connection configuration immediately
-  transporter.verify(function (error, success) {
-    if (error) {
-      console.error('--- [SMTP CONNECTION FAILURE] ---');
-      console.error('ERROR:', error.message);
-      console.error('USER:', process.env.SMTP_EMAIL ? 'PROVIDED' : 'MISSING');
-      console.error('PASS:', process.env.SMTP_PASSWORD ? 'PROVIDED' : 'MISSING');
-    } else {
-      console.log('--- [SMTP CONNECTION ESTABLISHED: UPLINK READY] ---');
-    }
-  });
+  // 1. Verify connection (Await for it to be sure)
+  try {
+    await transporter.verify();
+    console.log('✅ [SMTP UPLINK ESTABLISHED]');
+  } catch (err) {
+    console.error('❌ [SMTP UPLINK FAILED]:', err.message);
+    throw new Error('Email gateway unreachable');
+  }
 
-
-  // 2. Define the email options with premium cinematic branding
+  // 2. Define message
   const message = {
     from: process.env.SMTP_EMAIL,
-
     to: options.email,
     subject: `[SECUREVAULT] ${options.subject}`,
     html: `
@@ -39,50 +40,40 @@ const sendEmail = async (options) => {
       <html>
       <head>
         <style>
-          body { margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #050505; color: #ffffff; }
-          .container { max-width: 600px; margin: 40px auto; background: linear-gradient(145deg, #0a0a0a, #111111); border: 1px solid #222; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-          .header { background: #000; padding: 40px 20px; text-align: center; border-bottom: 1px solid #333; }
-          .logo { color: #8b5cf6; font-size: 24px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
-          .content { padding: 40px; line-height: 1.6; }
-          .title { font-size: 22px; font-weight: 600; margin-bottom: 20px; color: #fff; }
-          .text { color: #a1a1aa; margin-bottom: 30px; }
-          .button-zone { text-align: center; margin: 40px 0; }
-          .button { background: #8b5cf6; color: #ffffff !important; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; transition: all 0.3s ease; }
-          .footer { background: #000; padding: 20px; text-align: center; font-size: 12px; color: #52525b; border-top: 1px solid #111; }
-          .warning { font-size: 11px; color: #ef4444; margin-top: 20px; opacity: 0.7; }
+          body { margin: 0; padding: 0; font-family: sans-serif; background-color: #050505; color: #ffffff; }
+          .container { max-width: 600px; margin: 20px auto; background: #0a0a0a; border: 1px solid #333; border-radius: 12px; overflow: hidden; }
+          .header { background: #000; padding: 30px; text-align: center; border-bottom: 1px solid #8b5cf6; }
+          .content { padding: 40px; color: #a1a1aa; line-height: 1.6; }
+          .title { color: #fff; font-size: 20px; margin-bottom: 20px; font-weight: bold; }
+          .button { background: #8b5cf6; color: #fff !important; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block; margin: 20px 0; }
+          .footer { background: #000; padding: 15px; text-align: center; font-size: 11px; color: #555; }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <div class="logo">SECUREVAULT</div>
+            <h1 style="color:#8b5cf6; margin:0; font-size:24px;">SECUREVAULT</h1>
           </div>
           <div class="content">
             <div class="title">${options.subject}</div>
-            <div class="text">${options.message.replace(/\n/g, '<br>')}</div>
-            ${options.link ? `
-            <div class="button-zone">
-              <a href="${options.link}" class="button">Access Secure Channel</a>
-            </div>` : ''}
-            <div class="warning">
-              This is an automated security transmission. If you did not request this, please initiate a Forensic Lockdown immediately.
-            </div>
+            <p>${options.message.replace(/\n/g, '<br>')}</p>
+            ${options.link ? `<a href="${options.link}" class="button">Access Vault</a>` : ''}
           </div>
-          <div class="footer">
-            &copy; 2026 SecureVault Forensics Division. All rights reserved.
-          </div>
+          <div class="footer">&copy; 2026 SecureVault Forensics</div>
         </div>
       </body>
       </html>
     `
   };
 
-  // 3. Actually send the email
+  // 3. Dispatch
   try {
-    await transporter.sendMail(message);
-    console.log(`--- [SMTP_DISPATCH_COMPLETE: ${options.email}] ---`);
+    const info = await transporter.sendMail(message);
+    console.log('🚀 [DISPATCH SUCCESSFUL]:', info.messageId);
+    return info;
   } catch (err) {
-    console.error(`--- [SMTP_DISPATCH_FAILURE: ${options.email}] ---`, err);
+    console.error('❌ [DISPATCH FAILED]:', err.message);
+    throw err;
   }
 };
 
