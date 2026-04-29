@@ -5,6 +5,8 @@ const sendEmail = require('../utils/sendEmail');
 
 // --- Register: Create Identity Context ---
 exports.register = async (req, res) => {
+  console.log('--- [REGISTRATION ATTEMPT RECEIVED] ---');
+  console.log('BODY:', req.body);
   try {
     const { email, password, username } = req.body;
     let user = await User.findOne({ where: { email } });
@@ -49,6 +51,8 @@ exports.register = async (req, res) => {
 
 // --- Login: Identity Handshake ---
 exports.login = async (req, res) => {
+  console.log('--- [LOGIN ATTEMPT RECEIVED] ---');
+  console.log('BODY:', req.body);
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });

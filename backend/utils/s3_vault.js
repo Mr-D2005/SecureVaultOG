@@ -2,7 +2,7 @@ const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/clien
 const crypto = require('crypto');
 // Environment variables are loaded once in server.js
 const s3Client = new S3Client({
-    region: process.env.AWS_REGION || 'eu-north-1',
+    region: process.env.AWS_REGION || 'ap-south-1',
     credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,

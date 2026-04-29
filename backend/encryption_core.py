@@ -12,9 +12,13 @@ app = Flask(__name__)
 # It will automatically pick up AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY from env if available,
 # or we can pass them in explicitly.
 
-# Make sure to set these in your terminal before running OR use dotenv
-aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID")
-aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
+# AWS KMS CONFIGURATION
+kms_client = boto3.client(
+    'kms', 
+    region_name=os.environ.get("AWS_REGION", "ap-south-1"),
+    aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY")
+)
 region_name = os.environ.get("AWS_REGION", "ap-south-1")
 kms_key_id = os.environ.get("KMS_KEY_ID")
 
