@@ -1,16 +1,51 @@
-import React from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Lock, Unlock, Image, ShieldAlert, Settings, LogOut, Fingerprint, Users } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Outlet, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { LayoutDashboard, Lock, Unlock, Image, ShieldAlert, Settings, LogOut, Fingerprint, Users, Folder, Target } from 'lucide-react';
+
+import RavanAssistant from './RavanAssistant';
 
 const DashboardLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const token = localStorage.getItem('sv_token');
+
+  // 🔱 VOICE COMMAND BRIDGE: Listen for Third-Party Tool Actions
+  useEffect(() => {
+    const handleVoiceCommand = (e) => {
+      const action = e.detail;
+      console.log('--- [VOICE_COMMAND_RECEIVED] ---', action);
+      
+      if (action === 'settings') navigate('/settings');
+      if (action === 'dashboard') navigate('/dashboard');
+      if (action === 'encrypt') navigate('/encrypt');
+      if (action === 'decrypt') navigate('/decrypt');
+      if (action === 'stego') navigate('/steganography');
+      if (action === 'detection') navigate('/detection');
+    };
+
+    window.addEventListener('ravan-action', handleVoiceCommand);
+    return () => window.removeEventListener('ravan-action', handleVoiceCommand);
+  }, [navigate]);
+
+  // Guard: If no token, redirect to login
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    localStorage.removeItem('sv_token');
+    localStorage.removeItem('sv_user');
+    navigate('/login');
+  };
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
-    { name: 'Encrypt Message', path: '/encrypt', icon: <Lock size={20} /> },
-    { name: 'Decrypt Message', path: '/decrypt', icon: <Unlock size={20} /> },
-    { name: 'Hide in Image', path: '/steganography', icon: <Image size={20} /> },
+    { name: 'Encrypt Messages & Files', path: '/encrypt', icon: <Lock size={20} /> },
+    { name: 'Decrypt Messages & Files', path: '/decrypt', icon: <Unlock size={20} /> },
+    { name: 'Hide Stego', path: '/steganography', icon: <Image size={20} /> },
     { name: 'Detect Stego (AI)', path: '/detection', icon: <ShieldAlert size={20} /> },
+    { name: 'Threat Intel (AI)', path: '/threat-intel', icon: <Target size={20} /> },
     { name: 'Team & About', path: '/about', icon: <Users size={20} /> },
     { name: 'Settings', path: '/settings', icon: <Settings size={20} /> },
   ];
@@ -92,7 +127,8 @@ const DashboardLayout = () => {
 
         {/* Logout */}
         <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--color-outline)' }}>
-          <Link to="/login" style={{
+          <button onClick={handleLogout} style={{
+            background: 'none', border: 'none', width: '100%', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: '0.875rem',
             padding: '0.75rem 0.75rem',
             color: 'var(--color-danger)', fontWeight: 500, fontSize: '0.9375rem',
@@ -103,7 +139,7 @@ const DashboardLayout = () => {
           >
             <LogOut size={20} className="icon-cyber" />
             Logout
-          </Link>
+          </button>
         </div>
       </aside>
 
@@ -119,7 +155,9 @@ const DashboardLayout = () => {
           <Outlet />
         </div>
       </main>
+      <RavanAssistant />
     </div>
+
   );
 };
 

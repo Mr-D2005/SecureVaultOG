@@ -121,10 +121,10 @@ const Web3Hero = () => {
 
           {/* Nav links — hidden on mobile via CSS */}
           <div className="w3-nav-links">
-            <NavLink label="Features" href="#features" />
-            <NavLink label="Security" href="#security" />
-            <NavLink label="How It Works" href="#how-it-works" />
-            <NavLink label="Docs" href="#docs" />
+            <NavLink label="Features" href="#/features" />
+            <NavLink label="Security" href="#/security" />
+            <NavLink label="How It Works" href="#/how-it-works" />
+            <NavLink label="Docs" href="#/docs" />
           </div>
         </div>
 

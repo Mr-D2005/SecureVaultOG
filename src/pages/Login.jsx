@@ -77,7 +77,7 @@ const Login = () => {
     }
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     clearErrors();
 
@@ -116,56 +116,57 @@ const Login = () => {
       return;
     }
 
-    // --- SIMULATE AUTH LOGIC (no backend) ---
+    // --- REAL BACKEND AUTH ---
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
       setLoading(false);
 
-      // Demo logic: "admin@securevault.io" / "admin123" = success
-      // "unknown@test.com" = email not found
-      // Anything else = invalid credentials
-      if (email === 'admin@securevault.io' && password === 'admin123') {
-        // Success path
+      if (res.ok && data.token) {
+        localStorage.setItem('sv_token', data.token);
+        localStorage.setItem('sv_user', JSON.stringify(data.user));
         clearErrors();
         setAttempts(0);
         navigate('/dashboard');
         return;
       }
 
-      // --- SCENARIO 4: Email not found ---
-      if (email === 'unknown@test.com') {
-        setFieldErrors({ email: true, password: false });
-        setError('No account found with that email address.');
-        setErrorType('not-found');
-        triggerShake();
-        setPassword('');
-        return;
-      }
-
-      // --- SCENARIO 1/2/3: Wrong credentials (progressive) ---
+      // Handle errors
       const newAttempts = attempts + 1;
       setAttempts(newAttempts);
       setPassword('');
       triggerShake();
-      setFieldErrors({ email: true, password: true });
 
-      if (newAttempts >= 5) {
-        // --- SCENARIO 3: Account locked ---
-        const lockTime = Date.now() + 15 * 60 * 1000; // 15 minutes
+      if (data.msg && data.msg.toLowerCase().includes('not found')) {
+        setFieldErrors({ email: true, password: false });
+        setError('No account found with that email address.');
+        setErrorType('not-found');
+      } else if (newAttempts >= 5) {
+        const lockTime = Date.now() + 15 * 60 * 1000;
         setLockUntil(lockTime);
         setError('Account temporarily locked for 15 minutes. Reset your password or wait for unlock.');
         setErrorType('locked');
       } else if (newAttempts >= 3) {
-        // --- SCENARIO 2: Warning with remaining attempts ---
         const remaining = 5 - newAttempts;
         setError(`Invalid credentials. ${remaining} attempt${remaining !== 1 ? 's' : ''} remaining before your account is temporarily locked.`);
         setErrorType('credentials-warning');
+        setFieldErrors({ email: true, password: true });
       } else {
-        // --- SCENARIO 1: Standard invalid credentials ---
         setError('Invalid credentials. Please check your email and password.');
         setErrorType('credentials');
+        setFieldErrors({ email: true, password: true });
       }
-    }, 800);
+    } catch (err) {
+      setLoading(false);
+      setError('Cannot connect to server. Please ensure the backend is running.');
+      setErrorType('credentials');
+      triggerShake();
+    }
   };
 
   const isLocked = lockUntil && Date.now() < lockUntil;

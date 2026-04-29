@@ -1,0 +1,30 @@
+services:
+  # 1. Python Encryption Core
+  - type: web
+    name: securevault-python-core
+    env: python
+    region: singapore # Change to your preferred region
+    plan: free
+    rootDir: backend
+    buildCommand: pip install flask boto3 cryptography
+    startCommand: python encryption_core.py
+    envVars:
+      - key: PORT
+        value: 5002
+      - fromGroup: securevault-secrets # We will define this group in Render dashboard
+
+  # 2. Node.js Main App (Frontend + Backend)
+  - type: web
+    name: securevault-main
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: npm run render-build
+    startCommand: npm start
+    envVars:
+      - key: PYTHON_MICROSERVICE_URL
+        fromService:
+          name: securevault-python-core
+          type: web
+          property: host
+      - fromGroup: securevault-secrets

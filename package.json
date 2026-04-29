@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "render-build": "npm install && npm run build && cd backend && npm install",
+    "start": "node backend/server.js"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

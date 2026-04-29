@@ -1,0 +1,308 @@
+/* ===== FEATURES PAGE ===== */
+.feat-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-main);
+}
+
+/* ── Navbar ── */
+.feat-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 80px;
+  background: rgba(6, 3, 15, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--color-outline);
+}
+
+.feat-nav-logo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  color: #fff;
+}
+
+.feat-nav-links {
+  display: flex;
+  gap: 32px;
+}
+
+.feat-nav-link {
+  color: var(--color-text-dim);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.25s;
+  position: relative;
+  padding: 4px 0;
+}
+
+.feat-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  transition: width 0.3s;
+}
+
+.feat-nav-link:hover,
+.feat-nav-link.active {
+  color: #fff;
+}
+
+.feat-nav-link:hover::after,
+.feat-nav-link.active::after {
+  width: 100%;
+}
+
+.feat-nav-cta {
+  display: flex;
+  gap: 12px;
+}
+
+.feat-btn-ghost {
+  padding: 10px 24px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: transparent;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.feat-btn-ghost:hover {
+  border-color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.05);
+}
+
+.feat-btn-solid {
+  padding: 10px 24px;
+  border-radius: 9999px;
+  border: none;
+  background: #fff;
+  color: #000;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.feat-btn-solid:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.feat-btn-lg {
+  padding: 14px 36px;
+  font-size: 16px;
+}
+
+/* ── Hero ── */
+.feat-hero {
+  position: relative;
+  text-align: center;
+  padding: 120px 2rem 80px;
+  overflow: hidden;
+}
+
+.feat-hero-bg-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: clamp(80px, 15vw, 220px);
+  font-weight: 900;
+  color: rgba(124, 58, 237, 0.03);
+  white-space: nowrap;
+  pointer-events: none;
+  letter-spacing: -0.05em;
+}
+
+.feat-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 99px;
+  background: var(--color-primary-dim);
+  border: 1px solid var(--color-primary-glow);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-primary-fixed);
+  margin-bottom: 24px;
+}
+
+.feat-hero-title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  letter-spacing: -0.03em;
+}
+
+.feat-hero-sub {
+  max-width: 680px;
+  margin: 0 auto;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-text-dim);
+}
+
+/* ── Section ── */
+.feat-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 2rem;
+}
+
+.feat-section-title {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 48px;
+  letter-spacing: -0.02em;
+}
+
+/* ── Feature Cards ── */
+.feat-card-icon {
+  font-size: 36px;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 0 12px var(--color-primary-glow));
+}
+
+.feat-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+.feat-card-desc {
+  font-size: 14px;
+  color: var(--color-text-dim);
+  line-height: 1.65;
+  margin-bottom: 20px;
+}
+
+.feat-card-stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.feat-stat-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(124, 58, 237, 0.08);
+  border: 1px solid rgba(124, 58, 237, 0.15);
+}
+
+.feat-stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-on-surface-variant);
+}
+
+.feat-stat-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary-fixed);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* ── Use Cases ── */
+.feat-usecases {
+  text-align: center;
+}
+
+.feat-usecase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.feat-usecase-card {
+  background: rgba(20, 16, 42, 0.6);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  text-align: left;
+  transition: all 0.35s ease;
+}
+
+.feat-usecase-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(124, 58, 237, 0.15);
+}
+
+.feat-usecase-icon {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.feat-usecase-card h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.feat-usecase-card p {
+  font-size: 14px;
+  color: var(--color-text-dim);
+  line-height: 1.6;
+}
+
+/* ── CTA ── */
+.feat-cta {
+  text-align: center;
+  padding: 100px 2rem;
+  position: relative;
+}
+
+.feat-cta h2 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.feat-cta p {
+  color: var(--color-text-dim);
+  margin-bottom: 32px;
+  font-size: 16px;
+}
+
+/* ── Footer ── */
+.feat-footer {
+  text-align: center;
+  padding: 32px 2rem;
+  border-top: 1px solid var(--color-outline);
+  color: var(--color-on-surface-variant);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .feat-nav { padding: 16px 20px; }
+  .feat-nav-links { display: none; }
+  .feat-hero { padding: 80px 1.5rem 60px; }
+}

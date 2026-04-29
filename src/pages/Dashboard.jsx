@@ -5,18 +5,54 @@ import { TiltCard } from '../components/animations/TiltCard';
 import { SpotlightCard } from '../components/ui/SpotlightCard';
 
 const Dashboard = () => {
-  const stats = [
-    { title: 'Encrypted Messages', value: '1,248', icon: <Lock size={24} color="var(--color-primary)" />, trend: '+12% this week', trendColor: 'var(--color-primary)' },
-    { title: 'Secured Volumes', value: '342', icon: <FileLock2 size={24} color="var(--color-secondary)" />, trend: '+5% this week', trendColor: 'var(--color-primary)' },
-    { title: 'AI Scans Run', value: '89', icon: <ShieldAlert size={24} color="var(--color-danger)" />, trend: '2 threats detected', trendColor: 'var(--color-danger)' },
-  ];
+  const [stats, setStats] = React.useState([
+    { title: 'Encrypted Messages', value: '...', icon: <Lock size={24} color="var(--color-primary)" />, trend: 'Loading...', trendColor: 'var(--color-primary)' },
+    { title: 'Secured Volumes', value: '...', icon: <FileLock2 size={24} color="var(--color-secondary)" />, trend: 'Loading...', trendColor: 'var(--color-primary)' },
+    { title: 'AI Scans Run', value: '...', icon: <ShieldAlert size={24} color="var(--color-danger)" />, trend: 'Loading...', trendColor: 'var(--color-danger)' },
+  ]);
 
-  const activities = [
-    { action: 'Steganography payload generated', target: 'confidential_q3.png', time: '2 hours ago', status: 'Success' },
-    { action: 'Message encrypted via KMS', target: 'Project Alpha Details', time: '5 hours ago', status: 'Success' },
-    { action: 'AI Scan detected anomaly', target: 'suspicious_file.jpg', time: '1 day ago', status: 'Flagged' },
-    { action: 'New vault access authorized', target: 'Agent Smith', time: '2 days ago', status: 'Success' },
-  ];
+  const [activities, setActivities] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [username, setUsername] = React.useState('Operator');
+
+  React.useEffect(() => {
+    // Get stored user info
+    const stored = localStorage.getItem('sv_user');
+    if (stored) {
+      try {
+        const user = JSON.parse(stored);
+        setUsername(user.username || user.email?.split('@')[0] || 'Operator');
+      } catch (e) { /* ignore */ }
+    }
+
+    const fetchStats = async () => {
+      try {
+        const res = await fetch('/api/stats/dashboard');
+        const data = await res.json();
+        if (data.success) {
+          // Re-inject icons into stats
+          const statsWithIcons = data.stats.map((s, i) => ({
+            ...s,
+            icon: i === 0 ? <Lock size={24} color="var(--color-primary)" /> : 
+                  i === 1 ? <FileLock2 size={24} color="var(--color-secondary)" /> : 
+                  <ShieldAlert size={24} color="var(--color-danger)" />
+          }));
+          setStats(statsWithIcons);
+          setActivities(data.activities);
+        }
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+
+    // LISTEN FOR EXTERNAL UPDATES (FROM RAVAN)
+    window.addEventListener('ravan-data-changed', fetchStats);
+    return () => window.removeEventListener('ravan-data-changed', fetchStats);
+  }, []);
 
   const featureCards = [
     { 
@@ -59,7 +95,7 @@ const Dashboard = () => {
     <div style={{ padding: '2.5rem' }}>
       <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-          <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', fontFamily: 'var(--font-display)' }}>Operator Console</h1>
+          <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', fontFamily: 'var(--font-display)' }}>Welcome, <span className="text-neon">{username}</span></h1>
           <p className="text-dim">Global vault synchronization complete.</p>
         </motion.div>
         
@@ -92,7 +128,7 @@ const Dashboard = () => {
       </motion.section>
 
       {/* Layout Grid for Activity and Feature Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', alignItems: 'stretch' }}>
         
         {/* Activity Timeline */}
         <motion.section initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="card h-full">
@@ -105,7 +141,11 @@ const Dashboard = () => {
             {activities.map((act, i) => (
               <SpotlightCard key={i} glowColor="blue" size="sm" customSize={true} width="100%" style={{ marginBottom: i !== activities.length - 1 ? '1rem' : 0, padding: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.5rem' }}>
-                  <div className={`status-orb ${act.status === 'Flagged' ? 'status-orb--danger' : 'status-orb--active'}`} style={{ marginTop: '6px' }}></div>
+                  <div className={`status-orb ${
+                    act.status === 'Flagged' || act.status === 'Critical' ? 'status-orb--danger' : 
+                    act.status === 'Safe' ? 'status-orb--success' : 
+                    'status-orb--active'
+                  }`} style={{ marginTop: '6px' }}></div>
                   <div style={{ flex: 1 }}>
                     <p style={{ margin: '0 0 0.25rem 0', fontWeight: 500, fontSize: '0.9375rem' }}>{act.action}</p>
                     <p className="text-dim" style={{ fontSize: '0.8125rem', margin: 0 }}>
@@ -117,8 +157,12 @@ const Dashboard = () => {
                     <span style={{
                       fontSize: '0.6875rem', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)',
                       fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em',
-                      background: act.status === 'Flagged' ? 'var(--color-danger-bg)' : 'var(--color-success-bg)',
-                      color: act.status === 'Flagged' ? 'var(--color-danger)' : 'var(--color-success)',
+                      background: (act.status === 'Flagged' || act.status === 'Critical') ? 'var(--color-danger-bg)' : 
+                                 act.status === 'Safe' ? 'var(--color-success-bg)' : 
+                                 'var(--color-success-bg)',
+                      color: (act.status === 'Flagged' || act.status === 'Critical') ? 'var(--color-danger)' : 
+                             act.status === 'Safe' ? 'var(--color-success)' : 
+                             'var(--color-success)',
                     }}>
                       {act.status}
                     </span>
@@ -135,12 +179,13 @@ const Dashboard = () => {
             {featureCards.map((m, i) => (
               <TiltCard key={i} tiltStrength={5}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                   <div className={m.hoverClass} style={{ 
-                     marginTop: '4px', color: m.color,
-                     width: '40px', height: '40px', borderRadius: 'var(--radius-md)',
-                     background: `${m.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                     border: `1px solid ${m.color}30`, flexShrink: 0,
-                   }}>
+                  <div className={m.hoverClass} style={{ 
+                    marginTop: '4px', color: m.color,
+                    width: '44px', height: '44px', borderRadius: '14px',
+                    background: `${m.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    border: `1px solid ${m.color}25`, flexShrink: 0,
+                    boxShadow: `0 0 15px ${m.color}10`
+                  }}>
                      {m.icon}
                    </div>
                    <div>

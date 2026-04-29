@@ -1,17 +1,39 @@
 import React from 'react';
-import { Download, Cloud, Eye, Trash2, HardDrive } from 'lucide-react';
+import { Download, Cloud, Eye, Trash2, HardDrive, FileKey, Unlock } from 'lucide-react';
 
 const Files = () => {
-  const files = [
-    { id: 1, name: 'project_alpha_specs.jpg', date: '2026-04-02', status: 'Stego', size: '2.4 MB', type: 'image/jpeg' },
-    { id: 2, name: 'financials_q1.png', date: '2026-04-01', status: 'Encrypted', size: '1.1 MB', type: 'image/png' },
-    { id: 3, name: 'server_architecture.jpg', date: '2026-03-28', status: 'Clean', size: '3.8 MB', type: 'image/jpeg' },
-    { id: 4, name: 'agent_dossier.png', date: '2026-03-25', status: 'Stego', size: '4.2 MB', type: 'image/png' },
-  ];
+  const [files, setFiles] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchAssets = async () => {
+      try {
+        const res = await fetch('/api/encrypt/list');
+        const data = await res.json();
+        if (data.success) {
+          setFiles(data.assets.map(a => ({
+            id: a.id,
+            name: a.target,
+            date: new Date(a.createdAt).toLocaleDateString(),
+            status: a.action === 'ENCRYPT_FILE' ? 'Encrypted File' : 'Sealed Msg',
+            size: a.status, // Using status as a metadata field
+            type: a.action,
+            ciphertext: a.ciphertext,
+            sealedKey: a.sealedKey,
+            iv: a.iv
+          })));
+        }
+      } catch (err) {
+        console.error('Vault Fetch Failure:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAssets();
+  }, []);
 
   const getStatusStyles = (status) => {
-    if (status === 'Stego') return { bg: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: 'rgba(255,180,171,0.2)' };
-    if (status === 'Encrypted') return { bg: 'var(--color-success-bg)', color: 'var(--color-primary)', border: 'rgba(57,255,20,0.2)' };
+    if (status.includes('Sealed')) return { bg: 'var(--color-success-bg)', color: 'var(--color-primary)', border: 'rgba(57,255,20,0.2)' };
     return { bg: 'rgba(133,150,124,0.1)', color: 'var(--color-text-dim)', border: 'rgba(133,150,124,0.2)' };
   };
 
@@ -20,11 +42,11 @@ const Files = () => {
       <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
         <div>
           <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Secured Vault</h1>
-          <p className="text-dim">Manage your encrypted files and stego-images stored on AWS S3.</p>
+          <p className="text-dim">Manage your encrypted assets and keys stored in the AWS RDS Ledger.</p>
         </div>
         <div className="card" style={{ padding: '0.6rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Cloud size={18} color="var(--color-primary)" />
-          <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>S3 Connected</span>
+          <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>RDS Connected</span>
           <div className="status-orb status-orb--active"></div>
         </div>
       </header>
@@ -45,20 +67,21 @@ const Files = () => {
 
       {/* File Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
-        {files.map(file => {
+        {loading ? (
+          <div style={{ color: 'var(--color-primary)', textAlign: 'center', width: '100%' }}>Scanning Records...</div>
+        ) : files.map(file => {
           const statusStyle = getStatusStyles(file.status);
           return (
             <div key={file.id} className="card" style={{
               display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0,
             }}>
-              {/* Image Preview Area */}
               <div style={{
                 height: '160px',
                 background: 'var(--color-surface-container-lowest)',
                 position: 'relative',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <Eye size={28} color="var(--color-text-dim)" opacity={0.3} />
+                <FileKey size={28} color="var(--color-text-dim)" opacity={0.3} />
                 <div style={{
                   position: 'absolute', top: '0.75rem', right: '0.75rem',
                   padding: '0.2rem 0.65rem', borderRadius: 'var(--radius-full)',
@@ -75,15 +98,25 @@ const Files = () => {
                 <h4 style={{ margin: '0 0 0.5rem 0', wordBreak: 'break-all', fontSize: '1rem', fontFamily: 'var(--font-display)' }}>{file.name}</h4>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-text-dim)', fontSize: '0.8125rem', marginBottom: '1.25rem' }}>
                   <span style={{ fontFamily: 'monospace' }}>{file.date}</span>
-                  <span>{file.size}</span>
+                  <span>RDS_LEAD</span>
                 </div>
 
                 <div style={{ marginTop: 'auto', display: 'flex', gap: '0.5rem' }}>
-                  <button className="btn btn-secondary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.8125rem' }}>
-                    <Download size={14} /> Download
-                  </button>
-                  <button className="btn-icon" style={{ color: 'var(--color-danger)', padding: '0.5rem 0.75rem' }}>
-                    <Trash2 size={16} />
+                  <button 
+                    className="btn btn-secondary" 
+                    style={{ flex: 1, padding: '0.5rem', fontSize: '0.8125rem', border: '1px solid var(--color-success)', color: 'var(--color-primary)' }}
+                    onClick={() => {
+                        localStorage.setItem('sv_pending_decrypt', JSON.stringify({
+                            ciphertext: file.ciphertext,
+                            sealedKey: file.sealedKey,
+                            iv: file.iv,
+                            assetId: file.id,
+                            assetName: file.name
+                        }));
+                        window.location.hash = '#/decrypt';
+                    }}
+                  >
+                    <Unlock size={14} /> Unseal Asset
                   </button>
                 </div>
               </div>

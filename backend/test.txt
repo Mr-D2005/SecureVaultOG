@@ -1,0 +1,26 @@
+ Volume in drive C is Windows
+ Volume Serial Number is 90C6-01AA
+
+ Directory of c:\Users\hp\Desktop\SecureVaultOG\backend
+
+07-04-2026  21:02    <DIR>          .
+07-04-2026  00:32    <DIR>          ..
+07-04-2026  00:59             4,757 aws_infrastructure_deploy.py
+07-04-2026  00:49             2,317 aws_provision.py
+07-04-2026  00:55             1,630 aws_provision_asymmetric.py
+07-04-2026  15:42               665 config.env
+06-04-2026  21:06    <DIR>          controllers
+07-04-2026  15:59             6,340 encryption_core.py
+06-04-2026  21:06    <DIR>          models
+06-04-2026  21:23    <DIR>          node_modules
+06-04-2026  21:35           116,102 package-lock.json
+06-04-2026  21:35               477 package.json
+07-04-2026  15:26    <DIR>          routes
+07-04-2026  16:56             1,734 server.js
+07-04-2026  21:02                 0 test.txt
+06-04-2026  23:35               970 test_kms.js
+06-04-2026  21:05               504 test_mail.js
+07-04-2026  00:36               269 test_request.py
+07-04-2026  20:42    <DIR>          utils
+              12 File(s)        135,765 bytes
+               7 Dir(s)  16,691,916,800 bytes free

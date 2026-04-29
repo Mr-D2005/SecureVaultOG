@@ -152,6 +152,21 @@ const Landing = () => {
       icon: '🤖',
       title: 'AI Steganalysis',
       description: 'Advanced machine learning models analyze incoming payloads for hidden threats instantly.',
+    },
+    {
+      icon: '🛡️',
+      title: 'Threat Intelligence',
+      description: 'Sentinel AI scans URLs for phishing, analyses threat infrastructure, and deploys TCP tarpits against attackers.',
+    },
+    {
+      icon: '🧠',
+      title: 'Ravan AI Assistant',
+      description: 'Voice-enabled neural interface that orchestrates every vault operation through natural language commands.',
+    },
+    {
+      icon: '☁️',
+      title: 'Secure Cloud Pipeline',
+      description: 'End-to-end encrypted pipeline from browser to AWS S3 with KMS envelope encryption and presigned URLs.',
     }
   ];
 
@@ -323,12 +338,14 @@ const Landing = () => {
             </p>
             <ul className="lp-security-list">
               {[
-                'AES-256-GCM + RSA-4096 dual-layer encryption',
+                'AES-256-CBC + AWS KMS envelope encryption',
                 'LSB steganography with randomised pixel selection',
-                'On-device ML anomaly detector (TensorFlow Lite)',
-                'AWS KMS envelope key management',
-                'End-to-end encrypted image pipeline',
-                'Real-time stego-attack detection & alerts',
+                'TensorFlow-powered AI steganalysis (99.2% accuracy)',
+                'Sentinel Threat Intel with TCP tarpit deployment',
+                'Ravan AI — voice-enabled neural security interface',
+                'End-to-end encrypted S3 cloud pipeline',
+                'Real-time threat scoring & phishing detection',
+                'Zero-knowledge architecture — we can never read your data',
               ].map((item) => (
                 <li key={item} className="lp-security-item">
                   <span className="lp-security-check">✓</span> {item}

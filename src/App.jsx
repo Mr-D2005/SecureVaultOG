@@ -10,11 +10,18 @@ import Encrypt from './pages/Encrypt';
 import Decrypt from './pages/Decrypt';
 import Steganography from './pages/Steganography';
 import Detection from './pages/Detection';
+import ThreatIntel from './pages/ThreatIntel';
+import Files from './pages/Files';
 
+import Features from './pages/Features';
+import Security from './pages/Security';
+import HowItWorks from './pages/HowItWorks';
+import Docs from './pages/Docs';
 import About from './pages/About';
 
 import Settings from './pages/Settings';
 import DashboardLayout from './components/DashboardLayout';
+import RavanAssistant from './components/RavanAssistant';
 
 import Lenis from '@studio-freight/lenis';
 import gsap from 'gsap';
@@ -65,6 +72,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/features" element={<Features />} />
+          <Route path="/security" element={<Security />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/docs" element={<Docs />} />
 
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
@@ -72,6 +83,8 @@ function App() {
             <Route path="/decrypt" element={<Decrypt />} />
             <Route path="/steganography" element={<Steganography />} />
             <Route path="/detection" element={<Detection />} />
+            <Route path="/threat-intel" element={<ThreatIntel />} />
+            <Route path="/files" element={<Files />} />
             
             <Route path="/about" element={<About />} />
             <Route path="/settings" element={<Settings />} />

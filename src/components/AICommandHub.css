@@ -1,0 +1,126 @@
+.ai-command-hub {
+  width: 350px;
+  background: rgba(10, 11, 20, 0.95);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Fira Code', 'Courier New', monospace;
+  height: 100%;
+}
+
+.ai-command-hub.minimized {
+  width: 50px;
+}
+
+.hub-header {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hub-status-light {
+  width: 8px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #10b981;
+}
+
+.hub-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.1em;
+  flex: 1;
+}
+
+.hub-terminal {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hub-msg {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.hub-msg.bot { color: #818cf8; }
+.hub-msg.user { color: #e2e8f0; }
+
+.hub-msg-tag {
+  font-weight: 700;
+  margin-right: 0.5rem;
+  opacity: 0.5;
+}
+
+.hub-input-area {
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.hub-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.75rem;
+  color: white;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  outline: none;
+}
+
+.hub-input:focus {
+  border-color: #818cf8;
+  background: rgba(129, 140, 248, 0.05);
+}
+
+.hub-staging {
+  padding: 1rem;
+  background: rgba(129, 140, 248, 0.1);
+  border-top: 1px solid rgba(129, 140, 248, 0.2);
+}
+
+.staging-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #818cf8;
+  margin-bottom: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.staging-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.staging-actions button {
+  flex: 1;
+  padding: 0.4rem;
+  font-size: 0.75rem;
+  background: #818cf8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.blink {
+  animation: hubBlink 1s infinite;
+}
+
+@keyframes hubBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

@@ -1,10 +1,11 @@
-<<<<<<< HEAD
+# Dependencies
 node_modules
 dist
+dist-ssr
 .env
+config.env
 .vite
-.DS_Store
-=======
+
 # Logs
 logs
 *.log
@@ -13,11 +14,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
 
 # Editor directories and files
 .vscode/*
@@ -29,4 +25,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
->>>>>>> 1ed3295 (Initial commit - SecureVault)
+

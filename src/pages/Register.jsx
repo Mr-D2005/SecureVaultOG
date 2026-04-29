@@ -10,23 +10,48 @@ const Register = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [error, setError] = useState('');
 
   const handleNext = (e) => {
     e.preventDefault();
+    if (!username.trim()) { setError('Codename is required'); return; }
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError('Valid email is required'); return; }
+    setError('');
     setStep(2);
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
+    if (!passwordsMatch || strength < 50) return;
     setLoading(true);
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 2000);
+    setError('');
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
+      });
+      const data = await res.json();
+      setLoading(false);
+      if (res.ok && data.token) {
+        localStorage.setItem('sv_token', data.token);
+        localStorage.setItem('sv_user', JSON.stringify(data.user));
+        navigate('/dashboard');
+      } else {
+        setError(data.msg || 'Registration failed. Please try again.');
+        setStep(1);
+      }
+    } catch (err) {
+      setLoading(false);
+      setError('Cannot connect to server. Please ensure the backend is running.');
+    }
   };
 
   const getStrength = (pass) => {
@@ -97,11 +122,13 @@ const Register = () => {
         <AnimatePresence mode="wait">
           {step === 1 ? (
             <motion.form key="step1" onSubmit={handleNext} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
+              {error && <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', padding: '0.75rem 1rem', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1rem' }}>{error}</div>}
+
               <div className="input-group" style={{ marginBottom: '1.5rem' }}>
                 <label>Master Codename</label>
                 <div style={{ position: 'relative' }}>
                   <User size={16} className="icon-cyber" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-dim)' }} />
-                  <input type="text" className="input-control" placeholder="operator_7" style={{ paddingLeft: '2.5rem', background: 'rgba(0,0,0,0.3)' }} required />
+                  <input type="text" className="input-control" placeholder="operator_7" style={{ paddingLeft: '2.5rem', background: 'rgba(0,0,0,0.3)' }} value={username} onChange={(e) => { setUsername(e.target.value); setError(''); }} required />
                 </div>
               </div>
 
@@ -109,7 +136,7 @@ const Register = () => {
                 <label>Secure Email</label>
                 <div style={{ position: 'relative' }}>
                   <Mail size={16} className="icon-cyber" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-dim)' }} />
-                  <input type="email" className="input-control" placeholder="operator@securevault.io" style={{ paddingLeft: '2.5rem', background: 'rgba(0,0,0,0.3)' }} required />
+                  <input type="email" className="input-control" placeholder="operator@securevault.io" style={{ paddingLeft: '2.5rem', background: 'rgba(0,0,0,0.3)' }} value={email} onChange={(e) => { setEmail(e.target.value); setError(''); }} required />
                 </div>
               </div>
 
@@ -119,9 +146,10 @@ const Register = () => {
             </motion.form>
           ) : (
             <motion.form key="step2" onSubmit={handleRegister} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-              <button type="button" onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'var(--color-text-dim)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
+              <button type="button" onClick={() => { setStep(1); setError(''); }} style={{ background: 'none', border: 'none', color: 'var(--color-text-dim)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
                 <ArrowLeft size={16} /> Back
               </button>
+              {error && <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', padding: '0.75rem 1rem', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1rem' }}>{error}</div>}
 
               <div className="input-group" style={{ marginBottom: '1.25rem' }}>
                 <label>Master Password</label>

@@ -81,19 +81,27 @@ const ForgotPassword = () => {
   };
 
   // ===== STEP 1: Send email =====
-  const handleSendEmail = (e) => {
+  const handleSendEmail = async (e) => {
     e.preventDefault();
     setEmailError('');
     if (!email) { setEmailError('Email address is required'); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailError('Please enter a valid email address'); return; }
 
     setEmailLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
       setEmailLoading(false);
-      // Always succeed (security pattern: don't reveal if email exists)
+      // Always advance (don't reveal if email exists - backend does this too)
       goToStep(1);
       setResendTimer(60);
-    }, 1200);
+    } catch (err) {
+      setEmailLoading(false);
+      setEmailError('Cannot connect to server. Please ensure the backend is running.');
+    }
   };
 
   // ===== STEP 2: OTP Input =====
@@ -122,54 +130,84 @@ const ForgotPassword = () => {
     otpRefs.current[focusIdx].current?.focus();
   };
 
-  const handleVerifyOtp = () => {
+  const handleVerifyOtp = async () => {
     const code = otp.join('');
     if (code.length < 6) {
       setOtpError('Please enter the complete 6-digit code');
       return;
     }
     setOtpLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp: code }),
+      });
+      const data = await res.json();
       setOtpLoading(false);
-      // Demo: "123456" is valid code
-      if (code === '123456') {
+      if (res.ok) {
         setOtpSuccess(true);
         setTimeout(() => {
           goToStep(2);
           setOtpSuccess(false);
         }, 1000);
       } else {
-        setOtpError('Invalid verification code. Please try again.');
+        setOtpError(data.msg || 'Invalid verification code. Please try again.');
         setOtp(Array(6).fill(''));
         setOtpShake(true);
         setTimeout(() => setOtpShake(false), 600);
         otpRefs.current[0].current?.focus();
       }
-    }, 1000);
+    } catch (err) {
+      setOtpLoading(false);
+      setOtpError('Cannot connect to server. Please ensure the backend is running.');
+    }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (resendTimer > 0 || resendCount >= 3) return;
     setResendCount(c => c + 1);
     setResendTimer(60);
     setOtp(Array(6).fill(''));
     setOtpError('');
+    // Re-send the recovery email
+    try {
+      await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+    } catch (err) { /* silent fail */ }
   };
 
   // ===== STEP 3: Reset Password =====
   const strength = getPasswordStrength(newPassword);
   const passwordsMatch = newPassword && confirmPassword && newPassword === confirmPassword;
 
-  const handleResetPassword = (e) => {
+  const handleResetPassword = async (e) => {
     e.preventDefault();
     if (strength.score < 2) return;
     if (!passwordsMatch) return;
 
     setResetLoading(true);
-    setTimeout(() => {
+    try {
+      const code = otp.join('');
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp: code, newPassword }),
+      });
+      const data = await res.json();
       setResetLoading(false);
-      setResetSuccess(true);
-    }, 1500);
+      if (res.ok) {
+        setResetSuccess(true);
+      } else {
+        alert(data.msg || 'Reset failed. Please try again.');
+      }
+    } catch (err) {
+      setResetLoading(false);
+      alert('Cannot connect to server. Please ensure the backend is running.');
+    }
   };
 
   // Animation variants
