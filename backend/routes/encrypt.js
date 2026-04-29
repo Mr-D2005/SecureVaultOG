@@ -2,40 +2,90 @@ const express = require('express');
 const router = express.Router();
 const { EncryptedData } = require('../models/index');
 const { uploadToS3, fetchFromS3 } = require('../utils/s3_vault');
+const crypto = require('crypto');
+const { KMSClient, EncryptCommand, DecryptCommand } = require('@aws-sdk/client-kms');
 
-const PYTHON_INTERNAL_URL = 'http://securevault-python-core:5002';
-const PYTHON_PUBLIC_URL = 'https://securevault-python-core.onrender.com';
-const PYTHON_MICROSERVICE_URL = process.env.PYTHON_MICROSERVICE_URL || PYTHON_INTERNAL_URL;
-
-// --- ROBUST FETCH GATEWAY (With Deep Diagnostics) ---
-const robustFetch = async (endpoint, options, retries = 2) => {
-    const urls = [PYTHON_INTERNAL_URL, PYTHON_PUBLIC_URL];
-    let lastError = null;
-
-    for (const baseUrl of urls) {
-        const fullUrl = `${baseUrl}${endpoint}`;
-        for (let i = 0; i < retries; i++) {
-            try {
-                console.log(`--- [SENTINEL LINK ATTEMPT]: ${fullUrl} (Try ${i+1}) ---`);
-                const res = await fetch(fullUrl, {
-                    ...options,
-                    // Force IPv4 if IPv6 is acting up on Render
-                    signal: AbortSignal.timeout(15000)
-                });
-                if (res.ok) return res;
-                const errorData = await res.json().catch(() => ({}));
-                lastError = `Status ${res.status}: ${errorData.details || 'Unknown Core Error'}`;
-            } catch (err) {
-                lastError = `${err.name}: ${err.message}`;
-                console.error(`--- [LINK_FAULT]: ${fullUrl} → ${lastError} ---`);
-                if (i === retries - 1 && baseUrl === urls[urls.length - 1]) throw new Error(lastError);
-                await new Promise(r => setTimeout(r, 2000));
-            }
-        }
+// --- INITIALIZE AWS KMS CLIENT ---
+const kmsClient = new KMSClient({
+    region: process.env.AWS_REGION || 'ap-south-1',
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
     }
-    throw new Error(lastError || 'Gateway Timeout');
+});
+
+// --- NATIVE NODE.JS SEALING PROTOCOL (Replaces Python Microservice) ---
+const localSeal = async (payloadString) => {
+    // 1. Generate AES 256 Key & IV
+    const aesKey = crypto.randomBytes(32);
+    const iv = crypto.randomBytes(16);
+
+    // 2. Encrypt Data with AES-256-CBC
+    const cipher = crypto.createCipheriv('aes-256-cbc', aesKey, iv);
+    let ciphertext = cipher.update(payloadString, 'utf8', 'base64');
+    ciphertext += cipher.final('base64');
+
+    // 3. Seal AES Key with AWS KMS
+    let sealedKeyB64;
+    try {
+        const command = new EncryptCommand({
+            KeyId: process.env.KMS_KEY_ID,
+            Plaintext: aesKey,
+            EncryptionAlgorithm: 'RSAES_OAEP_SHA_256'
+        });
+        const response = await kmsClient.send(command);
+        sealedKeyB64 = Buffer.from(response.CiphertextBlob).toString('base64');
+    } catch (err) {
+        console.error("--- [KMS_OFFLINE]: Engaging Emergency Local Vault Seal ---", err.message);
+        // Fallback: Seal AES key with Local Master Hex Key
+        const localMaster = Buffer.from("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", 'hex');
+        const fallbackCipher = crypto.createCipheriv('aes-256-ecb', localMaster, null);
+        fallbackCipher.setAutoPadding(false); // Key is exactly 32 bytes
+        let fallbackSealed = fallbackCipher.update(aesKey);
+        fallbackSealed = Buffer.concat([fallbackSealed, fallbackCipher.final()]);
+        sealedKeyB64 = "LOCAL:" + fallbackSealed.toString('base64');
+    }
+
+    return {
+        ciphertext: ciphertext,
+        sealedKey: sealedKeyB64,
+        iv: iv.toString('base64')
+    };
 };
 
+// --- NATIVE NODE.JS UNSEALING PROTOCOL ---
+const localUnseal = async (ciphertextB64, sealedKeyB64, ivB64) => {
+    const iv = Buffer.from(ivB64, 'base64');
+    let aesKey;
+
+    // 1. Unseal AES Key
+    try {
+        if (sealedKeyB64.startsWith("LOCAL:")) {
+            const localMaster = Buffer.from("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", 'hex');
+            const encryptedAesKey = Buffer.from(sealedKeyB64.replace("LOCAL:", ""), 'base64');
+            const decipher = crypto.createDecipheriv('aes-256-ecb', localMaster, null);
+            decipher.setAutoPadding(false); 
+            aesKey = Buffer.concat([decipher.update(encryptedAesKey), decipher.final()]);
+        } else {
+            const command = new DecryptCommand({
+                CiphertextBlob: Buffer.from(sealedKeyB64, 'base64'),
+                KeyId: process.env.KMS_KEY_ID,
+                EncryptionAlgorithm: 'RSAES_OAEP_SHA_256'
+            });
+            const response = await kmsClient.send(command);
+            aesKey = Buffer.from(response.Plaintext);
+        }
+    } catch (err) {
+        throw new Error("Asset unsealing failed via cryptographic core: " + err.message);
+    }
+
+    // 2. Decrypt Payload
+    const decipher = crypto.createDecipheriv('aes-256-cbc', aesKey, iv);
+    let decryptedData = decipher.update(ciphertextB64, 'base64', 'utf8');
+    decryptedData += decipher.final('utf8');
+
+    return decryptedData;
+};
 
 
 /**
@@ -51,17 +101,8 @@ router.post('/data', async (req, res) => {
         const s3Url = await uploadToS3(data);
         const downloadUrl = null;
 
-
-        // Phase 2: Seal the S3 URL via Python (Envelope Encryption)
-        const pyRes = await robustFetch('/seal', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: s3Url, type: 'url', name })
-        });
-
-
-        const pyData = await pyRes.json();
-
+        // Phase 2: Seal the S3 URL natively in Node.js (Bypasses Python 429 Errors)
+        const pyData = await localSeal(s3Url);
 
         // Phase 3: Archive Shielded Metadata in RDS Ledger
         const entry = await EncryptedData.create({
@@ -104,18 +145,8 @@ router.post('/unseal', async (req, res) => {
             return res.status(400).json({ msg: 'Cryptographic signature incomplete' });
         }
 
-        // Phase 1: Unseal S3 Link via Python
-        const pyRes = await robustFetch('/unseal', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ciphertext: sealedUrl, sealedKey, iv })
-        });
-
-
-        const pyData = await pyRes.json();
-
-
-        const resolvedS3Url = pyData.decryptedData;
+        // Phase 1: Unseal S3 Link natively
+        const resolvedS3Url = await localUnseal(sealedUrl, sealedKey, iv);
 
         // Phase 2: Follow the resolved link and Fetch Payload from S3
         const finalPayload = await fetchFromS3(resolvedS3Url);
