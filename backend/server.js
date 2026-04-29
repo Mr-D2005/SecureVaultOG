@@ -48,23 +48,22 @@ app.get('/api/health/aws', async (req, res) => {
     AWS_REGION: process.env.AWS_REGION || 'NOT_SET',
     HAS_ACCESS_KEY: !!process.env.AWS_ACCESS_KEY_ID,
     HAS_SECRET_KEY: !!process.env.AWS_SECRET_ACCESS_KEY,
-    S3_BUCKET: process.env.AWS_S3_BUCKET || 'secvaults3'
+    S3_BUCKET: process.env.AWS_S3_BUCKET || 'secvaults3',
+    HAS_JWT_SECRET: !!process.env.JWT_SECRET,
+    HAS_GROQ_KEY: !!process.env.GROQ_API_KEY
   };
 
   try {
-    const { sequelize } = require('./models/index');
+    const { sequelize, ThreatScan } = require('./models/index');
     await sequelize.authenticate();
-    diagnostics.rds = 'CONNECTED';
-  } catch (e) {
-    diagnostics.rds = `FAILED: ${e.message}`;
-  }
-
-  try {
-    const { sequelize } = require('./models/index');
-    await sequelize.authenticate();
+    
+    // Scan Tables
+    const [results] = await sequelize.query("SHOW TABLES");
+    diagnostics.tables = results.map(r => Object.values(r)[0]);
+    
     // Test Write: Create a temporary diagnostic entry
-    // (Assuming there is a table we can write to, like ThreatScan)
     diagnostics.rds = 'CONNECTED (READ_ONLY)';
+
     const { ThreatScan } = require('./models/index');
     const testEntry = await ThreatScan.create({ 
       targetUrl: 'DIAGNOSTIC_PROBE', 
