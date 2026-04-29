@@ -14,10 +14,18 @@ const sequelize = new Sequelize(
     dialectOptions: {
       ssl: {
         rejectUnauthorized: false
-      }
+      },
+      connectTimeout: 60000 // 60s timeout for initial connection
+    },
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
     }
   }
 );
+
 
 // --- User Model ---
 const User = sequelize.define('User', {

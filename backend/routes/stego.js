@@ -32,12 +32,13 @@ router.post('/inject', async (req, res) => {
         // Execute Deep Bind
         const finalBuffer = await injectPayload(carrierBuffer, payloadBuffer, password);
 
-        // --- Log Activity ---
-        await EncryptedData.create({
+        // --- Log Activity (Non-blocking) ---
+        EncryptedData.create({
             action: 'STEGO_INJECT',
             target: carrierName || 'Media Carrier',
             status: 'VERIFIED'
-        });
+        }).catch(err => console.error('Logging failed:', err.message));
+
 
         // Send back the modified media directly for download
         res.set({
@@ -123,12 +124,13 @@ router.post('/extract', async (req, res) => {
         const meta = payloadString.substring(0, sepIdx);
         const rawDataBuffer = decryptedPayload.subarray(sepIdx + 1);
 
-        // --- Log Activity ---
-        await EncryptedData.create({
+        // --- Log Activity (Non-blocking) ---
+        EncryptedData.create({
             action: 'STEGO_EXTRACT',
             target: carrierName || 'Forensic Target',
             status: aiAnalysis.isSVStego ? 'Active' : 'Flagged'
-        });
+        }).catch(err => console.error('Logging failed:', err.message));
+
 
         if (meta.startsWith('FILE:')) {
             res.json({
