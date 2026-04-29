@@ -15,9 +15,12 @@ const ravanRoutes = require('./routes/ravan');
 const threatRoutes = require('./routes/threat');
 
 const app = express();
+
+// --- CRITICAL MIDDLEWARE (TOP PRIORITY) ---
 app.use(cors());
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
+
 
 // --- API ROUTES ---
 app.use('/api/auth', authRoutes);

@@ -197,8 +197,9 @@ router.post('/deploy-tarpit', async (req, res) => {
   
   activeTraps.set(trapId, { timestamp: Date.now(), connections: 0, hits: 0 });
 
-  const fullTrapUrl = `${req.protocol}://${req.get('host')}${trapUrl}`;
+  const fullTrapUrl = `https://${req.get('host')}${trapUrl}`;
   const payload = { status: 'NEUTRALIZED', trapUrl: fullTrapUrl };
+
   
   try {
     if (scanId) {
