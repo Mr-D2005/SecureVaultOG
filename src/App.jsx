@@ -13,6 +13,7 @@ import Detection from './pages/Detection';
 import ThreatIntel from './pages/ThreatIntel';
 import Files from './pages/Files';
 import USBLab from './pages/USBLab';
+import SystemShield from './pages/SystemShield';
 
 import Features from './pages/Features';
 import Security from './pages/Security';
