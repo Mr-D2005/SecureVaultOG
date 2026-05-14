@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "render-build": "npm install && npm run build && cd backend && npm install",
+    "render-build": "npm install && npm run build && cd backend && npm install && pip install -r requirements.txt",
     "start": "node backend/server.js"
   },
   "dependencies": {
