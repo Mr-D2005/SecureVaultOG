@@ -8,14 +8,25 @@ const usbController = require('../controllers/usb_agent_controller');
  */
 router.get('/audit', usbController.performFullUsbAudit);
 
+// --- CLOUD SYNC ENGINE ---
+let latestExternalReport = null;
+
 /**
- * @route   POST /api/usb-lab/remediate
- * @desc    Executes cleaning/formatting actions (Handled by Agent Purifier)
+ * @route   POST /api/usb-lab/external-report
+ * @desc    Receives forensic data from local sentinel bridge
  */
-router.post('/remediate', (req, res) => {
-    // Logic for actual file deletion would go here, 
-    // calling the Python bridge's cleanup functions.
-    res.json({ success: true, message: "Remediation command issued to hardware." });
+router.post('/external-report', (req, res) => {
+    console.log("--- [EXTERNAL_FORENSIC_DATA_RECEIVED] ---");
+    latestExternalReport = req.body;
+    res.json({ success: true, message: "Forensic data synced. Run 'Fetch Sync' on Dashboard." });
+});
+
+/**
+ * @route   GET /api/usb-lab/latest-external
+ * @desc    Fetches the latest data pushed from local hardware
+ */
+router.get('/latest-external', (req, res) => {
+    res.json({ success: true, report: latestExternalReport });
 });
 
 module.exports = router;

@@ -84,9 +84,19 @@ const callAgent = async (agentName, usbData) => {
  */
 exports.performFullUsbAudit = async (req, res) => {
     try {
-        const rawData = await getRawUsbData();
+        let auditData;
         
-        if (!rawData.devices || rawData.devices.length === 0) {
+        // --- CASE 1: Data is pushed from the External Local Bridge (req.body) ---
+        if (req.method === 'POST' && req.body && req.body.devices) {
+            console.log("--- [PERFORMING_AUDIT_ON_SYNCED_DATA] ---");
+            auditData = req.body;
+        } 
+        // --- CASE 2: Local Hardware Check (fallback) ---
+        else {
+            auditData = await getRawUsbData();
+        }
+        
+        if (!auditData.devices || auditData.devices.length === 0) {
             return res.json({ 
                 success: true, 
                 message: "No physical USB devices detected on the bus.", 
@@ -98,14 +108,14 @@ exports.performFullUsbAudit = async (req, res) => {
 
         // Trigger all 10 agents in parallel
         const agentNames = Object.keys(AGENT_PROMPTS);
-        const auditPromises = agentNames.map(name => callAgent(name, rawData));
+        const auditPromises = agentNames.map(name => callAgent(name, auditData));
         
         const reports = await Promise.all(auditPromises);
 
         res.json({
             success: true,
             timestamp: Date.now() / 1000,
-            devices: rawData.devices,
+            devices: auditData.devices,
             reports: reports,
             is_simulated: false
         });

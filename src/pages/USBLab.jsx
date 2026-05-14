@@ -11,7 +11,9 @@ import {
   CheckCircle2,
   Lock,
   Search,
-  HardDrive
+  HardDrive,
+  Download,
+  RefreshCw
 } from 'lucide-react';
 
 const SpotlightCard = ({ children, glowColor = 'blue', style = {} }) => {
@@ -79,32 +81,62 @@ const USBLab = () => {
 
   const addLog = (msg) => setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
 
-  const handleAudit = async () => {
-    setAuditing(true);
+  const fetchExternalSync = async () => {
+    setIsScanning(true);
+    addLog("SYNC_ENGINE: Checking for data from Local Sentinel Bridge...");
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/usb-lab/latest-external`);
+      const data = await res.json();
+      
+      if (data.success && data.report) {
+        addLog("SYNC_SUCCESS: Local hardware data received from External Bridge.");
+        handleAudit(data.report);
+      } else {
+        addLog("SYNC_IDLE: No new data pushed from local bridge yet.");
+        setIsScanning(false);
+      }
+    } catch (err) {
+      addLog("SYNC_ERROR: Connection to Cloud Engine failed.");
+      setIsScanning(false);
+    }
+  };
+
+  const handleAudit = async (externalData = null) => {
+    setIsScanning(true);
     setReports([]);
-    addLog("PROBING HARDWARE: Initiating Sentinel Council Handshake...");
+    addLog("SENTINEL_COUNCIL: Initializing council handshake...");
     
     try {
-      const res = await fetch('/api/usb-lab/audit');
+      let res;
+      if (externalData) {
+        res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/usb-lab/audit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(externalData)
+        });
+      } else {
+        res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/usb-lab/audit`);
+      }
+
       const data = await res.json();
       
       if (data.success) {
         setDevices(data.devices);
         setReports(data.reports);
-        if (data.devices.length > 0) {
-          addLog(`HARDWARE_FOUND: ${data.devices.length} drive(s) detected.`);
-        } else {
-          addLog("SCAN_COMPLETE: No physical USB devices found on the bus.");
-        }
-        addLog("AUDIT_COMPLETE: All 10 Sentinels have submitted forensic reports.");
+        addLog(`HARDWARE_AUDIT_COMPLETE: ${data.devices.length} device(s) analyzed by AI.`);
       } else {
         addLog(`CRITICAL_ERROR: ${data.error}`);
       }
-    } catch (err) {
-      addLog(`CONNECTION_FAILED: Hardware bridge unresponsive. Ensure 'usb_bridge.py' is running.`);
+    } catch (error) {
+      addLog("COMM_ERROR: Failed to reach the Forensic Brain.");
     } finally {
-      setAuditing(false);
+      setIsScanning(false);
     }
+  };
+
+  const downloadBridge = () => {
+    addLog("SYSTEM: Preparing Sentinel Bridge package for local download...");
+    window.open('https://github.com/Mr-D2005/SecureVaultOG/blob/main/backend/usb_bridge.py', '_blank');
   };
 
   useEffect(() => {
