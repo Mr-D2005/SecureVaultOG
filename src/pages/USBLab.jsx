@@ -148,16 +148,9 @@ const USBLab = () => {
   }, [logs]);
 
   const agents = [
-    { id: 'HID-Shield', icon: Lock, color: 'purple' },
-    { id: 'Script-Slayer', icon: ShieldAlert, color: 'red' },
-    { id: 'Malware-Probe', icon: Search, color: 'red' },
-    { id: 'Firmware-Auditor', icon: Cpu, color: 'purple' },
-    { id: 'Siphon-Guard', icon: Zap, color: 'orange' },
-    { id: 'Bait-Analyst', icon: AlertTriangle, color: 'orange' },
-    { id: 'Integrity-Vigil', icon: HardDrive, color: 'green' },
-    { id: 'Power-Sentry', icon: Zap, color: 'red' },
-    { id: 'Stego-Scanner', icon: Search, color: 'blue' },
-    { id: 'Purifier', icon: Trash2, color: 'green' }
+    { id: 'HARDWARE_TEAM', icon: Cpu, color: 'purple' },
+    { id: 'SOFTWARE_TEAM', icon: ShieldAlert, color: 'red' },
+    { id: 'CYBER_SENTRY_TEAM', icon: Search, color: 'blue' }
   ];
 
   return (
