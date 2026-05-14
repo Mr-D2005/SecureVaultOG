@@ -86,21 +86,36 @@ exports.performFullUsbAudit = async (req, res) => {
     try {
         const rawData = await getRawUsbData();
         
+        let auditData = rawData;
+        let isSimulated = false;
+
         if (rawData.devices.length === 0) {
-            return res.json({ success: true, message: "No USB devices detected.", reports: [] });
+            isSimulated = true;
+            // Provide a HIGH THREAT simulated data payload for the agents to "Audit"
+            auditData = {
+                devices: [{ mountpoint: "VIRTUAL_VOL_SENTINEL", total: 1000000000, fstype: "FAT32" }],
+                files: [
+                    { name: "Salary_Bonus_2026.lnk", path: "VIRTUAL_VOL_SENTINEL/Salary_Bonus_2026.lnk", size: 1024, is_hidden: true },
+                    { name: "autorun.inf", path: "VIRTUAL_VOL_SENTINEL/autorun.inf", size: 128, is_hidden: true },
+                    { name: "system_driver.exe.pdf", path: "VIRTUAL_VOL_SENTINEL/system_driver.exe.pdf", size: 4500000 },
+                    { name: "hidden_vault.img", path: "VIRTUAL_VOL_SENTINEL/hidden_vault.img", size: 500000000 }
+                ],
+                is_simulated: true
+            };
         }
 
         // Trigger all 10 agents in parallel
         const agentNames = Object.keys(AGENT_PROMPTS);
-        const auditPromises = agentNames.map(name => callAgent(name, rawData));
+        const auditPromises = agentNames.map(name => callAgent(name, auditData));
         
         const reports = await Promise.all(auditPromises);
 
         res.json({
             success: true,
-            timestamp: rawData.timestamp,
-            devices: rawData.devices,
-            reports: reports
+            timestamp: Date.now() / 1000,
+            devices: auditData.devices,
+            reports: reports,
+            is_simulated: isSimulated
         });
 
     } catch (err) {
