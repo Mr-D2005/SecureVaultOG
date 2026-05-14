@@ -30,6 +30,19 @@ router.get('/gui-script', (req, res) => {
 });
 
 /**
+ * @route   GET /api/system-shield/icon
+ * @desc    Serves the SecureVault Logo (.ico) for the desktop shortcut
+ */
+router.get('/icon', (req, res) => {
+    const filePath = path.join(__dirname, '../../public/securevault_logo.ico');
+    if (fs.existsSync(filePath)) {
+        res.download(filePath, 'logo.ico');
+    } else {
+        res.status(404).json({ success: false, error: "Icon not found." });
+    }
+});
+
+/**
  * @route   GET /api/system-shield/stats
  * @desc    Returns simulated global AI protection stats
  */
