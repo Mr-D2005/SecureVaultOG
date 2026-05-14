@@ -111,6 +111,11 @@ const USBLab = () => {
     addLog("SENTINEL_COUNCIL: Initializing council handshake...");
     
     try {
+      addLog("SENTINEL_PRIME: Deploying Strike Teams to forensic data...");
+      addLog("AGENT_HARDWARE: Probing electrical signatures and Class IDs...");
+      addLog("AGENT_SOFTWARE: Decompressing file metadata and script headers...");
+      addLog("AGENT_CYBER: Analyzing psychological baiting vectors...");
+
       let res;
       if (externalData) {
         res = await fetch('/api/usb-lab/audit', {
@@ -122,17 +127,20 @@ const USBLab = () => {
         res = await fetch('/api/usb-lab/audit');
       }
 
+      if (!res.ok) throw new Error(`HTTP_${res.status}: Brain connection timeout.`);
+
       const data = await res.json();
       
       if (data.success) {
         setDevices(data.devices);
         setReports(data.reports);
-        addLog(`HARDWARE_AUDIT_COMPLETE: ${data.devices.length} device(s) analyzed by AI.`);
+        addLog("SYSTEM_CERTIFIED: All Strike Teams have submitted forensic reports.");
+        addLog(`HARDWARE_AUDIT_COMPLETE: ${data.devices.length} device(s) analyzed.`);
       } else {
         addLog(`CRITICAL_ERROR: ${data.error}`);
       }
     } catch (error) {
-      addLog("COMM_ERROR: Failed to reach the Forensic Brain.");
+      addLog(`COMM_ERROR: ${error.message}`);
     } finally {
       setAuditing(false);
     }
@@ -231,7 +239,7 @@ const USBLab = () => {
                 }}
               >
                 {auditing ? <Activity className="animate-spin" size={20} /> : <Zap size={20} />}
-                {auditing ? 'DEPLOYING_AGENTS...' : 'RUN_CLOUD_AUDIT'}
+                {auditing ? 'ANALYZING_HARDWARE...' : 'RUN_CLOUD_AUDIT'}
               </button>
             </div>
           </SpotlightCard>
