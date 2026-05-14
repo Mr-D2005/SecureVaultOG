@@ -14,7 +14,9 @@ import {
   HardDrive,
   Download,
   RefreshCw,
-  ShieldCheck
+  ShieldCheck,
+  Award,
+  Fingerprint
 } from 'lucide-react';
 
 const SpotlightCard = ({ children, glowColor = 'blue', style = {} }) => {
@@ -36,16 +38,17 @@ const SpotlightCard = ({ children, glowColor = 'blue', style = {} }) => {
     <div
       onMouseMove={handleMouseMove}
       style={{
-        position: 'relative', overflow: 'hidden', borderRadius: '16px',
-        background: 'rgba(5, 5, 10, 0.85)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        position: 'relative', overflow: 'hidden', borderRadius: '24px',
+        background: 'rgba(10, 10, 20, 0.8)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        backdropFilter: 'blur(10px)',
         ...style
       }}
     >
       <div
         style={{
           position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none',
-          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, ${colors[glowColor]}, transparent 40%)`,
+          background: `radial-gradient(800px circle at ${mousePosition.x}px ${mousePosition.y}px, ${colors[glowColor]}, transparent 40%)`,
           zIndex: 0, transition: 'background 0.3s ease'
         }}
       />
@@ -57,18 +60,19 @@ const SpotlightCard = ({ children, glowColor = 'blue', style = {} }) => {
 };
 
 const AgentCard = ({ name, status, report, icon: Icon, color }) => (
-  <SpotlightCard glowColor={color} style={{ padding: '1.25rem', height: '100%' }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-      <div style={{ background: `rgba(${color === 'red' ? '239,68,68' : color === 'green' ? '16,185,129' : '168,85,247'}, 0.1)`, padding: '0.5rem', borderRadius: '8px' }}>
-        <Icon size={18} color={color === 'red' ? '#ef4444' : color === 'green' ? '#10b981' : '#a855f7'} />
+  <SpotlightCard glowColor={color} style={{ padding: '1.5rem', height: '100%' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+      <div style={{ background: `rgba(${color === 'red' ? '239,68,68' : color === 'green' ? '16,185,129' : '0,220,156'}, 0.1)`, padding: '0.75rem', borderRadius: '12px' }}>
+        <Icon size={24} color={color === 'red' ? '#ef4444' : color === 'green' ? '#00dc9c' : '#00dc9c'} />
       </div>
-      <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 900, color: '#fff', letterSpacing: '0.5px' }}>{name.toUpperCase()}</h4>
+      {status === 'COMPLETE' && <CheckCircle2 size={18} color="#00dc9c" />}
     </div>
-    <div style={{ fontSize: '0.75rem', color: status === 'COMPLETE' ? '#10b981' : '#888', fontWeight: 700, marginBottom: '0.5rem' }}>
-      STATUS: {status}
+    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: 900, color: '#fff' }}>{name.replace('_', ' ')}</h4>
+    <div style={{ fontSize: '0.75rem', color: status === 'COMPLETE' ? '#00dc9c' : '#888', fontWeight: 800, marginBottom: '0.75rem', letterSpacing: '1px' }}>
+      {status}
     </div>
-    <p style={{ margin: 0, fontSize: '0.8rem', color: '#ccc', lineHeight: 1.4, height: '60px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
-      {report || "Awaiting audit initialization..."}
+    <p style={{ margin: 0, fontSize: '0.85rem', color: '#aaa', lineHeight: 1.6 }}>
+      {report || "Awaiting hardware synchronization..."}
     </p>
   </SpotlightCard>
 );
@@ -77,235 +81,181 @@ const USBLab = () => {
   const [auditing, setAuditing] = useState(false);
   const [devices, setDevices] = useState([]);
   const [reports, setReports] = useState([]);
-  const [logs, setLogs] = useState(["[SYSTEM] Sentinel Council initialized.", "[SYSTEM] Awaiting hardware bridge connection..."]);
+  const [logs, setLogs] = useState(["[SYSTEM] Sentinel Core Online.", "[SYSTEM] Probing for hardware bridge..."]);
+  const [lastSyncedData, setLastSyncedData] = useState(null);
   const logEndRef = useRef(null);
 
   const addLog = (msg) => setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
 
-  const [lastSyncedData, setLastSyncedData] = useState(null);
-
   const fetchExternalSync = async () => {
     setAuditing(true);
-    addLog("SYNC_ENGINE: Checking for data from Local Sentinel Bridge...");
+    addLog("SYNC_ENGINE: Handshaking with local sentinel...");
     try {
       const res = await fetch('/api/usb-lab/latest-external');
       const data = await res.json();
       
       if (data.success && data.report) {
-        addLog("SYNC_SUCCESS: Local hardware data received.");
-        setLastSyncedData(data.report); 
+        addLog("SYNC_SUCCESS: Forensic data securely received.");
+        setLastSyncedData(data.report);
         setDevices(data.report.devices || []);
         if (data.report.actions_taken && data.report.actions_taken.length > 0) {
           data.report.actions_taken.forEach(action => addLog(`CORRECTION: ${action}`));
         }
-        // --- AUTO-TRIGGER AUDIT ---
-        addLog("AUTO_PROTOCOL: Triggering Forensic Audit immediately...");
-        handleAudit(data.report); 
+        addLog("AUTO_PROTOCOL: Triggering intelligence audit...");
+        handleAudit(data.report);
       } else {
-        addLog("SYNC_IDLE: No new data pushed from local bridge yet.");
+        addLog("SYNC_IDLE: No hardware data found in the sync room.");
+        setAuditing(false);
       }
     } catch (err) {
-      addLog("SYNC_ERROR: Connection to Cloud Engine failed.");
-    } finally {
+      addLog("SYNC_ERROR: Bridge connection failure.");
       setAuditing(false);
     }
   };
 
   const handleAudit = async (passedData = null) => {
-    // USE THE SAVED DATA FROM MEMORY OR THE PASSED DATA
     const dataToAudit = passedData || lastSyncedData;
-    
-    if (!dataToAudit || !dataToAudit.devices || dataToAudit.devices.length === 0) {
-      addLog("CRITICAL_ERROR: No forensic data found. Run 'FETCH_LOCAL_SYNC' first.");
+    if (!dataToAudit) {
+      addLog("CRITICAL: No data to audit. Run Sync first.");
       return;
     }
 
     setAuditing(true);
     setReports([]);
-    addLog("SENTINEL_COUNCIL: Initializing council handshake...");
+    addLog("SENTINEL_COUNCIL: Initializing council audit...");
     
     try {
-      addLog("SENTINEL_PRIME: Deploying Strike Teams to forensic data...");
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-
       const res = await fetch('/api/usb-lab/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToAudit)
       });
-
-      clearTimeout(timeoutId);
-      if (!res.ok) throw new Error(`HTTP_${res.status}: Brain connection timeout.`);
-
       const data = await res.json();
-      
       if (data.success) {
         setDevices(data.devices);
         setReports(data.reports);
-        addLog("SYSTEM_CERTIFIED: All Strike Teams have submitted forensic reports.");
-        addLog(`HARDWARE_AUDIT_COMPLETE: ${data.devices.length} device(s) analyzed.`);
+        addLog("SYSTEM_CERTIFIED: Forensic audit complete.");
       } else {
-        addLog(`CRITICAL_ERROR: ${data.error}`);
+        addLog(`ERROR: ${data.error}`);
       }
     } catch (error) {
-      addLog(`COMM_ERROR: ${error.name === 'AbortError' ? 'Timeout' : error.message}`);
+      addLog("COMM_ERROR: Forensic Brain unresponsive.");
     } finally {
       setAuditing(false);
     }
   };
 
   const downloadBridge = () => {
-    addLog("SYSTEM: Preparing Sentinel One-Click Launcher for local download...");
-    window.location.href = `${import.meta.env.VITE_API_URL || ''}/api/usb-lab/download-launcher`;
+    addLog("SYSTEM: Preparing One-Click Launcher...");
+    window.location.href = '/api/usb-lab/download-launcher';
   };
 
   useEffect(() => {
     if (logEndRef.current) logEndRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
-  const agents = [
-    { id: 'HARDWARE_TEAM', icon: Cpu, color: 'purple' },
-    { id: 'SOFTWARE_TEAM', icon: ShieldAlert, color: 'red' },
-    { id: 'CYBER_SENTRY_TEAM', icon: Search, color: 'blue' }
-  ];
+  const isCertified = reports.length > 0 && reports.every(r => r.report.includes('SECURE') || r.report.includes('CLEAN') || r.report.includes('PASS'));
 
   return (
     <div style={{ 
-      padding: '2rem', 
-      minHeight: '100vh', 
-      background: 'radial-gradient(circle at top right, #0a0a1a 0%, #000 100%)',
-      color: '#fff',
-      fontFamily: '"Inter", sans-serif'
+      padding: '2.5rem', minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #05050a 0%, #101025 100%)',
+      color: '#fff', fontFamily: '"Outfit", sans-serif'
     }}>
-      {/* HEADER */}
-      <div style={{ marginBottom: '3rem', borderLeft: '4px solid #00dc9c', paddingLeft: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      
+      {/* HEADER SECTION */}
+      <header style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-1px', margin: 0 }}>
-            USB_FORENSIC_LAB <span style={{ color: '#00dc9c', fontSize: '1rem', verticalAlign: 'top' }}>[SENTINEL_VANGUARD]</span>
+          <h1 style={{ fontSize: '3rem', fontWeight: 900, margin: 0, background: 'linear-gradient(to right, #00dc9c, #0066ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            SENTINEL_LAB_V5
           </h1>
-          <p style={{ color: '#888', marginTop: '0.5rem' }}>Exhaustive Hardware Security Audit • 10-Agent Collaborative Defense</p>
+          <p style={{ color: '#666', fontSize: '1.1rem', fontWeight: 500, letterSpacing: '1px' }}>HARDWARE_DNA_FORENSICS // 10_AGENT_COUNCIL</p>
         </div>
-        
+
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <button 
-            onClick={downloadBridge}
-            style={{ padding: '0.75rem 1.25rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(0,220,156,0.3)', borderRadius: '12px', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-          >
-            <Download size={18} /> DOWNLOAD_BRIDGE
+          <button onClick={downloadBridge} style={{ padding: '0.8rem 1.5rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', color: '#fff', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Download size={18} color="#00dc9c" /> DOWNLOAD_LAUNCHER
           </button>
-          
-          <button 
-            onClick={fetchExternalSync}
-            disabled={auditing}
-            style={{ padding: '0.75rem 1.25rem', background: 'rgba(0,102,255,0.1)', border: '1px solid #0066ff', borderRadius: '12px', color: '#0066ff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}
-          >
-            <RefreshCw size={18} className={auditing ? 'animate-spin' : ''} /> FETCH_LOCAL_SYNC
+          <button onClick={fetchExternalSync} disabled={auditing} style={{ padding: '0.8rem 2rem', background: '#0066ff', border: 'none', borderRadius: '14px', color: '#fff', fontWeight: 800, cursor: auditing ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 8px 24px rgba(0, 102, 255, 0.3)' }}>
+            {auditing ? <RefreshCw className="animate-spin" size={20} /> : <Zap size={20} />}
+            {auditing ? 'ANALYZING...' : 'INITIALIZE_SYNC'}
           </button>
+        </div>
+      </header>
+
+      {/* TOP STATS / CERTIFICATE */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
+        <SpotlightCard glowColor="green" style={{ padding: '1.5rem', textAlign: 'center' }}>
+          <div style={{ color: '#00dc9c', fontSize: '2.5rem', fontWeight: 900 }}>{devices.length}</div>
+          <div style={{ color: '#666', fontSize: '0.8rem', fontWeight: 700 }}>HARDWARE_DETECTED</div>
+        </SpotlightCard>
+        <SpotlightCard glowColor="red" style={{ padding: '1.5rem', textAlign: 'center' }}>
+          <div style={{ color: '#ef4444', fontSize: '2.5rem', fontWeight: 900 }}>{lastSyncedData?.actions_taken?.length || 0}</div>
+          <div style={{ color: '#666', fontSize: '0.8rem', fontWeight: 700 }}>THREATS_NEUTRALIZED</div>
+        </SpotlightCard>
+        <div style={{ gridColumn: 'span 2' }}>
+          <SpotlightCard glowColor={isCertified ? "green" : "blue"} style={{ padding: '1.5rem', background: isCertified ? 'rgba(0, 220, 156, 0.05)' : 'rgba(255,255,255,0.02)', border: isCertified ? '1px solid #00dc9c' : '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+              <div style={{ background: isCertified ? '#00dc9c' : '#333', padding: '1rem', borderRadius: '16px' }}>
+                <ShieldCheck size={32} color={isCertified ? "#000" : "#666"} />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', color: isCertified ? '#00dc9c' : '#fff' }}>
+                  {isCertified ? 'HARDWARE_CERTIFIED_CLEAN' : 'AWAITING_CERTIFICATION'}
+                </h3>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#666' }}>
+                  {isCertified ? 'No active malicious vectors identified by Sentinel Council.' : 'Run Sync to begin hardware audit.'}
+                </p>
+              </div>
+            </div>
+          </SpotlightCard>
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }}>
         
-        {/* MAIN PANEL */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          
-          {/* SYNC ALERT */}
-          <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '1.25rem', borderRadius: '16px', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <ShieldAlert color="#f59e0b" />
-            <p style={{ margin: 0, fontSize: '0.9rem', color: '#f59e0b', fontWeight: 500 }}>
-              <strong>CLOUD_SYNC_ACTIVE:</strong> To check a physical USB, download the <strong>SENTINEL_BRIDGE</strong>, run it on your machine, then click <strong>FETCH_LOCAL_SYNC</strong>.
-            </p>
-          </div>
-
-          {/* CONTROLS */}
-          <SpotlightCard glowColor="blue" style={{ padding: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                <div style={{ background: 'rgba(0, 220, 156, 0.1)', padding: '1rem', borderRadius: '12px' }}>
-                  <Usb size={32} color="#00dc9c" />
-                </div>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Sentinel Council Audit</h3>
-                  <p style={{ margin: 0, color: '#666', fontSize: '0.85rem' }}>Deploy all 10 specialized agents to analyze synced hardware data.</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => handleAudit()}
-                disabled={auditing}
-                style={{
-                  padding: '1rem 2.5rem',
-                  background: auditing ? '#333' : 'linear-gradient(135deg, #00dc9c, #0066ff)',
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: '#fff',
-                  fontWeight: 900,
-                  cursor: auditing ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  boxShadow: '0 10px 20px rgba(0, 220, 156, 0.2)'
-                }}
-              >
-                {auditing ? <Activity className="animate-spin" size={20} /> : <Zap size={20} />}
-                {auditing ? 'ANALYZING_HARDWARE...' : 'RUN_CLOUD_AUDIT'}
-              </button>
-            </div>
-          </SpotlightCard>
-
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {/* AGENT GRID */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem' }}>
-            {agents.map(agent => {
-                const report = reports.find(r => r.agent === agent.id);
-                return (
-                    <AgentCard 
-                        key={agent.id}
-                        name={agent.id}
-                        status={report ? "COMPLETE" : (auditing ? "SCANNING" : "IDLE")}
-                        report={report?.report}
-                        icon={agent.icon}
-                        color={agent.color}
-                    />
-                );
-            })}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
+            <AgentCard name="HARDWARE_DNA" status={reports.find(r => r.agent === 'HARDWARE_TEAM') ? "COMPLETE" : "PENDING"} report={reports.find(r => r.agent === 'HARDWARE_TEAM')?.report} icon={Fingerprint} color="purple" />
+            <AgentCard name="LOGIC_INTEGRITY" status={reports.find(r => r.agent === 'SOFTWARE_TEAM') ? "COMPLETE" : "PENDING"} report={reports.find(r => r.agent === 'SOFTWARE_TEAM')?.report} icon={Lock} color="green" />
+            <AgentCard name="CYBER_SENTINEL" status={reports.find(r => r.agent === 'CYBER_SENTRY_TEAM') ? "COMPLETE" : "PENDING"} report={reports.find(r => r.agent === 'CYBER_SENTRY_TEAM')?.report} icon={Search} color="blue" />
           </div>
 
-          {/* DETECTED DEVICES */}
+          {/* DEVICE DETAILS */}
           {devices.length > 0 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+            <SpotlightCard style={{ padding: '2rem' }}>
+              <h3 style={{ margin: '0 0 1.5rem 0', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Usb size={20} color="#00dc9c" /> TARGET_DRIVE_DNA
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
                 {devices.map((dev, i) => (
-                    <SpotlightCard key={i} style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.03)' }}>
-                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                            <HardDrive size={24} color="#00dc9c" />
-                            <div>
-                                <div style={{ fontSize: '1rem', fontWeight: 900 }}>{dev.mountpoint || dev.device}</div>
-                                <div style={{ fontSize: '0.75rem', color: '#666' }}>{dev.fstype || 'Removable Storage'} • {dev.total ? Math.round(dev.total / (1024**3)) : '??'} GB Total</div>
-                            </div>
-                        </div>
-                    </SpotlightCard>
+                  <div key={i} style={{ background: 'rgba(255,255,255,0.03)', padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#666', fontWeight: 800, marginBottom: '0.5rem' }}>MOUNT_POINT: {dev.mountpoint}</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 900 }}>{Math.round(dev.total / (1024**3))} GB {dev.fstype}</div>
+                    <div style={{ fontSize: '0.8rem', color: '#00dc9c', marginTop: '0.5rem' }}>STATUS: ACCESSIBLE_CLEAN</div>
+                  </div>
                 ))}
-            </div>
+              </div>
+            </SpotlightCard>
           )}
         </div>
 
-        {/* SIDEBAR: CONSOLE */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <SpotlightCard glowColor="blue" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ background: '#111', padding: '0.75rem 1.25rem', borderBottom: '1px solid #222', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <Terminal size={14} color="#666" />
-                <span style={{ fontSize: '0.75rem', color: '#666', fontWeight: 700 }}>SENTINEL_COUNCIL_LOG</span>
-            </div>
-            <div style={{ flex: 1, padding: '1.25rem', overflowY: 'auto', maxHeight: '600px', fontFamily: '"JetBrains Mono", monospace' }}>
-                {logs.map((log, i) => (
-                    <div key={i} style={{ fontSize: '0.8rem', color: log.includes('CRITICAL') ? '#ef4444' : log.includes('CORRECTION') ? '#00dc9c' : log.includes('AUDIT_COMPLETE') ? '#10b981' : '#888', marginBottom: '0.5rem' }}>
-                        {log}
-                    </div>
-                ))}
-                <div ref={logEndRef} />
-            </div>
-          </SpotlightCard>
-        </div>
+        {/* LOG CONSOLE */}
+        <SpotlightCard glowColor="blue" style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#05050a' }}>
+          <div style={{ background: '#0a0a15', padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Terminal size={16} color="#0066ff" />
+            <span style={{ fontSize: '0.8rem', color: '#666', fontWeight: 800 }}>FORENSIC_CONSOLE</span>
+          </div>
+          <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', maxHeight: '700px', fontFamily: '"JetBrains Mono", monospace' }}>
+            {logs.map((log, i) => (
+              <div key={i} style={{ fontSize: '0.8rem', color: log.includes('CORRECTION') ? '#00dc9c' : log.includes('SUCCESS') ? '#00dc9c' : log.includes('ERROR') ? '#ef4444' : '#555', marginBottom: '0.6rem', borderLeft: log.includes('CORRECTION') ? '2px solid #00dc9c' : 'none', paddingLeft: log.includes('CORRECTION') ? '0.5rem' : '0' }}>
+                {log}
+              </div>
+            ))}
+            <div ref={logEndRef} />
+          </div>
+        </SpotlightCard>
 
       </div>
     </div>
