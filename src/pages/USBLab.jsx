@@ -79,9 +79,10 @@ const AgentCard = ({ name, status, report, icon: Icon, color }) => (
 
 const USBLab = () => {
   const [auditing, setAuditing] = useState(false);
+  const [isolationMode, setIsolationMode] = useState(false); // NEW: Ghost-Mount State
   const [devices, setDevices] = useState([]);
   const [reports, setReports] = useState([]);
-  const [logs, setLogs] = useState(["[SYSTEM] Sentinel Core Online.", "[SYSTEM] Probing for hardware bridge..."]);
+  const [logs, setLogs] = useState(["[SYSTEM] Sentinel Core Online.", "[SYSTEM] Ghost-Mount Protocol: STANDBY."]);
   const [lastSyncedData, setLastSyncedData] = useState(null);
   const logEndRef = useRef(null);
 
@@ -173,6 +174,28 @@ const USBLab = () => {
         </div>
 
         <div style={{ display: 'flex', gap: '1rem' }}>
+          <button 
+            onClick={() => {
+              setIsolationMode(!isolationMode);
+              addLog(isolationMode ? "GHOST_MOUNT: Protocol Deactivated." : "GHOST_MOUNT: Air-Gap Isolation Shield ACTIVE.");
+            }}
+            style={{ 
+              padding: '0.8rem 1.5rem', 
+              background: isolationMode ? 'rgba(0, 102, 255, 0.2)' : 'rgba(255,255,255,0.03)', 
+              border: `1px solid ${isolationMode ? '#0066ff' : 'rgba(255,255,255,0.1)'}`, 
+              borderRadius: '14px', 
+              color: isolationMode ? '#0066ff' : '#fff', 
+              fontWeight: 700, 
+              cursor: 'pointer', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            <ShieldAlert size={18} color={isolationMode ? "#0066ff" : "#666"} /> 
+            {isolationMode ? 'GHOST_MOUNT_ACTIVE' : 'ENABLE_GHOST_MOUNT'}
+          </button>
           <button onClick={downloadBridge} style={{ padding: '0.8rem 1.5rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', color: '#fff', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Download size={18} color="#00dc9c" /> DOWNLOAD_LAUNCHER
           </button>
@@ -230,13 +253,40 @@ const USBLab = () => {
               </h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
                 {devices.map((dev, i) => (
-                  <div key={i} style={{ background: 'rgba(255,255,255,0.03)', padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div style={{ fontSize: '0.75rem', color: '#666', fontWeight: 800, marginBottom: '0.5rem' }}>MOUNT_POINT: {dev.mountpoint}</div>
+                  <div key={i} style={{ 
+                    background: isolationMode ? 'rgba(0, 102, 255, 0.05)' : 'rgba(255,255,255,0.03)', 
+                    padding: '1.25rem', 
+                    borderRadius: '16px', 
+                    border: isolationMode ? '2px solid #0066ff' : '1px solid rgba(255,255,255,0.05)',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}>
+                    {isolationMode && (
+                      <div style={{
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                        background: 'linear-gradient(0deg, rgba(0, 102, 255, 0.1) 0%, transparent 100%)',
+                        pointerEvents: 'none',
+                        animation: 'pulse 2s infinite'
+                      }} />
+                    )}
+                    <div style={{ fontSize: '0.75rem', color: '#666', fontWeight: 800, marginBottom: '0.5rem' }}>
+                      {isolationMode ? 'VIRTUAL_CONTAINMENT_MOUNT' : 'PHYSICAL_MOUNT_POINT'}: {dev.mountpoint}
+                    </div>
                     <div style={{ fontSize: '1.1rem', fontWeight: 900 }}>{Math.round(dev.total / (1024**3))} GB {dev.fstype}</div>
-                    <div style={{ fontSize: '0.8rem', color: '#00dc9c', marginTop: '0.5rem' }}>STATUS: ACCESSIBLE_CLEAN</div>
+                    <div style={{ fontSize: '0.8rem', color: isolationMode ? '#0066ff' : '#00dc9c', marginTop: '0.5rem', fontWeight: 700 }}>
+                      STATUS: {isolationMode ? 'AIR_GAPPED_PROTECTED' : 'ACCESSIBLE_CLEAN'}
+                    </div>
                   </div>
                 ))}
               </div>
+
+              <style>{`
+                @keyframes pulse {
+                  0% { opacity: 0.3; }
+                  50% { opacity: 0.7; }
+                  100% { opacity: 0.3; }
+                }
+              `}</style>
             </SpotlightCard>
           )}
         </div>
