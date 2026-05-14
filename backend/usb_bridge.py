@@ -21,27 +21,39 @@ def safe_import_psutil():
 
 # --- CONFIGURATION ---
 RENDER_URL = "https://securevault-main.onrender.com/api/usb-lab/external-report"
-
-# --- AGGRESSIVE THREAT PATTERNS ---
 MALICIOUS_EXTENSIONS = {'.exe', '.scr', '.vbs', '.bat', '.cmd', '.ps1', '.js', '.wsf', '.hta'}
-OFFICE_MACRO_EXTENSIONS = {'.docm', '.xlsm', '.pptm'}
 
 def get_usb_devices():
     psutil = safe_import_psutil()
     if not psutil:
+        print("[ERROR] psutil library missing!")
         return []
+    
     devices = []
+    print("[SYSTEM] Probing all connected drives...")
+    
     for disk in psutil.disk_partitions():
-        if 'removable' in disk.opts or disk.fstype == '':
+        # AGGRESSIVE DETECTION: 
+        # Scan anything that isn't the C: drive or a CD-ROM
+        if disk.mountpoint.upper() != 'C:\\' and 'cdrom' not in disk.opts:
             try:
                 usage = psutil.disk_usage(disk.mountpoint)
-                devices.append({"mountpoint": disk.mountpoint, "device": disk.device, "total": usage.total})
-            except Exception: continue
+                print(f"[FOUND] Drive {disk.mountpoint} ({disk.fstype}) - {round(usage.total / (1024**3))}GB")
+                devices.append({
+                    "mountpoint": disk.mountpoint, 
+                    "device": disk.device, 
+                    "total": usage.total,
+                    "fstype": disk.fstype
+                })
+            except Exception as e:
+                print(f"[SKIP] Could not access {disk.mountpoint}: {e}")
+                continue
     return devices
 
 def aggressive_correction(mountpoint):
     file_report = []
     actions_taken = []
+    print(f"[AUDIT] Deep-scanning {mountpoint} for malicious patterns...")
     
     for root, dirs, files in os.walk(mountpoint):
         for name in files:
@@ -52,36 +64,27 @@ def aggressive_correction(mountpoint):
             is_malicious = False
             reason = ""
 
-            # 1. Double Extension Detection (e.g. image.jpg.exe)
             if re.search(r'\.(jpg|png|pdf|docx|txt|xlsx)\.(exe|scr|bat|vbs|cmd)$', lower_name):
                 is_malicious = True
                 reason = "Double-Extension Malware"
-
-            # 2. Hidden System Files / Autoruns
-            elif lower_name in ['autorun.inf', 'desktop.ini', 'thumbs.db'] or lower_name.startswith('~$'):
+            elif lower_name in ['autorun.inf', 'desktop.ini'] or lower_name.startswith('~$'):
                 is_malicious = True
                 reason = "Hidden System/Autorun Hijacker"
-
-            # 3. Risky Scripts in Root
             elif root == mountpoint and ext in MALICIOUS_EXTENSIONS:
                 is_malicious = True
                 reason = "Suspicious Root-Level Executable"
-
-            # 4. LNK Files (Shortcut Bombs)
             elif ext == '.lnk':
                 is_malicious = True
                 reason = "Shortcut Bomb / LNK Exploit"
 
-            # --- EXECUTE CORRECTION ---
             if is_malicious:
                 try:
                     os.remove(filepath)
                     actions_taken.append(f"NEUTRALIZED: {name} ({reason})")
                     continue
-                except Exception as e:
-                    actions_taken.append(f"SHIELD_FAILURE: Could not delete {name}")
+                except Exception:
+                    actions_taken.append(f"SHIELD_FAILURE: {name}")
 
-            # Report safe files
             try:
                 stat = os.stat(filepath)
                 file_report.append({"name": name, "size": stat.st_size, "extension": ext})
@@ -90,41 +93,46 @@ def aggressive_correction(mountpoint):
     return file_report, actions_taken
 
 def run_sentinel_vanguard():
-    print("--- [SENTINEL VANGUARD: EXHAUSTIVE CORRECTION ACTIVE] ---")
+    print("\n" + "="*50)
+    print("      SECUREVAULT SENTINEL VANGUARD v5.0")
+    print("="*50 + "\n")
+    
     devices = get_usb_devices()
     
     if not devices:
-        print("No hardware detected. Connect USB to begin...")
+        print("[!] NO EXTERNAL DRIVES DETECTED.")
+        print("[!] Please plug in your USB and try again.")
         return
 
     full_report = {
         "timestamp": time.time(),
         "devices": devices,
         "actions_taken": [],
-        "source": "SENTINEL_VANGUARD_LOCAL"
+        "source": "SENTINEL_VANGUARD_PC"
     }
 
     for usb in devices:
-        print(f"Auditing Drive {usb['mountpoint']}...")
         files, actions = aggressive_correction(usb["mountpoint"])
         usb["files"] = files
         full_report["actions_taken"].extend(actions)
 
-    print(f"\n--- FORENSIC SUMMARY ---")
-    print(f"Threats Corrected: {len(full_report['actions_taken'])}")
-    for action in full_report["actions_taken"]:
-        print(f" >> {action}")
-
+    print(f"\n[SUMMARY] Corrected {len(full_report['actions_taken'])} threats.")
+    
     try:
         requests = safe_import_requests()
         if requests:
-            requests.post(RENDER_URL, json=full_report, timeout=15)
-            print("\nSYNC_SUCCESS: Data pushed to SecureVault Cloud.")
+            print("[CLOUD] Syncing to SecureVault Render...")
+            r = requests.post(RENDER_URL, json=full_report, timeout=15)
+            if r.status_code == 200:
+                print("[SUCCESS] Forensic data pushed to Cloud Dashboard.")
+            else:
+                print(f"[ERROR] Server returned {r.status_code}")
         else:
-            print("\nSYNC_ERROR: 'requests' library not found locally.")
+            print("[ERROR] 'requests' library missing!")
     except Exception as e:
-        print(f"\nSYNC_ERROR: {e}")
+        print(f"[ERROR] Sync Failed: {e}")
 
 if __name__ == "__main__":
     run_sentinel_vanguard()
-    input("\nAudit and Correction complete. Press Enter to exit.")
+    print("\n" + "="*50)
+    input("Audit Complete. Press Enter to exit.")
