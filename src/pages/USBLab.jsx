@@ -13,7 +13,8 @@ import {
   Search,
   HardDrive,
   Download,
-  RefreshCw
+  RefreshCw,
+  ShieldCheck
 } from 'lucide-react';
 
 const SpotlightCard = ({ children, glowColor = 'blue', style = {} }) => {
@@ -82,10 +83,10 @@ const USBLab = () => {
   const addLog = (msg) => setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
 
   const fetchExternalSync = async () => {
-    setIsScanning(true);
+    setAuditing(true);
     addLog("SYNC_ENGINE: Checking for data from Local Sentinel Bridge...");
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/usb-lab/latest-external`);
+      const res = await fetch('/api/usb-lab/latest-external');
       const data = await res.json();
       
       if (data.success && data.report) {
@@ -96,29 +97,29 @@ const USBLab = () => {
         handleAudit(data.report);
       } else {
         addLog("SYNC_IDLE: No new data pushed from local bridge yet.");
-        setIsScanning(false);
+        setAuditing(false);
       }
     } catch (err) {
       addLog("SYNC_ERROR: Connection to Cloud Engine failed.");
-      setIsScanning(false);
+      setAuditing(false);
     }
   };
 
   const handleAudit = async (externalData = null) => {
-    setIsScanning(true);
+    setAuditing(true);
     setReports([]);
     addLog("SENTINEL_COUNCIL: Initializing council handshake...");
     
     try {
       let res;
       if (externalData) {
-        res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/usb-lab/audit`, {
+        res = await fetch('/api/usb-lab/audit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(externalData)
         });
       } else {
-        res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/usb-lab/audit`);
+        res = await fetch('/api/usb-lab/audit');
       }
 
       const data = await res.json();
@@ -133,7 +134,7 @@ const USBLab = () => {
     } catch (error) {
       addLog("COMM_ERROR: Failed to reach the Forensic Brain.");
     } finally {
-      setIsScanning(false);
+      setAuditing(false);
     }
   };
 
@@ -168,11 +169,30 @@ const USBLab = () => {
       fontFamily: '"Inter", sans-serif'
     }}>
       {/* HEADER */}
-      <div style={{ marginBottom: '3rem', borderLeft: '4px solid #00dc9c', paddingLeft: '1.5rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-1px', margin: 0 }}>
-          USB_FORENSIC_LAB <span style={{ color: '#00dc9c', fontSize: '1rem', verticalAlign: 'top' }}>[SENTINEL_COUNCIL]</span>
-        </h1>
-        <p style={{ color: '#888', marginTop: '0.5rem' }}>Absolute Hardware Security Audit • 10-Agent Collaborative Defense</p>
+      <div style={{ marginBottom: '3rem', borderLeft: '4px solid #00dc9c', paddingLeft: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-1px', margin: 0 }}>
+            USB_FORENSIC_LAB <span style={{ color: '#00dc9c', fontSize: '1rem', verticalAlign: 'top' }}>[SENTINEL_VANGUARD]</span>
+          </h1>
+          <p style={{ color: '#888', marginTop: '0.5rem' }}>Exhaustive Hardware Security Audit • 10-Agent Collaborative Defense</p>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button 
+            onClick={downloadBridge}
+            style={{ padding: '0.75rem 1.25rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(0,220,156,0.3)', borderRadius: '12px', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+          >
+            <Download size={18} /> DOWNLOAD_BRIDGE
+          </button>
+          
+          <button 
+            onClick={fetchExternalSync}
+            disabled={auditing}
+            style={{ padding: '0.75rem 1.25rem', background: 'rgba(0,102,255,0.1)', border: '1px solid #0066ff', borderRadius: '12px', color: '#0066ff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}
+          >
+            <RefreshCw size={18} className={auditing ? 'animate-spin' : ''} /> FETCH_LOCAL_SYNC
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }}>
@@ -180,6 +200,14 @@ const USBLab = () => {
         {/* MAIN PANEL */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
+          {/* SYNC ALERT */}
+          <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '1.25rem', borderRadius: '16px', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <ShieldAlert color="#f59e0b" />
+            <p style={{ margin: 0, fontSize: '0.9rem', color: '#f59e0b', fontWeight: 500 }}>
+              <strong>CLOUD_SYNC_ACTIVE:</strong> To check a physical USB, download the <strong>SENTINEL_BRIDGE</strong>, run it on your machine, then click <strong>FETCH_LOCAL_SYNC</strong>.
+            </p>
+          </div>
+
           {/* CONTROLS */}
           <SpotlightCard glowColor="blue" style={{ padding: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -189,11 +217,11 @@ const USBLab = () => {
                 </div>
                 <div>
                   <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Sentinel Council Audit</h3>
-                  <p style={{ margin: 0, color: '#666', fontSize: '0.85rem' }}>Deploy all 10 specialized agents to the connected hardware.</p>
+                  <p style={{ margin: 0, color: '#666', fontSize: '0.85rem' }}>Deploy all 10 specialized agents to analyze synced hardware data.</p>
                 </div>
               </div>
               <button 
-                onClick={handleAudit}
+                onClick={() => handleAudit()}
                 disabled={auditing}
                 style={{
                   padding: '1rem 2.5rem',
@@ -210,7 +238,7 @@ const USBLab = () => {
                 }}
               >
                 {auditing ? <Activity className="animate-spin" size={20} /> : <Zap size={20} />}
-                {auditing ? 'DEPLOYING_AGENTS...' : 'INITIATE_FULL_AUDIT'}
+                {auditing ? 'DEPLOYING_AGENTS...' : 'RUN_CLOUD_AUDIT'}
               </button>
             </div>
           </SpotlightCard>
@@ -241,7 +269,7 @@ const USBLab = () => {
                             <HardDrive size={24} color="#00dc9c" />
                             <div>
                                 <div style={{ fontSize: '1rem', fontWeight: 900 }}>{dev.mountpoint || dev.device}</div>
-                                <div style={{ fontSize: '0.75rem', color: '#666' }}>{dev.fstype} • {Math.round(dev.total / (1024**3))} GB Total</div>
+                                <div style={{ fontSize: '0.75rem', color: '#666' }}>{dev.fstype || 'Removable Storage'} • {dev.total ? Math.round(dev.total / (1024**3)) : '??'} GB Total</div>
                             </div>
                         </div>
                     </SpotlightCard>
@@ -259,7 +287,7 @@ const USBLab = () => {
             </div>
             <div style={{ flex: 1, padding: '1.25rem', overflowY: 'auto', maxHeight: '600px', fontFamily: '"JetBrains Mono", monospace' }}>
                 {logs.map((log, i) => (
-                    <div key={i} style={{ fontSize: '0.8rem', color: log.includes('CRITICAL') ? '#ef4444' : log.includes('AUDIT_COMPLETE') ? '#10b981' : '#888', marginBottom: '0.5rem' }}>
+                    <div key={i} style={{ fontSize: '0.8rem', color: log.includes('CRITICAL') ? '#ef4444' : log.includes('CORRECTION') ? '#00dc9c' : log.includes('AUDIT_COMPLETE') ? '#10b981' : '#888', marginBottom: '0.5rem' }}>
                         {log}
                     </div>
                 ))}
