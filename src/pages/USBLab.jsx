@@ -89,16 +89,12 @@ const USBLab = () => {
       const data = await res.json();
       
       if (data.success) {
-        if (data.is_simulated) {
-          addLog("HARDWARE_BRIDGE: Physical sensors unavailable in cloud environment.");
-          addLog("SENTINEL_PROTOCOL: Initiating High-Threat Forensic Simulation...");
-          addLog("VIRTUAL_VOLUME: Loaded 'VIRTUAL_VOL_SENTINEL' with 4 suspicious objects.");
-        }
-        
         setDevices(data.devices);
         setReports(data.reports);
-        if (!data.is_simulated) {
+        if (data.devices.length > 0) {
           addLog(`HARDWARE_FOUND: ${data.devices.length} drive(s) detected.`);
+        } else {
+          addLog("SCAN_COMPLETE: No physical USB devices found on the bus.");
         }
         addLog("AUDIT_COMPLETE: All 10 Sentinels have submitted forensic reports.");
       } else {
