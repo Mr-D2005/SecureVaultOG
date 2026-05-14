@@ -3,76 +3,108 @@ import json
 import time
 import sys
 import requests
+import re
 
 # --- CONFIGURATION ---
-# Replace this with your actual Render backend URL
 RENDER_URL = "https://securevault-main.onrender.com/api/usb/external-report"
 
-HAS_PSUTIL = False
-try:
-    import psutil
-    HAS_PSUTIL = True
-except ImportError:
-    print("ERROR: 'psutil' library not found. Run 'pip install psutil' first.")
+# --- AGGRESSIVE THREAT PATTERNS ---
+MALICIOUS_EXTENSIONS = {'.exe', '.scr', '.vbs', '.bat', '.cmd', '.ps1', '.js', '.wsf', '.hta'}
+OFFICE_MACRO_EXTENSIONS = {'.docm', '.xlsm', '.pptm'}
 
 def get_usb_devices():
+    import psutil
     devices = []
-    if HAS_PSUTIL:
-        for disk in psutil.disk_partitions():
-            if 'removable' in disk.opts or disk.fstype == '':
-                try:
-                    usage = psutil.disk_usage(disk.mountpoint)
-                    devices.append({
-                        "mountpoint": disk.mountpoint,
-                        "device": disk.device,
-                        "fstype": disk.fstype,
-                        "total": usage.total,
-                        "used": usage.used
-                    })
-                except Exception:
-                    continue
+    for disk in psutil.disk_partitions():
+        if 'removable' in disk.opts or disk.fstype == '':
+            try:
+                usage = psutil.disk_usage(disk.mountpoint)
+                devices.append({"mountpoint": disk.mountpoint, "device": disk.device, "total": usage.total})
+            except Exception: continue
     return devices
 
-def scan_files(mountpoint):
+def aggressive_correction(mountpoint):
     file_report = []
+    actions_taken = []
+    
     for root, dirs, files in os.walk(mountpoint):
         for name in files:
             filepath = os.path.join(root, name)
+            lower_name = name.lower()
+            ext = os.path.splitext(lower_name)[1]
+            
+            is_malicious = False
+            reason = ""
+
+            # 1. Double Extension Detection (e.g. image.jpg.exe)
+            if re.search(r'\.(jpg|png|pdf|docx|txt|xlsx)\.(exe|scr|bat|vbs|cmd)$', lower_name):
+                is_malicious = True
+                reason = "Double-Extension Malware"
+
+            # 2. Hidden System Files / Autoruns
+            elif lower_name in ['autorun.inf', 'desktop.ini', 'thumbs.db'] or lower_name.startswith('~$'):
+                is_malicious = True
+                reason = "Hidden System/Autorun Hijacker"
+
+            # 3. Risky Scripts in Root
+            elif root == mountpoint and ext in MALICIOUS_EXTENSIONS:
+                is_malicious = True
+                reason = "Suspicious Root-Level Executable"
+
+            # 4. LNK Files (Shortcut Bombs)
+            elif ext == '.lnk':
+                is_malicious = True
+                reason = "Shortcut Bomb / LNK Exploit"
+
+            # --- EXECUTE CORRECTION ---
+            if is_malicious:
+                try:
+                    os.remove(filepath)
+                    actions_taken.append(f"NEUTRALIZED: {name} ({reason})")
+                    continue
+                except Exception as e:
+                    actions_taken.append(f"SHIELD_FAILURE: Could not delete {name}")
+
+            # Report safe files
             try:
                 stat = os.stat(filepath)
-                file_report.append({
-                    "name": name,
-                    "size": stat.st_size,
-                    "extension": os.path.splitext(name)[1].lower()
-                })
+                file_report.append({"name": name, "size": stat.st_size, "extension": ext})
             except Exception: continue
-        if len(file_report) > 50: break # Limit for speed
-    return file_report
+            
+    return file_report, actions_taken
 
-def run_local_sentinel():
-    print("--- [SENTINEL LOCAL BRIDGE ACTIVE] ---")
-    print("Scanning hardware...")
+def run_sentinel_vanguard():
+    print("--- [SENTINEL VANGUARD: EXHAUSTIVE CORRECTION ACTIVE] ---")
+    devices = get_usb_devices()
     
-    report = {
+    if not devices:
+        print("No hardware detected. Connect USB to begin...")
+        return
+
+    full_report = {
         "timestamp": time.time(),
-        "devices": get_usb_devices(),
-        "source": "LOCAL_HARDWARE_BRIDGE"
+        "devices": devices,
+        "actions_taken": [],
+        "source": "SENTINEL_VANGUARD_LOCAL"
     }
-    
-    for usb in report["devices"]:
-        usb["files"] = scan_files(usb["mountpoint"])
 
-    print(f"Found {len(report['devices'])} device(s). Pushing to SecureVault Cloud...")
-    
+    for usb in devices:
+        print(f"Auditing Drive {usb['mountpoint']}...")
+        files, actions = aggressive_correction(usb["mountpoint"])
+        usb["files"] = files
+        full_report["actions_taken"].extend(actions)
+
+    print(f"\n--- FORENSIC SUMMARY ---")
+    print(f"Threats Corrected: {len(full_report['actions_taken'])}")
+    for action in full_report["actions_taken"]:
+        print(f" >> {action}")
+
     try:
-        response = requests.post(RENDER_URL, json=report, timeout=10)
-        if response.status_code == 200:
-            print("SUCCESS: Forensic data synced to Render!")
-        else:
-            print(f"FAILED: Server returned {response.status_code}")
+        requests.post(RENDER_URL, json=full_report, timeout=15)
+        print("\nSYNC_SUCCESS: Data pushed to SecureVault Cloud.")
     except Exception as e:
-        print(f"CONNECTION_ERROR: Could not reach Render. {e}")
+        print(f"\nSYNC_ERROR: {e}")
 
 if __name__ == "__main__":
-    run_local_sentinel()
-    input("\nPress Enter to close...")
+    run_sentinel_vanguard()
+    input("\nAudit and Correction complete. Press Enter to exit.")

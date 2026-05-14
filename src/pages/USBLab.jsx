@@ -89,7 +89,10 @@ const USBLab = () => {
       const data = await res.json();
       
       if (data.success && data.report) {
-        addLog("SYNC_SUCCESS: Local hardware data received from External Bridge.");
+        addLog("SYNC_SUCCESS: Local hardware data received.");
+        if (data.report.actions_taken && data.report.actions_taken.length > 0) {
+          data.report.actions_taken.forEach(action => addLog(`CORRECTION: ${action}`));
+        }
         handleAudit(data.report);
       } else {
         addLog("SYNC_IDLE: No new data pushed from local bridge yet.");
