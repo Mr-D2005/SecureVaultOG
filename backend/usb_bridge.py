@@ -6,7 +6,7 @@ import requests
 import re
 
 # --- CONFIGURATION ---
-RENDER_URL = "https://securevault-main.onrender.com/api/usb/external-report"
+RENDER_URL = "https://securevault-main.onrender.com/api/usb-lab/external-report"
 
 # --- AGGRESSIVE THREAT PATTERNS ---
 MALICIOUS_EXTENSIONS = {'.exe', '.scr', '.vbs', '.bat', '.cmd', '.ps1', '.js', '.wsf', '.hta'}
