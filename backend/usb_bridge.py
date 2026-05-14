@@ -45,9 +45,12 @@ def scan_files(mountpoint):
                 # Check for hidden files (Windows-specific attribute check)
                 is_hidden = False
                 if sys.platform == 'win32':
-                    import ctypes
-                    attrs = ctypes.windll.kernel32.GetFileAttributesW(filepath)
-                    is_hidden = bool(attrs & 2)
+                    try:
+                        import ctypes
+                        attrs = ctypes.windll.kernel32.GetFileAttributesW(filepath)
+                        is_hidden = bool(attrs & 2)
+                    except Exception:
+                        is_hidden = False
 
                 file_report.append({
                     "name": name,

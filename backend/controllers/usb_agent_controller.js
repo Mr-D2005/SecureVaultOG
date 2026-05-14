@@ -22,18 +22,20 @@ const getRawUsbData = () => {
     return new Promise((resolve, reject) => {
         const pythonProcess = spawn('python', [path.join(__dirname, '../usb_bridge.py')]);
         let dataStr = '';
+        let errorStr = '';
 
         pythonProcess.stdout.on('data', (data) => {
             dataStr += data.toString();
         });
 
         pythonProcess.stderr.on('data', (data) => {
-            console.error(`--- [USB_BRIDGE_ERROR] ---`, data.toString());
+            errorStr += data.toString();
+            console.error(`--- [USB_BRIDGE_STDERR] ---`, data.toString());
         });
 
         pythonProcess.on('close', (code) => {
             try {
-                if (code !== 0) throw new Error(`Python process exited with code ${code}`);
+                if (code !== 0) throw new Error(`Python process exited with code ${code}. Error: ${errorStr}`);
                 resolve(JSON.parse(dataStr));
             } catch (err) {
                 reject(err);
