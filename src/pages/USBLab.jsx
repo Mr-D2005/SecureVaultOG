@@ -93,11 +93,14 @@ const USBLab = () => {
       
       if (data.success && data.report) {
         addLog("SYNC_SUCCESS: Local hardware data received.");
-        setLastSyncedData(data.report); // SAVE THE DATA TO MEMORY
+        setLastSyncedData(data.report); 
         setDevices(data.report.devices || []);
         if (data.report.actions_taken && data.report.actions_taken.length > 0) {
           data.report.actions_taken.forEach(action => addLog(`CORRECTION: ${action}`));
         }
+        // --- AUTO-TRIGGER AUDIT ---
+        addLog("AUTO_PROTOCOL: Triggering Forensic Audit immediately...");
+        handleAudit(data.report); 
       } else {
         addLog("SYNC_IDLE: No new data pushed from local bridge yet.");
       }
@@ -108,9 +111,9 @@ const USBLab = () => {
     }
   };
 
-  const handleAudit = async () => {
-    // USE THE SAVED DATA FROM MEMORY
-    const dataToAudit = lastSyncedData;
+  const handleAudit = async (passedData = null) => {
+    // USE THE SAVED DATA FROM MEMORY OR THE PASSED DATA
+    const dataToAudit = passedData || lastSyncedData;
     
     if (!dataToAudit || !dataToAudit.devices || dataToAudit.devices.length === 0) {
       addLog("CRITICAL_ERROR: No forensic data found. Run 'FETCH_LOCAL_SYNC' first.");
