@@ -82,6 +82,8 @@ const USBLab = () => {
 
   const addLog = (msg) => setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
 
+  const [lastSyncedData, setLastSyncedData] = useState(null);
+
   const fetchExternalSync = async () => {
     setAuditing(true);
     addLog("SYNC_ENGINE: Checking for data from Local Sentinel Bridge...");
@@ -91,44 +93,45 @@ const USBLab = () => {
       
       if (data.success && data.report) {
         addLog("SYNC_SUCCESS: Local hardware data received.");
+        setLastSyncedData(data.report); // SAVE THE DATA TO MEMORY
+        setDevices(data.report.devices || []);
         if (data.report.actions_taken && data.report.actions_taken.length > 0) {
           data.report.actions_taken.forEach(action => addLog(`CORRECTION: ${action}`));
         }
-        handleAudit(data.report);
       } else {
         addLog("SYNC_IDLE: No new data pushed from local bridge yet.");
-        setAuditing(false);
       }
     } catch (err) {
       addLog("SYNC_ERROR: Connection to Cloud Engine failed.");
+    } finally {
       setAuditing(false);
     }
   };
 
-  const handleAudit = async (externalData = null) => {
+  const handleAudit = async () => {
+    // USE THE SAVED DATA FROM MEMORY
+    const dataToAudit = lastSyncedData;
+    
+    if (!dataToAudit || !dataToAudit.devices || dataToAudit.devices.length === 0) {
+      addLog("CRITICAL_ERROR: No forensic data found. Run 'FETCH_LOCAL_SYNC' first.");
+      return;
+    }
+
     setAuditing(true);
     setReports([]);
     addLog("SENTINEL_COUNCIL: Initializing council handshake...");
     
     try {
       addLog("SENTINEL_PRIME: Deploying Strike Teams to forensic data...");
-      addLog("AGENT_HARDWARE: Probing electrical signatures and Class IDs...");
-      addLog("AGENT_SOFTWARE: Decompressing file metadata and script headers...");
-      addLog("AGENT_CYBER: Analyzing psychological baiting vectors...");
-
+      
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      let res;
-      if (externalData) {
-        res = await fetch('/api/usb-lab/audit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(externalData)
-        });
-      } else {
-        res = await fetch('/api/usb-lab/audit');
-      }
+      const res = await fetch('/api/usb-lab/audit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToAudit)
+      });
 
       clearTimeout(timeoutId);
       if (!res.ok) throw new Error(`HTTP_${res.status}: Brain connection timeout.`);
@@ -144,7 +147,7 @@ const USBLab = () => {
         addLog(`CRITICAL_ERROR: ${data.error}`);
       }
     } catch (error) {
-      addLog(`COMM_ERROR: ${error.name === 'AbortError' ? 'Forensic Brain is thinking too hard. Retrying...' : error.message}`);
+      addLog(`COMM_ERROR: ${error.name === 'AbortError' ? 'Timeout' : error.message}`);
     } finally {
       setAuditing(false);
     }
