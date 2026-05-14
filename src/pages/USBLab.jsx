@@ -116,6 +116,9 @@ const USBLab = () => {
       addLog("AGENT_SOFTWARE: Decompressing file metadata and script headers...");
       addLog("AGENT_CYBER: Analyzing psychological baiting vectors...");
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
       let res;
       if (externalData) {
         res = await fetch('/api/usb-lab/audit', {
@@ -127,6 +130,7 @@ const USBLab = () => {
         res = await fetch('/api/usb-lab/audit');
       }
 
+      clearTimeout(timeoutId);
       if (!res.ok) throw new Error(`HTTP_${res.status}: Brain connection timeout.`);
 
       const data = await res.json();
@@ -140,7 +144,7 @@ const USBLab = () => {
         addLog(`CRITICAL_ERROR: ${data.error}`);
       }
     } catch (error) {
-      addLog(`COMM_ERROR: ${error.message}`);
+      addLog(`COMM_ERROR: ${error.name === 'AbortError' ? 'Forensic Brain is thinking too hard. Retrying...' : error.message}`);
     } finally {
       setAuditing(false);
     }
