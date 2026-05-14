@@ -12,13 +12,13 @@ $form.FormBorderStyle = "FixedDialog"
 # --- HEADER ---
 $header = New-Object System.Windows.Forms.Panel
 $header.Size = New-Object System.Drawing.Size(800,80)
-$header.BackColor = [System.Drawing.Color]::FromArgb(227, 28, 28)
+$header.BackColor = [System.Drawing.Color]::FromArgb(10, 10, 26)
 $form.Controls.Add($header)
 
 $title = New-Object System.Windows.Forms.Label
 $title.Text = "SECUREVAULT TOTAL AI PROTECTION"
 $title.Font = New-Object System.Drawing.Font("Segoe UI", 18, [System.Drawing.FontStyle]::Bold)
-$title.ForeColor = [System.Drawing.Color]::White
+$title.ForeColor = [System.Drawing.Color]::FromArgb(0, 220, 156)
 $title.Location = New-Object System.Drawing.Point(20, 20)
 $title.AutoSize = $true
 $header.Controls.Add($title)

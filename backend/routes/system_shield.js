@@ -8,9 +8,9 @@ const fs = require('fs');
  * @desc    Downloads the AI Total Defense Installer
  */
 router.get('/download', (req, res) => {
-    const filePath = path.join(__dirname, '../sentinel_defender.bat');
+    const filePath = path.join(__dirname, '../SecureVault_Antivirus.zip');
     if (fs.existsSync(filePath)) {
-        res.download(filePath, 'sentinel_defender.bat');
+        res.download(filePath, 'SecureVault_Antivirus.zip');
     } else {
         res.status(404).json({ success: false, error: "Installer not found." });
     }
