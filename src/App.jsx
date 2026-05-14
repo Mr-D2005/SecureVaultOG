@@ -87,6 +87,7 @@ function App() {
             <Route path="/threat-intel" element={<ThreatIntel />} />
             <Route path="/files" element={<Files />} />
             <Route path="/usb-lab" element={<USBLab />} />
+            <Route path="/system-shield" element={<SystemShield />} />
             
             <Route path="/about" element={<About />} />
             <Route path="/settings" element={<Settings />} />

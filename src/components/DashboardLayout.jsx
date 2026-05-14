@@ -47,6 +47,7 @@ const DashboardLayout = () => {
     { name: 'Detect Stego (AI)', path: '/detection', icon: <ShieldAlert size={20} /> },
     { name: 'Threat Intel (AI)', path: '/threat-intel', icon: <Target size={20} /> },
     { name: 'USB Forensic Lab', path: '/usb-lab', icon: <Usb size={20} /> },
+    { name: 'AI System Shield', path: '/system-shield', icon: <Shield size={20} /> },
     { name: 'Team & About', path: '/about', icon: <Users size={20} /> },
     { name: 'Settings', path: '/settings', icon: <Settings size={20} /> },
   ];
