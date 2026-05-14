@@ -2,8 +2,22 @@ import os
 import json
 import time
 import sys
-import requests
 import re
+
+# --- SAFE IMPORTS ---
+def safe_import_requests():
+    try:
+        import requests
+        return requests
+    except ImportError:
+        return None
+
+def safe_import_psutil():
+    try:
+        import psutil
+        return psutil
+    except ImportError:
+        return None
 
 # --- CONFIGURATION ---
 RENDER_URL = "https://securevault-main.onrender.com/api/usb-lab/external-report"
@@ -13,7 +27,9 @@ MALICIOUS_EXTENSIONS = {'.exe', '.scr', '.vbs', '.bat', '.cmd', '.ps1', '.js', '
 OFFICE_MACRO_EXTENSIONS = {'.docm', '.xlsm', '.pptm'}
 
 def get_usb_devices():
-    import psutil
+    psutil = safe_import_psutil()
+    if not psutil:
+        return []
     devices = []
     for disk in psutil.disk_partitions():
         if 'removable' in disk.opts or disk.fstype == '':
@@ -100,8 +116,12 @@ def run_sentinel_vanguard():
         print(f" >> {action}")
 
     try:
-        requests.post(RENDER_URL, json=full_report, timeout=15)
-        print("\nSYNC_SUCCESS: Data pushed to SecureVault Cloud.")
+        requests = safe_import_requests()
+        if requests:
+            requests.post(RENDER_URL, json=full_report, timeout=15)
+            print("\nSYNC_SUCCESS: Data pushed to SecureVault Cloud.")
+        else:
+            print("\nSYNC_ERROR: 'requests' library not found locally.")
     except Exception as e:
         print(f"\nSYNC_ERROR: {e}")
 

@@ -8,6 +8,7 @@ const usbController = require('../controllers/usb_agent_controller');
  * @desc    Triggers the full 10-agent Sentinel Council Audit
  */
 router.get('/audit', usbController.performFullUsbAudit);
+router.post('/audit', usbController.performFullUsbAudit);
 
 // --- CLOUD SYNC ENGINE ---
 let latestExternalReport = null;
