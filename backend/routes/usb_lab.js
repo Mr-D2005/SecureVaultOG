@@ -1,40 +1,47 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
+const fs = require('fs');
 const usbController = require('../controllers/usb_agent_controller');
+
+const SYNC_FILE = path.join(__dirname, '../sync_data.json');
 
 /**
  * @route   GET /api/usb-lab/audit
- * @desc    Triggers the full 10-agent Sentinel Council Audit
  */
 router.get('/audit', usbController.performFullUsbAudit);
 router.post('/audit', usbController.performFullUsbAudit);
 
-// --- CLOUD SYNC ENGINE ---
-let latestExternalReport = null;
-
 /**
  * @route   POST /api/usb-lab/external-report
- * @desc    Receives forensic data from local sentinel bridge
+ * @desc    Saves data to a physical file for cross-worker persistence
  */
 router.post('/external-report', (req, res) => {
-    console.log("--- [EXTERNAL_FORENSIC_DATA_RECEIVED] ---");
-    latestExternalReport = req.body;
-    res.json({ success: true, message: "Forensic data synced. Run 'Fetch Sync' on Dashboard." });
+    try {
+        console.log("--- [SYNC_ROOM: WRITING_DATA_TO_DISK] ---");
+        fs.writeFileSync(SYNC_FILE, JSON.stringify(req.body));
+        res.json({ success: true, message: "Forensic data secured on server disk." });
+    } catch (err) {
+        res.status(500).json({ success: false, error: "Disk Write Failed" });
+    }
 });
 
 /**
  * @route   GET /api/usb-lab/latest-external
- * @desc    Fetches the latest data pushed from local hardware
  */
 router.get('/latest-external', (req, res) => {
-    res.json({ success: true, report: latestExternalReport });
+    try {
+        if (fs.existsSync(SYNC_FILE)) {
+            const data = fs.readFileSync(SYNC_FILE, 'utf8');
+            res.json({ success: true, report: JSON.parse(data) });
+        } else {
+            res.json({ success: true, report: null });
+        }
+    } catch (err) {
+        res.json({ success: true, report: null });
+    }
 });
 
-/**
- * @route   GET /api/usb-lab/download-launcher
- * @desc    Downloads the one-click sentinel launcher
- */
 router.get('/download-launcher', (req, res) => {
     const filePath = path.join(__dirname, '../sentinel_launcher.bat');
     res.download(filePath, 'sentinel_launcher.bat');
