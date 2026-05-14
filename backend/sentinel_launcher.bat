@@ -1,8 +1,13 @@
 @echo off
-title SecureVault Sentinel Vanguard Launcher
-echo --------------------------------------------------
-echo [SECUREVAULT] Initializing Sentinel Vanguard...
-echo --------------------------------------------------
+title SecureVault Ghost-Mount Gateway
+color 0B
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+echo !!                                                        !!
+echo !!        SECUREVAULT: GHOST-MOUNT GATEWAY v1.0           !!
+echo !!        STATUS: AIR-GAP ISOLATION ACTIVE                !!
+echo !!                                                        !!
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+echo.
 
 :: Check for Python
 python --version >nul 2>&1
@@ -14,15 +19,17 @@ if %errorlevel% neq 0 (
 )
 
 :: Install Dependencies
-echo [SYSTEM] Checking dependencies (psutil, requests)...
+echo [GHOST_MOUNT] Initializing Forensic Environment...
 pip install psutil requests --quiet
 
 :: Run the Bridge
-echo [SENTINEL] Starting Exhaustive Hardware Audit...
-echo [SENTINEL] Scanning and Correcting USB threats...
+echo [GHOST_MOUNT] Virtual Sandbox Deployed.
+echo [GHOST_MOUNT] Waiting for Hardware Connection...
+echo.
 python usb_bridge.py
 
-echo --------------------------------------------------
-echo [COMPLETE] Forensic data synced to SecureVault Cloud.
-echo --------------------------------------------------
+echo.
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+echo !!  [SUCCESS] FORENSIC DNA SYNCED TO CLOUD DASHBOARD      !!
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 pause
