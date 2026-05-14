@@ -12,6 +12,7 @@ import Steganography from './pages/Steganography';
 import Detection from './pages/Detection';
 import ThreatIntel from './pages/ThreatIntel';
 import Files from './pages/Files';
+import USBLab from './pages/USBLab';
 
 import Features from './pages/Features';
 import Security from './pages/Security';
@@ -85,6 +86,7 @@ function App() {
             <Route path="/detection" element={<Detection />} />
             <Route path="/threat-intel" element={<ThreatIntel />} />
             <Route path="/files" element={<Files />} />
+            <Route path="/usb-lab" element={<USBLab />} />
             
             <Route path="/about" element={<About />} />
             <Route path="/settings" element={<Settings />} />

@@ -13,6 +13,7 @@ const stegoRoutes = require('./routes/stego');
 const statsRoutes = require('./routes/stats');
 const ravanRoutes = require('./routes/ravan');
 const threatRoutes = require('./routes/threat');
+const usbLabRoutes = require('./routes/usb_lab');
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/stego', stegoRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/ravan', ravanRoutes);
 app.use('/api/threat', threatRoutes);
+app.use('/api/usb-lab', usbLabRoutes);
 
 // --- STATIC FRONTEND SERVING ---
 // Serve static files from the built React app (Vite dist folder)
