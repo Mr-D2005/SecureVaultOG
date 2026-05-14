@@ -167,7 +167,7 @@ const USBLab = () => {
       <header style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ fontSize: '3rem', fontWeight: 900, margin: 0, background: 'linear-gradient(to right, #00dc9c, #0066ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            SENTINEL_LAB_V5
+            USB_FORENSIC_LAB
           </h1>
           <p style={{ color: '#666', fontSize: '1.1rem', fontWeight: 500, letterSpacing: '1px' }}>HARDWARE_DNA_FORENSICS // 10_AGENT_COUNCIL</p>
         </div>

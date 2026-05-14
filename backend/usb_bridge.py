@@ -94,7 +94,7 @@ def aggressive_correction(mountpoint):
 
 def run_sentinel_vanguard():
     print("\n" + "="*50)
-    print("      SECUREVAULT SENTINEL VANGUARD v5.0")
+    print("      SECUREVAULT USB FORENSIC LAB v5.0")
     print("="*50 + "\n")
     
     devices = get_usb_devices()
