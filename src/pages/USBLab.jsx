@@ -139,8 +139,8 @@ const USBLab = () => {
   };
 
   const downloadBridge = () => {
-    addLog("SYSTEM: Preparing Sentinel Bridge package for local download...");
-    window.open('https://github.com/Mr-D2005/SecureVaultOG/blob/main/backend/usb_bridge.py', '_blank');
+    addLog("SYSTEM: Preparing Sentinel One-Click Launcher for local download...");
+    window.open('https://github.com/Mr-D2005/SecureVaultOG/blob/main/backend/sentinel_launcher.bat', '_blank');
   };
 
   useEffect(() => {
