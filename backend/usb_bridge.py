@@ -29,7 +29,7 @@ def get_usb_devices():
     
     devices = []
     for disk in psutil.disk_partitions():
-        if disk.mountpoint.upper() != 'C:\\' and 'cdrom' not in disk.opts:
+        if 'removable' in disk.opts:
             try:
                 usage = psutil.disk_usage(disk.mountpoint)
                 devices.append({

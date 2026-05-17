@@ -47,4 +47,9 @@ router.get('/download-launcher', (req, res) => {
     res.download(filePath, 'sentinel_launcher.bat');
 });
 
+router.get('/download-bridge', (req, res) => {
+    const filePath = path.join(__dirname, '../usb_bridge.py');
+    res.download(filePath, 'usb_bridge.py');
+});
+
 module.exports = router;

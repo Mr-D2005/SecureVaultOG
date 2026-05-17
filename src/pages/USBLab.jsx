@@ -97,6 +97,7 @@ const USBLab = () => {
       
       if (data.success && data.report) {
         addLog("SYNC_SUCCESS: Forensic data securely received.");
+        setIsolationMode(true); // Automatically activate air-gap containment UI
         setLastSyncedData(data.report);
         setDevices(data.report.devices || []);
         if (data.report.actions_taken && data.report.actions_taken.length > 0) {
@@ -174,28 +175,6 @@ const USBLab = () => {
         </div>
 
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <button 
-            onClick={() => {
-              setIsolationMode(!isolationMode);
-              addLog(isolationMode ? "GHOST_MOUNT: Protocol Deactivated." : "GHOST_MOUNT: Air-Gap Isolation Shield ACTIVE.");
-            }}
-            style={{ 
-              padding: '0.8rem 1.5rem', 
-              background: isolationMode ? 'rgba(0, 102, 255, 0.2)' : 'rgba(255,255,255,0.03)', 
-              border: `1px solid ${isolationMode ? '#0066ff' : 'rgba(255,255,255,0.1)'}`, 
-              borderRadius: '14px', 
-              color: isolationMode ? '#0066ff' : '#fff', 
-              fontWeight: 700, 
-              cursor: 'pointer', 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.5rem',
-              transition: 'all 0.3s ease'
-            }}
-          >
-            <ShieldAlert size={18} color={isolationMode ? "#0066ff" : "#666"} /> 
-            {isolationMode ? 'GHOST_MOUNT_ACTIVE' : 'ENABLE_GHOST_MOUNT'}
-          </button>
           <button onClick={downloadBridge} style={{ padding: '0.8rem 1.5rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', color: '#fff', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Download size={18} color="#00dc9c" /> DOWNLOAD_LAUNCHER
           </button>
