@@ -1,28 +1,73 @@
 @echo off
-title SecureVault AI Antivirus Installer
-color 0A
-echo ========================================================
-echo        SECUREVAULT TOTAL AI ANTIVIRUS INSTALLER
-echo ========================================================
+title SecureVault AI Total Protection Setup
+color 0B
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+echo !!                                                        !!
+echo !!        SECUREVAULT: AI TOTAL DEFENSE SETUP             !!
+echo !!        STATUS: COGNITIVE SYSTEM SEEDING ACTIVE         !!
+echo !!                                                        !!
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 echo.
-echo Installing SecureVault Neural Engines...
+
 set "INSTALL_DIR=%APPDATA%\SecureVault"
 if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
 
-echo [1/3] Fetching AI Agent core from SecureVault Servers...
-powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/gui-script' -OutFile '%INSTALL_DIR%\sentinel_gui.ps1'"
+echo [GHOST_SETUP] Initializing filesystem handles...
+echo [GHOST_SETUP] Target directory: %INSTALL_DIR%
+echo.
 
-echo [2/3] Fetching SecureVault Logo Icon...
-powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/icon' -OutFile '%INSTALL_DIR%\logo.ico'"
+:: 1. Fetch GUI core
+echo [GHOST_SETUP] [1/3] Fetching 6-Agent Core Engine...
+powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/gui-script' -OutFile '%INSTALL_DIR%\sentinel_gui.ps1' -ErrorAction SilentlyContinue"
 
-echo [3/3] Configuring local environment and Desktop Shortcut...
-powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut('%USERPROFILE%\Desktop\SecureVault AI Antivirus.lnk'); $Shortcut.TargetPath = 'powershell.exe'; $Shortcut.Arguments = '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"'+$env:APPDATA+'\SecureVault\sentinel_gui.ps1\"'; $Shortcut.IconLocation = $env:APPDATA+'\SecureVault\logo.ico'; $Shortcut.Save()"
+if not exist "%INSTALL_DIR%\sentinel_gui.ps1" (
+    echo [WARNING] Render server unresponsive. Checking local pipeline...
+    powershell -Command "Invoke-WebRequest -Uri 'http://localhost:5000/api/system-shield/gui-script' -OutFile '%INSTALL_DIR%\sentinel_gui.ps1' -ErrorAction SilentlyContinue"
+)
+
+if not exist "%INSTALL_DIR%\sentinel_gui.ps1" (
+    if exist "sentinel_gui.ps1" (
+        echo [LOCAL_DEV] Copying sentinel_gui.ps1 from working directory...
+        copy "sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
+    ) else if exist "backend\sentinel_gui.ps1" (
+        echo [LOCAL_DEV] Copying sentinel_gui.ps1 from backend folder...
+        copy "backend\sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
+    )
+)
+
+if not exist "%INSTALL_DIR%\sentinel_gui.ps1" (
+    echo [CRITICAL ERROR] Core script sentinel_gui.ps1 could not be retrieved!
+    echo Please make sure your server is online and running.
+    pause
+    exit /b
+)
+
+:: 2. Fetch Icon
+echo [GHOST_SETUP] [2/3] Downloading High-Res Identity Icon...
+powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/icon' -OutFile '%INSTALL_DIR%\logo.ico' -ErrorAction SilentlyContinue"
+
+if not exist "%INSTALL_DIR%\logo.ico" (
+    powershell -Command "Invoke-WebRequest -Uri 'http://localhost:5000/api/system-shield/icon' -OutFile '%INSTALL_DIR%\logo.ico' -ErrorAction SilentlyContinue"
+)
+
+if not exist "%INSTALL_DIR%\logo.ico" (
+    if exist "securevault_logo.ico" (
+        copy "securevault_logo.ico" "%INSTALL_DIR%\logo.ico" >nul
+    ) else if exist "public\securevault_logo.ico" (
+        copy "public\securevault_logo.ico" "%INSTALL_DIR%\logo.ico" >nul
+    )
+)
+
+:: 3. Configure Shortcuts
+echo [GHOST_SETUP] [3/3] Fortifying Desktop Shortcuts...
+powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut('%USERPROFILE%\Desktop\SecureVault AI Antivirus.lnk'); $Shortcut.TargetPath = 'powershell.exe'; $Shortcut.Arguments = '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"'+$env:APPDATA+'\SecureVault\sentinel_gui.ps1\"'; if (Test-Path '%INSTALL_DIR%\logo.ico') { $Shortcut.IconLocation = '%INSTALL_DIR%\logo.ico' }; $Shortcut.Save()"
 
 echo.
-echo ========================================================
-echo INSTALLATION COMPLETE!
-echo A shortcut 'SecureVault AI Antivirus' is on your Desktop.
-echo Launching the Antivirus now...
-echo ========================================================
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+echo !!  [SUCCESS] SECUREVAULT AI TOTAL PROTECTION INSTALLED   !!
+echo !!  Shortcut created: 'SecureVault AI Antivirus' (Desktop)!!
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+echo.
+echo Launching the Antivirus Suite now...
 start "" "%USERPROFILE%\Desktop\SecureVault AI Antivirus.lnk"
-pause
+exit
