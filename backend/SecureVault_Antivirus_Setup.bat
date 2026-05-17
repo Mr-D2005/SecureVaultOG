@@ -18,20 +18,22 @@ echo.
 
 :: 1. Fetch GUI core
 echo [GHOST_SETUP] [1/3] Fetching 6-Agent Core Engine...
-powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/gui-script' -OutFile '%INSTALL_DIR%\sentinel_gui.ps1' -ErrorAction SilentlyContinue"
 
-if not exist "%INSTALL_DIR%\sentinel_gui.ps1" (
-    echo [WARNING] Render server unresponsive. Checking local pipeline...
+:: Prioritize local files first during development/installation
+if exist "sentinel_gui.ps1" (
+    echo [LOCAL_DEV] Copying sentinel_gui.ps1 from working directory...
+    copy "sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
+) else if exist "backend\sentinel_gui.ps1" (
+    echo [LOCAL_DEV] Copying sentinel_gui.ps1 from backend folder...
+    copy "backend\sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
+) else if exist "%~dp0sentinel_gui.ps1" (
+    echo [LOCAL_DEV] Copying sentinel_gui.ps1 from parent batch path...
+    copy "%~dp0sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
+) else (
+    echo [NETWORK_FETCH] Downloading from secure nodes...
     powershell -Command "Invoke-WebRequest -Uri 'http://localhost:5000/api/system-shield/gui-script' -OutFile '%INSTALL_DIR%\sentinel_gui.ps1' -ErrorAction SilentlyContinue"
-)
-
-if not exist "%INSTALL_DIR%\sentinel_gui.ps1" (
-    if exist "sentinel_gui.ps1" (
-        echo [LOCAL_DEV] Copying sentinel_gui.ps1 from working directory...
-        copy "sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
-    ) else if exist "backend\sentinel_gui.ps1" (
-        echo [LOCAL_DEV] Copying sentinel_gui.ps1 from backend folder...
-        copy "backend\sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
+    if not exist "%INSTALL_DIR%\sentinel_gui.ps1" (
+        powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/gui-script' -OutFile '%INSTALL_DIR%\sentinel_gui.ps1' -ErrorAction SilentlyContinue"
     )
 )
 
@@ -44,17 +46,17 @@ if not exist "%INSTALL_DIR%\sentinel_gui.ps1" (
 
 :: 2. Fetch Icon
 echo [GHOST_SETUP] [2/3] Downloading High-Res Identity Icon...
-powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/icon' -OutFile '%INSTALL_DIR%\logo.ico' -ErrorAction SilentlyContinue"
 
-if not exist "%INSTALL_DIR%\logo.ico" (
+if exist "securevault_logo.ico" (
+    copy "securevault_logo.ico" "%INSTALL_DIR%\logo.ico" >nul
+) else if exist "public\securevault_logo.ico" (
+    copy "public\securevault_logo.ico" "%INSTALL_DIR%\logo.ico" >nul
+) else if exist "%~dp0..\public\securevault_logo.ico" (
+    copy "%~dp0..\public\securevault_logo.ico" "%INSTALL_DIR%\logo.ico" >nul
+) else (
     powershell -Command "Invoke-WebRequest -Uri 'http://localhost:5000/api/system-shield/icon' -OutFile '%INSTALL_DIR%\logo.ico' -ErrorAction SilentlyContinue"
-)
-
-if not exist "%INSTALL_DIR%\logo.ico" (
-    if exist "securevault_logo.ico" (
-        copy "securevault_logo.ico" "%INSTALL_DIR%\logo.ico" >nul
-    ) else if exist "public\securevault_logo.ico" (
-        copy "public\securevault_logo.ico" "%INSTALL_DIR%\logo.ico" >nul
+    if not exist "%INSTALL_DIR%\logo.ico" (
+        powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/icon' -OutFile '%INSTALL_DIR%\logo.ico' -ErrorAction SilentlyContinue"
     )
 )
 
