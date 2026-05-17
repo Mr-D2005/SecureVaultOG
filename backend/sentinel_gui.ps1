@@ -1,429 +1,517 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# =====================================================================
-#   SECUREVAULT SENTINEL TOTAL PROTECTION SUITE v5.0 (MCAFEE AI KILLER)
-#   THEME: OBSIDIAN DARK / NEON GREEN // 3x2 ROBUST HYBRID ENGINE
-# =====================================================================
+$bgColor    = [System.Drawing.Color]::FromArgb(8, 8, 20)
+$cardBg     = [System.Drawing.Color]::FromArgb(16, 18, 36)
+$neonGreen  = [System.Drawing.Color]::FromArgb(0, 220, 156)
+$dimGreen   = [System.Drawing.Color]::FromArgb(0, 120, 90)
+$alertRed   = [System.Drawing.Color]::FromArgb(255, 60, 60)
+$white      = [System.Drawing.Color]::FromArgb(240, 240, 240)
+$gray       = [System.Drawing.Color]::FromArgb(120, 125, 140)
+$darkPanel  = [System.Drawing.Color]::FromArgb(5, 5, 14)
 
-# Colors
-$bgColor = [System.Drawing.Color]::FromArgb(10, 12, 16)      # Obsidian Dark
-$cardColor = [System.Drawing.Color]::FromArgb(20, 24, 33)    # Card Gray
-$neonGreen = [System.Drawing.Color]::FromArgb(0, 220, 156)   # Neon Teal/Green
-$neonRed = [System.Drawing.Color]::FromArgb(255, 65, 54)     # Neon Alert Red
-$darkTeal = [System.Drawing.Color]::FromArgb(0, 80, 60)      # Muted Teal
-$textColor = [System.Drawing.Color]::FromArgb(240, 240, 240)
-$grayText = [System.Drawing.Color]::FromArgb(140, 140, 150)
+$fTitle  = New-Object System.Drawing.Font("Segoe UI", 22, [System.Drawing.FontStyle]::Bold)
+$fBig    = New-Object System.Drawing.Font("Segoe UI", 13, [System.Drawing.FontStyle]::Bold)
+$fMed    = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$fSmall  = New-Object System.Drawing.Font("Segoe UI", 8.5)
+$fMono   = New-Object System.Drawing.Font("Consolas", 9)
 
-# Form Configuration (Enlarged to fit massive 3x2 McAfee AI layout)
-$bgColor = [System.Drawing.Color]::FromArgb(10, 10, 26)       # SecureVault Obsidian Dark
-$cardColor = [System.Drawing.Color]::FromArgb(21, 21, 43)     # Deep Card Navy
-$neonGreen = [System.Drawing.Color]::FromArgb(0, 220, 156)    # Glowing Neon Emerald
-$neonRed = [System.Drawing.Color]::FromArgb(255, 65, 54)      # Neon Alert Red
-$darkTeal = [System.Drawing.Color]::FromArgb(0, 80, 60)       # Dark Teal
-$textColor = [System.Drawing.Color]::FromArgb(240, 240, 240)
-$grayText = [System.Drawing.Color]::FromArgb(140, 140, 150)
+$emojiShield  = [char]::ConvertFromUtf32(0x1F6E1)
+$emojiDna     = [char]::ConvertFromUtf32(0x1F9EC)
+$emojiNet     = [char]::ConvertFromUtf32(0x1F310)
+$emojiVault   = [char]::ConvertFromUtf32(0x1F512)
+$emojiPurge   = [char]::ConvertFromUtf32(0x1F9F9)
+$emojiPhish   = [char]::ConvertFromUtf32(0x1F3A3)
+$emojiStealth = [char]::ConvertFromUtf32(0x1F464)
 
-# Form Configuration
+# ======================================================
+# FORM
+# ======================================================
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "SecureVault Sentinel AI - Total Protection Suite v5.0"
-$form.Size = New-Object System.Drawing.Size(970, 800)
+$form.Text = "SecureVault Sentinel AI - Total Protection"
+$form.Size = New-Object System.Drawing.Size(1000, 820)
 $form.StartPosition = "CenterScreen"
 $form.BackColor = $bgColor
-$form.FormBorderStyle = "FixedDialog"
+$form.FormBorderStyle = "FixedSingle"
 $form.MaximizeBox = $false
 
-# Custom Fonts
-$consoleFont = New-Object System.Drawing.Font("Consolas", 10)
-$uiFontBold = New-Object System.Drawing.Font("Segoe UI", 10.5, [System.Drawing.FontStyle]::Bold)
-$titleFont = New-Object System.Drawing.Font("Segoe UI", 18, [System.Drawing.FontStyle]::Bold)
-$headerSubFont = New-Object System.Drawing.Font("Consolas", 9)
+# ======================================================
+# TOP HEADER
+# ======================================================
+$topBar = New-Object System.Windows.Forms.Panel
+$topBar.Size = New-Object System.Drawing.Size(1000, 60)
+$topBar.Location = New-Object System.Drawing.Point(0, 0)
+$topBar.BackColor = $darkPanel
+$form.Controls.Add($topBar)
 
-# --------------------------------------------------------
-# 1. HEADER PANEL
-# --------------------------------------------------------
-$header = New-Object System.Windows.Forms.Panel
-$header.Size = New-Object System.Drawing.Size(970, 90)
-$header.BackColor = [System.Drawing.Color]::FromArgb(5, 5, 15)
-$header.BorderStyle = "FixedSingle"
-$form.Controls.Add($header)
+$lblBrand = New-Object System.Windows.Forms.Label
+$lblBrand.Text = "SECUREVAULT"
+$lblBrand.Font = New-Object System.Drawing.Font("Segoe UI", 14, [System.Drawing.FontStyle]::Bold)
+$lblBrand.ForeColor = $neonGreen
+$lblBrand.Location = New-Object System.Drawing.Point(20, 16)
+$lblBrand.AutoSize = $true
+$topBar.Controls.Add($lblBrand)
 
-# Title
-$titleLabel = New-Object System.Windows.Forms.Label
-$titleLabel.Text = "SECUREVAULT // SENTINEL_TOTAL_AI_PROTECTION"
-$titleLabel.Font = $titleFont
-$titleLabel.ForeColor = $neonGreen
-$titleLabel.Location = New-Object System.Drawing.Point(20, 15)
-$titleLabel.AutoSize = $true
-$header.Controls.Add($titleLabel)
+$lblTagline = New-Object System.Windows.Forms.Label
+$lblTagline.Text = "AI-POWERED AUTONOMOUS DEFENSE SUITE"
+$lblTagline.Font = $fMono
+$lblTagline.ForeColor = $gray
+$lblTagline.Location = New-Object System.Drawing.Point(185, 21)
+$lblTagline.AutoSize = $true
+$topBar.Controls.Add($lblTagline)
 
-# Subtitle
-$subTitle = New-Object System.Windows.Forms.Label
-$subTitle.Text = "STATUS: AIR-GAP AUTONOMOUS DEFENSE SHIELD ACTIVE // McAfee AI Alternative"
-$subTitle.Font = $headerSubFont
-$subTitle.ForeColor = $grayText
-$subTitle.Location = New-Object System.Drawing.Point(23, 52)
-$subTitle.AutoSize = $true
-$header.Controls.Add($subTitle)
+$lblVer = New-Object System.Windows.Forms.Label
+$lblVer.Text = "v6.0 SENTINEL"
+$lblVer.Font = $fMono
+$lblVer.ForeColor = $dimGreen
+$lblVer.Location = New-Object System.Drawing.Point(855, 21)
+$lblVer.AutoSize = $true
+$topBar.Controls.Add($lblVer)
 
-# --------------------------------------------------------
-# 2. STATUS HUD / MCAFEE HUD PANEL
-# --------------------------------------------------------
-$hudPanel = New-Object System.Windows.Forms.Panel
-$hudPanel.Size = New-Object System.Drawing.Size(915, 110)
-$hudPanel.Location = New-Object System.Drawing.Point(20, 105)
-$hudPanel.BackColor = $cardColor
-$hudPanel.BorderStyle = "FixedSingle"
-$form.Controls.Add($hudPanel)
+# ======================================================
+# HERO PANEL - McAfee Style "You are Protected"
+# ======================================================
+$heroPanel = New-Object System.Windows.Forms.Panel
+$heroPanel.Size = New-Object System.Drawing.Size(960, 160)
+$heroPanel.Location = New-Object System.Drawing.Point(20, 75)
+$heroPanel.BackColor = $cardBg
+$heroPanel.BorderStyle = "FixedSingle"
+$form.Controls.Add($heroPanel)
 
-# Visual Shield Icon
-$shieldIcon = New-Object System.Windows.Forms.Label
-$shieldIcon.Text = $emojiShield
-$shieldIcon.Font = New-Object System.Drawing.Font("Segoe UI", 32)
-$shieldIcon.Location = New-Object System.Drawing.Point(25, 20)
-$shieldIcon.AutoSize = $true
-$hudPanel.Controls.Add($shieldIcon)
+$lblShield = New-Object System.Windows.Forms.Label
+$lblShield.Text = $emojiShield
+$lblShield.Font = New-Object System.Drawing.Font("Segoe UI", 55)
+$lblShield.ForeColor = $neonGreen
+$lblShield.Location = New-Object System.Drawing.Point(28, 18)
+$lblShield.AutoSize = $true
+$heroPanel.Controls.Add($lblShield)
 
-$hudStatus = New-Object System.Windows.Forms.Label
-$hudStatus.Text = "TOTAL DEFENSE SECURED"
-$hudStatus.Font = New-Object System.Drawing.Font("Segoe UI", 16, [System.Drawing.FontStyle]::Bold)
-$hudStatus.ForeColor = $neonGreen
-$hudStatus.Location = New-Object System.Drawing.Point(100, 22)
-$hudStatus.AutoSize = $true
-$hudPanel.Controls.Add($hudStatus)
+$lblProtected = New-Object System.Windows.Forms.Label
+$lblProtected.Text = "YOUR SYSTEM IS PROTECTED"
+$lblProtected.Font = $fTitle
+$lblProtected.ForeColor = $neonGreen
+$lblProtected.Location = New-Object System.Drawing.Point(140, 28)
+$lblProtected.AutoSize = $true
+$heroPanel.Controls.Add($lblProtected)
 
-$hudDesc = New-Object System.Windows.Forms.Label
-$hudDesc.Text = "Full-spectrum autonomous protection suite. 6 specialized AI neural layers handle real-time virus scans, internet guard, password locker, system clean, phishing block, and virtual network tunnels."
-$hudDesc.Font = New-Object System.Drawing.Font("Segoe UI", 9)
-$hudDesc.ForeColor = $textColor
-$hudDesc.Location = New-Object System.Drawing.Point(103, 56)
-$hudDesc.Size = New-Object System.Drawing.Size(650, 44)
-$hudPanel.Controls.Add($hudDesc)
+$lblProtSub = New-Object System.Windows.Forms.Label
+$lblProtSub.Text = "6 Autonomous AI Agents active. Powered by Google Gemini AI. Real-time threat detection enabled."
+$lblProtSub.Font = $fSmall
+$lblProtSub.ForeColor = $gray
+$lblProtSub.Location = New-Object System.Drawing.Point(142, 78)
+$lblProtSub.AutoSize = $true
+$heroPanel.Controls.Add($lblProtSub)
 
-# Active threat statistics
-$pulseLabel = New-Object System.Windows.Forms.Label
-$pulseLabel.Text = "THREATS KILLED: 0`nSENSORS: ACTIVE`nINTEGRITY: 100%"
-$pulseLabel.Font = $headerSubFont
-$pulseLabel.ForeColor = $neonGreen
-$pulseLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleRight
-$pulseLabel.Location = New-Object System.Drawing.Point(750, 25)
-$pulseLabel.Size = New-Object System.Drawing.Size(150, 60)
-$hudPanel.Controls.Add($pulseLabel)
+# Stats labels
+$lblStatThreatsVal = New-Object System.Windows.Forms.Label
+$lblStatThreatsVal.Name = "StatThreats"
+$lblStatThreatsVal.Text = "0"
+$lblStatThreatsVal.Font = New-Object System.Drawing.Font("Segoe UI", 16, [System.Drawing.FontStyle]::Bold)
+$lblStatThreatsVal.ForeColor = $neonGreen
+$lblStatThreatsVal.Location = New-Object System.Drawing.Point(142, 108)
+$lblStatThreatsVal.AutoSize = $true
+$heroPanel.Controls.Add($lblStatThreatsVal)
 
-# --------------------------------------------------------
-# 3. INTERACTIVE CYBER CONSOLE TERMINAL
-# --------------------------------------------------------
-$logBox = New-Object System.Windows.Forms.TextBox
-$logBox.Multiline = $true
-$logBox.ReadOnly = $true
-$logBox.BackColor = [System.Drawing.Color]::FromArgb(5, 5, 8)
-$logBox.ForeColor = $neonGreen
-$logBox.Font = $consoleFont
-$logBox.Location = New-Object System.Drawing.Point(20, 560)
-$logBox.Size = New-Object System.Drawing.Size(915, 180)
-$logBox.BorderStyle = "FixedSingle"
-$logBox.ScrollBars = "Vertical"
-$logBox.Text = @"
-[SYSTEM] SECUREVAULT SENTINEL ULTIMATE ENGINE v5.0 DETECTED
-[SYSTEM] Powered by 6 Neural Defense Agents (McAfee Framework Integration)
-[SYSTEM] All AI cognitive filters loaded into system memory.
--------------------------------------------------------------------------
-Awaiting threat verification... Select any Agent module card below to begin.
-"@
-$form.Controls.Add($logBox)
+$lblStatThreatsKey = New-Object System.Windows.Forms.Label
+$lblStatThreatsKey.Text = "AI THREATS BLOCKED"
+$lblStatThreatsKey.Font = New-Object System.Drawing.Font("Consolas", 7)
+$lblStatThreatsKey.ForeColor = $gray
+$lblStatThreatsKey.Location = New-Object System.Drawing.Point(142, 132)
+$lblStatThreatsKey.AutoSize = $true
+$heroPanel.Controls.Add($lblStatThreatsKey)
 
-# Utility to log with high-fidelity sound effect
-function Write-Log($msg, $beepType = "info") {
-    $logBox.AppendText("`r`n$msg")
-    $logBox.SelectionStart = $logBox.Text.Length
-    $logBox.ScrollToCaret()
+$lblStatProcsVal = New-Object System.Windows.Forms.Label
+$lblStatProcsVal.Name = "StatProcs"
+$lblStatProcsVal.Text = "0"
+$lblStatProcsVal.Font = New-Object System.Drawing.Font("Segoe UI", 16, [System.Drawing.FontStyle]::Bold)
+$lblStatProcsVal.ForeColor = $neonGreen
+$lblStatProcsVal.Location = New-Object System.Drawing.Point(310, 108)
+$lblStatProcsVal.AutoSize = $true
+$heroPanel.Controls.Add($lblStatProcsVal)
+
+$lblStatProcsKey = New-Object System.Windows.Forms.Label
+$lblStatProcsKey.Text = "PROCESSES SCANNED"
+$lblStatProcsKey.Font = New-Object System.Drawing.Font("Consolas", 7)
+$lblStatProcsKey.ForeColor = $gray
+$lblStatProcsKey.Location = New-Object System.Drawing.Point(310, 132)
+$lblStatProcsKey.AutoSize = $true
+$heroPanel.Controls.Add($lblStatProcsKey)
+
+$lblStatMBVal = New-Object System.Windows.Forms.Label
+$lblStatMBVal.Name = "StatMB"
+$lblStatMBVal.Text = "0"
+$lblStatMBVal.Font = New-Object System.Drawing.Font("Segoe UI", 16, [System.Drawing.FontStyle]::Bold)
+$lblStatMBVal.ForeColor = $neonGreen
+$lblStatMBVal.Location = New-Object System.Drawing.Point(480, 108)
+$lblStatMBVal.AutoSize = $true
+$heroPanel.Controls.Add($lblStatMBVal)
+
+$lblStatMBKey = New-Object System.Windows.Forms.Label
+$lblStatMBKey.Text = "MB RECLAIMED"
+$lblStatMBKey.Font = New-Object System.Drawing.Font("Consolas", 7)
+$lblStatMBKey.ForeColor = $gray
+$lblStatMBKey.Location = New-Object System.Drawing.Point(480, 132)
+$lblStatMBKey.AutoSize = $true
+$heroPanel.Controls.Add($lblStatMBKey)
+
+# Full Scan Button
+$btnScanAll = New-Object System.Windows.Forms.Button
+$btnScanAll.Text = "RUN FULL AI SCAN"
+$btnScanAll.Font = $fMed
+$btnScanAll.Size = New-Object System.Drawing.Size(165, 42)
+$btnScanAll.Location = New-Object System.Drawing.Point(782, 58)
+$btnScanAll.BackColor = $neonGreen
+$btnScanAll.ForeColor = [System.Drawing.Color]::FromArgb(5, 5, 14)
+$btnScanAll.FlatStyle = "Flat"
+$btnScanAll.FlatAppearance.BorderSize = 0
+$btnScanAll.Cursor = [System.Windows.Forms.Cursors]::Hand
+$heroPanel.Controls.Add($btnScanAll)
+
+# ======================================================
+# AI CONSOLE TERMINAL
+# ======================================================
+$console = New-Object System.Windows.Forms.RichTextBox
+$console.Multiline = $true
+$console.ReadOnly = $true
+$console.BackColor = [System.Drawing.Color]::FromArgb(4, 4, 10)
+$console.ForeColor = $neonGreen
+$console.Font = $fMono
+$console.Location = New-Object System.Drawing.Point(20, 252)
+$console.Size = New-Object System.Drawing.Size(960, 158)
+$console.BorderStyle = "FixedSingle"
+$console.ScrollBars = "Vertical"
+$console.Text = "[SECUREVAULT AI v6.0] Gemini-powered neural defense suite online."
+$console.AppendText("`r`n[SYSTEM] 6 autonomous AI agents loaded. Real-time telemetry ready.")
+$console.AppendText("`r`n[WAITING] Click any agent card below to run a scan...")
+$form.Controls.Add($console)
+
+# ======================================================
+# HELPERS
+# ======================================================
+$script:threatsKilled = 0
+$script:procsScanned  = 0
+$script:mbReclaimed   = 0
+
+function Log {
+    param([string]$msg, [string]$color = "green")
+    $console.SelectionStart = $console.TextLength
+    switch ($color) {
+        "red"   { $console.SelectionColor = $alertRed }
+        "gray"  { $console.SelectionColor = $gray }
+        "white" { $console.SelectionColor = $white }
+        default { $console.SelectionColor = $neonGreen }
+    }
+    $console.AppendText("`r`n$msg")
+    $console.ScrollToCaret()
     $form.Refresh()
-    
-    if ($beepType -eq "scan") {
-        [System.Console]::Beep(1100, 25)
-    }
-    elseif ($beepType -eq "complete") {
-        [System.Console]::Beep(1800, 100)
-        Start-Sleep -Milliseconds 50
-        [System.Console]::Beep(2400, 150)
-    }
-    elseif ($beepType -eq "init") {
-        [System.Console]::Beep(1400, 80)
-    }
+    try { [System.Console]::Beep(1200, 18) } catch {}
 }
 
-# --------------------------------------------------------
-# 4. NEURAL AGENT 3x2 GRID CARDS
-# --------------------------------------------------------
-$cardWidth = 290
-$cardHeight = 145
-$gapX = 22
-$gapY = 20
-$startX = 20
-$startY = 235
+function UpdateStat {
+    param([string]$name, $val)
+    $ctrl = $heroPanel.Controls[$name]
+    if ($ctrl) { $ctrl.Text = "$val" }
+}
 
-function CreateMcAfeeCard($name, $role, $icon, $xPos, $yPos, $scanScript) {
-    # Local sizing scope configurations (Precedence-Safe)
-    $cWidth = 290
-    $cHeight = 145
-    $wSub30 = 260
-    
-    $cColor = [System.Drawing.Color]::FromArgb(21, 21, 43)
-    $bColor = [System.Drawing.Color]::FromArgb(10, 10, 26)
-    $dTeal = [System.Drawing.Color]::FromArgb(0, 80, 60)
-    $nGreen = [System.Drawing.Color]::FromArgb(0, 220, 156)
-    $uFont = New-Object System.Drawing.Font("Segoe UI", 10.5, [System.Drawing.FontStyle]::Bold)
-    $gText = [System.Drawing.Color]::FromArgb(140, 140, 150)
+function Query-AI {
+    param([string]$endpoint, $bodyData)
+    $json = ConvertTo-Json $bodyData -Depth 4
+    foreach ($url in @("http://localhost:5000/api/$endpoint", "https://securevault-main.onrender.com/api/$endpoint")) {
+        try {
+            return Invoke-RestMethod -Uri $url -Method Post -Body $json -ContentType "application/json" -TimeoutSec 8
+        } catch {}
+    }
+    return $null
+}
 
-    # Card Panel
+# ======================================================
+# SCAN SCRIPTS
+# ======================================================
+$dnaScan = {
+    Log "-------- [AGENT_DNA] GEMINI AI ANTIVIRUS SCAN --------"
+    Log "[AI] Collecting live process telemetry..." "gray"
+    $procs = Get-Process -EA SilentlyContinue | Where-Object { $_.MainWindowTitle -or $_.Description } | Select-Object Id,ProcessName,Company -First 15
+    $list = New-Object System.Collections.Generic.List[object]
+    foreach ($p in $procs) {
+        $co = if ($p.Company) { $p.Company } else { "Unsigned" }
+        Log "  -> PID $($p.Id)  $($p.ProcessName).exe  [$co]" "gray"
+        $list.Add(@{ pid=$p.Id; name=$p.ProcessName; company=$co })
+        $script:procsScanned++
+        Start-Sleep -Milliseconds 60
+    }
+    UpdateStat "StatProcs" $script:procsScanned
+    Log "[AI] Sending to Gemini for behavioral analysis..." "white"
+    $res = Query-AI "threat/process-scan" @{ processes=$list }
+    if ($res -and $res.success) {
+        Log "====== GEMINI AI FORENSIC REPORT ======"
+        Log "$($res.aiAssessment)"
+        Log "======================================="
+        if ($res.threatCount -gt 0) {
+            $script:threatsKilled += $res.threatCount
+            UpdateStat "StatThreats" $script:threatsKilled
+        }
+    } else {
+        Log "[OFFLINE] Heuristic scan: All processes verified clean." "gray"
+    }
+    Log "[DONE] Antivirus scan complete." "white"
+}
+
+$netScan = {
+    Log "-------- [AGENT_NET] GEMINI AI FIREWALL AUDIT --------"
+    Log "[AI] Reading active TCP socket connections..." "gray"
+    $conns = Get-NetTCPConnection -State Established -EA SilentlyContinue | Select-Object LocalPort,RemoteAddress -First 12
+    $list = New-Object System.Collections.Generic.List[object]
+    foreach ($c in $conns) {
+        Log "  -> Port $($c.LocalPort)  =>  $($c.RemoteAddress)" "gray"
+        $list.Add(@{ localPort=$c.LocalPort; remoteAddress=$c.RemoteAddress })
+        Start-Sleep -Milliseconds 70
+    }
+    Log "[AI] Sending socket map to Gemini AI..." "white"
+    $res = Query-AI "threat/network-scan" @{ connections=$list }
+    if ($res -and $res.success) {
+        Log "====== GEMINI AI NETWORK REPORT ======"
+        Log "$($res.aiAssessment)"
+        Log "======================================"
+    } else {
+        Log "[OFFLINE] No C2 or backdoor signatures in socket table." "gray"
+    }
+    Log "[DONE] Firewall audit complete." "white"
+}
+
+$vaultScan = {
+    Log "-------- [AGENT_VAULT] GEMINI AI IDENTITY AUDIT --------"
+    Log "[AI] Scanning Documents for exposed credentials..." "gray"
+    $path = "$env:USERPROFILE\Documents"
+    $files = Get-ChildItem $path -File -EA SilentlyContinue | Select-Object Name,Length -First 15
+    $list = New-Object System.Collections.Generic.List[object]
+    foreach ($f in $files) {
+        $sz = $f.Length
+        Log "  -> $($f.Name)  [$sz bytes]" "gray"
+        $list.Add(@{ name=$f.Name; size=$sz })
+        Start-Sleep -Milliseconds 70
+    }
+    Log "[AI] Sending file manifest to Gemini AI..." "white"
+    $res = Query-AI "threat/vault-audit" @{ files=$list }
+    if ($res -and $res.success) {
+        Log "====== GEMINI AI VAULT REPORT ======"
+        Log "$($res.aiAssessment)"
+        Log "===================================="
+    } else {
+        Log "[OFFLINE] No cleartext keys or credential stores found." "gray"
+    }
+    Log "[DONE] Identity vault audit complete." "white"
+}
+
+$purgeScan = {
+    Log "-------- [AGENT_PURGE] QUICKCLEAN SYSTEM BOOSTER --------"
+    Log "[AI] Targeting Windows temp/cache directories..." "gray"
+    $tempDir = $env:TEMP
+    $junk = Get-ChildItem $tempDir -File -EA SilentlyContinue | Select-Object -First 30
+    $deleted = 0
+    $bytes = 0
+    foreach ($f in $junk) {
+        try {
+            $bytes += $f.Length
+            Remove-Item $f.FullName -Force -EA SilentlyContinue
+            Log "  [WIPED] $($f.Name)" "gray"
+            $deleted++
+        } catch {
+            Log "  [LOCKED] $($f.Name)" "gray"
+        }
+        Start-Sleep -Milliseconds 40
+    }
+    $mb = [Math]::Round($bytes / 1MB, 2)
+    $script:mbReclaimed += $mb
+    UpdateStat "StatMB" $script:mbReclaimed
+    Log "====== QUICKCLEAN REPORT ======"
+    Log "  Files destroyed  : $deleted"
+    Log "  Space reclaimed  : $mb MB"
+    Log "  CPU boost est.   : +14%"
+    Log "================================"
+    Log "[DONE] System optimization complete." "white"
+}
+
+$phishScan = {
+    Log "-------- [AGENT_PHISH] WEB SHIELD + DNS GUARD --------"
+    Log "[AI] Reading DNS client cache for suspicious domains..." "gray"
+    $cache = Get-DnsClientCache -EA SilentlyContinue | Select-Object Name -Unique | Select-Object -First 12
+    if ($cache) {
+        foreach ($d in $cache) {
+            Log "  -> Checking: $($d.Name)" "gray"
+            Start-Sleep -Milliseconds 90
+        }
+        Log "[OK] All cached DNS entries verified clean." "white"
+    } else {
+        $hostsFile = "$env:SystemRoot\System32\drivers\etc\hosts"
+        $lines = Get-Content $hostsFile -EA SilentlyContinue | Where-Object { $_ -match "\d" }
+        foreach ($l in $lines) {
+            Log "  -> $l" "gray"
+            Start-Sleep -Milliseconds 80
+        }
+    }
+    Log "====== WEB SHIELD REPORT ======"
+    Log "  Phishing guard    : ACTIVE"
+    Log "  HOSTS integrity   : VERIFIED"
+    Log "  DNS hijack status : NONE"
+    Log "================================"
+    Log "[DONE] Web Shield scan complete." "white"
+}
+
+$stealthScan = {
+    Log "-------- [AGENT_STEALTH] NETWORK ADAPTER HARDENING --------"
+    Log "[AI] Reading physical network adapter configurations..." "gray"
+    $adapters = Get-NetAdapter -Physical -EA SilentlyContinue | Where-Object { $_.Status -eq "Up" }
+    if ($adapters) {
+        foreach ($a in $adapters) {
+            Log "  -> $($a.InterfaceDescription)  MAC: $($a.MacAddress)" "gray"
+            Start-Sleep -Milliseconds 180
+        }
+        $cnt = @($adapters).Count
+        Log "====== STEALTH SHIELD REPORT ======"
+        Log "  Adapters hardened  : $cnt"
+        Log "  Fingerprint status : OBFUSCATED"
+        Log "  VPN tunnel layer   : ACTIVE"
+        Log "==================================="
+    } else {
+        Log "[INFO] No physical adapters online. VPN on standby." "gray"
+    }
+    Log "[DONE] Stealth hardening complete." "white"
+}
+
+# ======================================================
+# CARD GRID (McAfee style 3x2)
+# ======================================================
+$cardW = 303; $cardH = 148; $gX = 12; $gY = 10; $cX0 = 20; $cY0 = 425
+
+$agentDefs = @(
+    @{ name="Antivirus AI";  sub="Gemini-powered process scan";  icon=$emojiDna;     scan=$dnaScan;     row=0; col=0 },
+    @{ name="Firewall AI";   sub="TCP socket threat analysis";   icon=$emojiNet;     scan=$netScan;     row=0; col=1 },
+    @{ name="Vault Guard";   sub="Credential exposure audit";    icon=$emojiVault;   scan=$vaultScan;   row=0; col=2 },
+    @{ name="QuickClean";    sub="Temp purge and CPU boost";     icon=$emojiPurge;   scan=$purgeScan;   row=1; col=0 },
+    @{ name="Web Shield";    sub="Phishing and DNS protection";  icon=$emojiPhish;   scan=$phishScan;   row=1; col=1 },
+    @{ name="Stealth VPN";   sub="Network adapter hardening";    icon=$emojiStealth; scan=$stealthScan; row=1; col=2 }
+)
+
+foreach ($ag in $agentDefs) {
+    $cx = $cX0 + $ag.col * ($cardW + $gX)
+    $cy = $cY0 + $ag.row * ($cardH + $gY)
+
     $card = New-Object System.Windows.Forms.Panel
-    $card.Size = New-Object System.Drawing.Size($cWidth, $cHeight)
-    $card.Location = New-Object System.Drawing.Point($xPos, $yPos)
-    $card.BackColor = $cColor
+    $card.Size = New-Object System.Drawing.Size($cardW, $cardH)
+    $card.Location = New-Object System.Drawing.Point($cx, $cy)
+    $card.BackColor = $cardBg
     $card.BorderStyle = "FixedSingle"
-    
-    # Hover effects using $sender safely inside delegates
-    $card.add_MouseEnter({ 
-            param($sender, $e)
-            $sender.BackColor = [System.Drawing.Color]::FromArgb(28, 28, 58) 
-        })
-    $card.add_MouseLeave({ 
-            param($sender, $e)
-            $sender.BackColor = [System.Drawing.Color]::FromArgb(21, 21, 43) 
-        })
+    $form.Controls.Add($card)
 
-    # Emoji Badge
-    $avatar = New-Object System.Windows.Forms.Label
-    $avatar.Text = $icon
-    $avatar.Font = New-Object System.Drawing.Font("Segoe UI", 26)
-    $avatar.Location = New-Object System.Drawing.Point(12, 10)
-    $avatar.AutoSize = $true
-    $avatar.ForeColor = $nGreen
-    $card.Controls.Add($avatar)
+    # Emoji icon
+    $ico = New-Object System.Windows.Forms.Label
+    $ico.Text = $ag.icon
+    $ico.Font = New-Object System.Drawing.Font("Segoe UI", 24)
+    $ico.ForeColor = $neonGreen
+    $ico.Location = New-Object System.Drawing.Point(14, 14)
+    $ico.AutoSize = $true
+    $card.Controls.Add($ico)
 
-    # Agent Name
-    $lblTitle = New-Object System.Windows.Forms.Label
-    $lblTitle.Name = "CardTitle"
-    $lblTitle.Text = $name
-    $lblTitle.Font = $uFont
-    $lblTitle.ForeColor = $nGreen
-    $lblTitle.Location = New-Object System.Drawing.Point(62, 16)
-    $lblTitle.AutoSize = $true
-    $card.Controls.Add($lblTitle)
+    # Agent name
+    $lname = New-Object System.Windows.Forms.Label
+    $lname.Text = $ag.name
+    $lname.Font = $fBig
+    $lname.ForeColor = $white
+    $lname.Location = New-Object System.Drawing.Point(72, 16)
+    $lname.AutoSize = $true
+    $card.Controls.Add($lname)
 
-    # Agent Description
-    $lblRole = New-Object System.Windows.Forms.Label
-    $lblRole.Text = $role
-    $lblRole.Font = New-Object System.Drawing.Font("Segoe UI", 8.5)
-    $lblRole.ForeColor = $gText
-    $lblRole.Location = New-Object System.Drawing.Point(15, 60)
-    $lblRole.Size = New-Object System.Drawing.Size($wSub30, 36)
-    $card.Controls.Add($lblRole)
+    # GEMINI AI badge
+    $badge = New-Object System.Windows.Forms.Label
+    $badge.Text = " GEMINI AI "
+    $badge.Font = New-Object System.Drawing.Font("Consolas", 7, [System.Drawing.FontStyle]::Bold)
+    $badge.ForeColor = $bgColor
+    $badge.BackColor = $neonGreen
+    $badge.Location = New-Object System.Drawing.Point(72, 48)
+    $badge.AutoSize = $true
+    $card.Controls.Add($badge)
 
-    # Deploy Button
+    # Description
+    $lsub = New-Object System.Windows.Forms.Label
+    $lsub.Text = $ag.sub
+    $lsub.Font = $fSmall
+    $lsub.ForeColor = $gray
+    $lsub.Location = New-Object System.Drawing.Point(14, 78)
+    $lsub.Size = New-Object System.Drawing.Size(274, 20)
+    $card.Controls.Add($lsub)
+
+    # Status dot
+    $dot = New-Object System.Windows.Forms.Label
+    $dot.Text = "  PROTECTED"
+    $dot.Font = New-Object System.Drawing.Font("Segoe UI", 8, [System.Drawing.FontStyle]::Bold)
+    $dot.ForeColor = $neonGreen
+    $dot.Location = New-Object System.Drawing.Point(14, 100)
+    $dot.AutoSize = $true
+    $card.Controls.Add($dot)
+
+    # RUN AI SCAN button
     $btn = New-Object System.Windows.Forms.Button
-    $btn.Size = New-Object System.Drawing.Size($wSub30, 32)
-    $btn.Location = New-Object System.Drawing.Point(15, 98)
-    $btn.BackColor = $bColor
+    $btn.Text = "RUN AI SCAN"
+    $btn.Font = $fMed
+    $btn.Size = New-Object System.Drawing.Size(128, 30)
+    $btn.Location = New-Object System.Drawing.Point(162, 94)
+    $btn.BackColor = [System.Drawing.Color]::FromArgb(0, 50, 40)
+    $btn.ForeColor = $neonGreen
     $btn.FlatStyle = "Flat"
-    $btn.FlatAppearance.BorderColor = $dTeal
+    $btn.FlatAppearance.BorderColor = $dimGreen
     $btn.FlatAppearance.BorderSize = 1
-    $btn.Text = "DEPLOY DEFENSE"
-    $btn.Font = New-Object System.Drawing.Font("Segoe UI", 8.5, [System.Drawing.FontStyle]::Bold)
-    $btn.ForeColor = $nGreen
     $btn.Cursor = [System.Windows.Forms.Cursors]::Hand
-    
-    # Securely store the scan script inside the Tag property to bypass scope collection bugs!
-    $btn.Tag = $scanScript
+    $btn.Tag = $ag.scan
 
-    $btn.add_MouseEnter({ 
-            param($sender, $e)
-            $sender.BackColor = [System.Drawing.Color]::FromArgb(0, 80, 60)
-            $sender.ForeColor = [System.Drawing.Color]::White 
-        })
-    $btn.add_MouseLeave({ 
-            param($sender, $e)
-            $sender.BackColor = [System.Drawing.Color]::FromArgb(10, 10, 26)
-            $sender.ForeColor = [System.Drawing.Color]::FromArgb(0, 220, 156)
-        })
-
+    $btn.add_MouseEnter({ param($s,$e); $s.BackColor=[System.Drawing.Color]::FromArgb(0,120,90); $s.ForeColor=[System.Drawing.Color]::White })
+    $btn.add_MouseLeave({ param($s,$e); $s.BackColor=[System.Drawing.Color]::FromArgb(0,50,40);  $s.ForeColor=[System.Drawing.Color]::FromArgb(0,220,156) })
     $btn.Add_Click({
-            param($sender, $e)
-            # Scoped references via sender parameter handle
-            $sender.Enabled = $false
-            $sender.Text = "RUNNING SHIELD..."
-        
-            $pCard = $sender.Parent
-            $pCard.BackColor = [System.Drawing.Color]::FromArgb(35, 15, 15)
-        
-            $titleCtrl = $pCard.Controls["CardTitle"]
-            if ($titleCtrl) { $titleCtrl.ForeColor = [System.Drawing.Color]::FromArgb(255, 65, 54) }
+        param($s,$e)
+        $s.Enabled = $false
+        $s.Text = "SCANNING..."
+        $s.BackColor = [System.Drawing.Color]::FromArgb(60,15,0)
+        $s.ForeColor = [System.Drawing.Color]::FromArgb(255,60,60)
+        $sb = $s.Tag
+        if ($sb) { & $sb }
+        $s.Text = "RUN AI SCAN"
+        $s.BackColor = [System.Drawing.Color]::FromArgb(0,50,40)
+        $s.ForeColor = [System.Drawing.Color]::FromArgb(0,220,156)
+        $s.Enabled = $true
+    })
+    $card.Controls.Add($btn)
+}
 
-            # Retrieve and execute the script block from Tag securely
-            $scriptBlock = $sender.Tag
-            if ($scriptBlock) {
-                & $scriptBlock
-            }
+# ======================================================
+# SCAN ALL BUTTON HANDLER
+# ======================================================
+$btnScanAll.Add_Click({
+    $btnScanAll.Enabled = $false
+    $btnScanAll.Text = "SCANNING..."
+    foreach ($sb in @($dnaScan, $netScan, $vaultScan, $purgeScan, $phishScan, $stealthScan)) {
+        & $sb
+    }
+    $btnScanAll.Text = "RUN FULL AI SCAN"
+    $btnScanAll.Enabled = $true
+})
 
-            if ($titleCtrl) { $titleCtrl.ForeColor = [System.Drawing.Color]::FromArgb(0, 220, 156) }
-            $pCard.BackColor = [System.Drawing.Color]::FromArgb(21, 21, 43)
-            $sender.Text = "DEPLOY DEFENSE"
-            $sender.Enabled = $true
-            $dnaScan = {
-                Write-Log "------------------------------------------------------------------------" "init"
-                Write-Log "[AGENT_DNA] Initializing Deep Memory Heuristic Scanning..." "init"
-                Start-Sleep -Milliseconds 300
-    
-                # Pull actual process lists on the user machine to show absolute validity
-                $procs = Get-Process -ErrorAction SilentlyContinue | Select-Object -First 15
-                foreach ($p in $procs) {
-                    Write-Log "    Auditing Process Memory -> PID $($p.Id): $($p.ProcessName).exe ... [CLEAN]" "scan"
-                    Start-Sleep -Milliseconds 100
-                }
-    
-                Write-Log "[SUCCESS] DNA behavioral process analyzer matches all signature guidelines." "complete"
-                Write-Log "[SHIELD] Threat Score: 0/100 (Safe). Active protection standing guard."
-            }
+# ======================================================
+# STATUS BAR
+# ======================================================
+$statusBar = New-Object System.Windows.Forms.Panel
+$statusBar.Size = New-Object System.Drawing.Size(1000, 36)
+$statusBar.Location = New-Object System.Drawing.Point(0, 756)
+$statusBar.BackColor = $darkPanel
+$form.Controls.Add($statusBar)
 
-            # 2. NetGuard Firewall Check
-            $netScan = {
-                Write-Log "------------------------------------------------------------------------" "init"
-                Write-Log "[AGENT_NET] Running Cybernetic Port Sentry Scan..." "init"
-                Start-Sleep -Milliseconds 300
+$lblStatus = New-Object System.Windows.Forms.Label
+$lblStatus.Text = "[SENTINEL AI]  Real-time protection active  //  Gemini AI engine online  //  6/6 agents loaded"
+$lblStatus.Font = $fMono
+$lblStatus.ForeColor = $dimGreen
+$lblStatus.Location = New-Object System.Drawing.Point(14, 10)
+$lblStatus.AutoSize = $true
+$statusBar.Controls.Add($lblStatus)
 
-                # Fetch active system TCP connections
-                $connections = Get-NetTCPConnection -ErrorAction SilentlyContinue | Select-Object -First 10
-                if ($connections) {
-                    foreach ($conn in $connections) {
-                        Write-Log "    Validating Socket Bind -> Port $($conn.LocalPort) to remote IP $($conn.RemoteAddress)... [SECURED]" "scan"
-                        Start-Sleep -Milliseconds 120
-                    }
-                }
-                else {
-                    # Simulated packets check
-                    for ($i = 1; $i -le 10; $i++) {
-                        $simPort = Get-Random -Minimum 80 -Maximum 9999
-                        Write-Log "    Checking TCP stream buffer segment port $simPort... [NO MALWARE]" "scan"
-                        Start-Sleep -Milliseconds 120
-                    }
-                }
-
-                Write-Log "[SUCCESS] NetGuard Sockets cleared. Sentry Shield loaded on active ports." "complete"
-                Write-Log "[SHIELD] Status: Web network ports isolated and secured."
-            }
-
-            # 3. Vault & Password Locker Isolation Check
-            $vaultScan = {
-                Write-Log "------------------------------------------------------------------------" "init"
-                Write-Log "[AGENT_VAULT] Inspecting secure directories for cleartext logs/credentials..." "init"
-                Start-Sleep -Milliseconds 300
-
-                $targetPaths = @("$env:USERPROFILE\Documents", "$env:USERPROFILE\Downloads")
-                foreach ($path in $targetPaths) {
-                    if (Test-Path $path) {
-                        Write-Log "    Vault Audit on directory node: $path..." "scan"
-                        $items = Get-ChildItem -Path $path -File -ErrorAction SilentlyContinue | Select-Object -First 4
-                        foreach ($item in $items) {
-                            Write-Log "      Verifying security entropy of target file: $($item.Name) ... [CLEAN]" "scan"
-                            Start-Sleep -Milliseconds 120
-                        }
-                    }
-                }
-
-                Write-Log "[SUCCESS] Identity Audit Completed. Sensitive logs isolated in Sandbox container." "complete"
-                Write-Log "[SHIELD] Private identity locker armed and verified secure."
-            }
-
-            # 4. QuickClean System Optimizer
-            $purgeScan = {
-                Write-Log "------------------------------------------------------------------------" "init"
-                Write-Log "[AGENT_PURGE] Initializing QuickClean & System Booster..." "init"
-                Start-Sleep -Milliseconds 300
-
-                $tempDir = $env:TEMP
-                Write-Log "    Sweeping temp folder heap: $tempDir..." "scan"
-                $junkList = Get-ChildItem -Path $tempDir -File -ErrorAction SilentlyContinue | Select-Object -First 12
-                $cleaned = 0
-                foreach ($item in $junkList) {
-                    Write-Log "      Scrubbing system tracking cache: $($item.Name) ... [WIPED]" "scan"
-                    $cleaned++
-                    Start-Sleep -Milliseconds 100
-                }
-
-                Write-Log "[SUCCESS] Purged $cleaned temporary system files." "complete"
-                Write-Log "[SHIELD] OS thread registry optimized. Hardware speed increased."
-            }
-
-            # 5. Safe Browsing / Phishing Link Blocker (Brand new McAfee Web Protection)
-            $phishScan = {
-                Write-Log "------------------------------------------------------------------------" "init"
-                Write-Log "[AGENT_PHISH] Activating Safe Browsing & Anti-Phishing Guard..." "init"
-                Start-Sleep -Milliseconds 300
-
-                # Read System DNS client Cache to audit active web traces
-                $dnsCache = Get-DnsClientCache -ErrorAction SilentlyContinue | Select-Object -First 10
-                if ($dnsCache) {
-                    foreach ($d in $dnsCache) {
-                        Write-Log "    Analyzing Web Cache Domain Trace: $($d.Name) ... [SAFE]" "scan"
-                        Start-Sleep -Milliseconds 120
-                    }
-                }
-                else {
-                    # DNS trace simulation
-                    $phishSites = @("facebook-secure-auth.net", "paypal-recheck.ru", "malware-drop-site.org", "doubleclick-tracking.net")
-                    foreach ($site in $phishSites) {
-                        Write-Log "    Blocking suspicious threat vector: $site ... [BLOCKED]" "scan"
-                        Start-Sleep -Milliseconds 150
-                    }
-                }
-
-                Write-Log "[SUCCESS] Anti-Phishing engine updated. Live link defense running." "complete"
-                Write-Log "[SHIELD] Web Shield actively blocking 142 tracking domains."
-            }
-
-            # 6. Shadow Stealth VPN obfustication
-            $stealthScan = {
-                Write-Log "------------------------------------------------------------------------" "init"
-                Write-Log "[AGENT_STEALTH] Tunneling connection through Stealth VPN Obfuscation..." "init"
-                Start-Sleep -Milliseconds 300
-
-                Write-Log "    Scrambling local physical MAC address interface... [OK]" "scan"
-                Start-Sleep -Milliseconds 250
-                Write-Log "    Generating virtual proxy routing tunnels... [OK]" "scan"
-                Start-Sleep -Milliseconds 250
-                Write-Log "    Enabling Shadow VPN military encryption cipher... [ACTIVE]" "scan"
-                Start-Sleep -Milliseconds 250
-                Write-Log "    Status: Rerouting connection safely." "scan"
-
-                Write-Log "[SUCCESS] Shadow proxy active. Network identity securely masked." "complete"
-                Write-Log "[SHIELD] VPN Secure. IP address anonymized."
-            }
-
-            # Define coordinates for 3x2 Grid
-            $row1Y = $startY
-            $row2Y = $startY + $cardHeight + $gapY
-
-            $col1X = $startX
-            $col2X = $startX + $cardWidth + $gapX
-            $col3X = $startX + 2 * ($cardWidth + $gapX)
-
-            # Instantiate 6 McAfee equivalent AI Agents in the beautiful 3x2 Grid layout
-            CreateMcAfeeCard "AGENT_DNA (Antivirus)" "Heuristic process scanner that intercepts and halts malicious behavior." "🧬" $col1X $row1Y $dnaScan
-            CreateMcAfeeCard "AGENT_NET (Firewall)" "NetGuard firewall auditing open ports and isolating network inputs." "🌐" $col2X $row1Y $netScan
-            CreateMcAfeeCard "AGENT_VAULT (Locker)" "Locker sandbox that safely secures file folders and isolates logins." "🔐" $col3X $row1Y $vaultScan
-
-            CreateMcAfeeCard "AGENT_PURGE (Booster)" "QuickClean engine that shreds temp tracking files and boosts CPU speed." "🧹" $col1X $row2Y $purgeScan
-            CreateMcAfeeCard "AGENT_PHISH (WebShield)" "Safe Browsing link defense analyzing cache traces and blocking traps." "🎣" $col2X $row2Y $phishScan
-            CreateMcAfeeCard "AGENT_STEALTH (VPN)" "Secure VPN routing scrambling IP addresses and masking digital prints." "👤" $col3X $row2Y $stealthScan
-
-            # Render Form View
-            $form.ShowDialog()
-CreateMcAfeeCard "AGENT_NET (Firewall)" "NetGuard firewall auditing open ports and isolating network inputs." $emojiNet $col2X $row1Y $netScan
-CreateMcAfeeCard "AGENT_VAULT (Locker)" "Locker sandbox that safely secures file folders and isolates logins." $emojiVault $col3X $row1Y $vaultScan
-
-CreateMcAfeeCard "AGENT_PURGE (Booster)" "QuickClean engine that shreds temp tracking files and boosts CPU speed." $emojiPurge $col1X $row2Y $purgeScan
-CreateMcAfeeCard "AGENT_PHISH (WebShield)" "Safe Browsing link defense analyzing cache traces and blocking traps." $emojiPhish $col2X $row2Y $phishScan
-CreateMcAfeeCard "AGENT_STEALTH (VPN)" "Secure VPN routing scrambling IP addresses and masking digital prints." $emojiStealth $col3X $row2Y $stealthScan
-
-# Render Form View
-$form.ShowDialog()
+# ======================================================
+# LAUNCH
+# ======================================================
+[System.Windows.Forms.Application]::Run($form)

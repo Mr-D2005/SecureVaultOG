@@ -19,57 +19,55 @@ echo.
 :: 1. Fetch GUI core
 echo [GHOST_SETUP] [1/3] Fetching 6-Agent Core Engine...
 
-:: Prioritize local files first during development/installation
-if exist "sentinel_gui.ps1" (
-    echo [LOCAL_DEV] Copying sentinel_gui.ps1 from working directory...
+if exist "%~dp0sentinel_gui.ps1" (
+    echo [LOCAL] Copying sentinel_gui.ps1 from batch folder...
+    copy "%~dp0sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
+) else if exist "sentinel_gui.ps1" (
+    echo [LOCAL] Copying sentinel_gui.ps1 from working directory...
     copy "sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
 ) else if exist "backend\sentinel_gui.ps1" (
-    echo [LOCAL_DEV] Copying sentinel_gui.ps1 from backend folder...
+    echo [LOCAL] Copying sentinel_gui.ps1 from backend folder...
     copy "backend\sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
-) else if exist "%~dp0sentinel_gui.ps1" (
-    echo [LOCAL_DEV] Copying sentinel_gui.ps1 from parent batch path...
-    copy "%~dp0sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
 ) else (
-    echo [NETWORK_FETCH] Downloading from secure nodes...
-    powershell -Command "Invoke-WebRequest -Uri 'http://localhost:5000/api/system-shield/gui-script' -OutFile '%INSTALL_DIR%\sentinel_gui.ps1' -ErrorAction SilentlyContinue"
-    if not exist "%INSTALL_DIR%\sentinel_gui.ps1" (
-        powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/gui-script' -OutFile '%INSTALL_DIR%\sentinel_gui.ps1' -ErrorAction SilentlyContinue"
-    )
+    echo [NETWORK] Downloading from SecureVault servers...
+    powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/gui-script' -OutFile '%INSTALL_DIR%\sentinel_gui.ps1' -UseBasicParsing -ErrorAction SilentlyContinue"
 )
 
 if not exist "%INSTALL_DIR%\sentinel_gui.ps1" (
-    echo [CRITICAL ERROR] Core script sentinel_gui.ps1 could not be retrieved!
-    echo Please make sure your server is online and running.
+    echo [ERROR] Could not retrieve sentinel_gui.ps1!
+    echo Please check your internet connection and try again.
     pause
-    exit /b
+    exit /b 1
 )
+echo [OK] Core engine ready.
 
 :: 2. Fetch Icon
-echo [GHOST_SETUP] [2/3] Downloading High-Res Identity Icon...
+echo [GHOST_SETUP] [2/3] Downloading Icon...
 
-if exist "securevault_logo.ico" (
-    copy "securevault_logo.ico" "%INSTALL_DIR%\logo.ico" >nul
+if exist "%~dp0logo.ico" (
+    copy "%~dp0logo.ico" "%INSTALL_DIR%\logo.ico" >nul
 ) else if exist "public\securevault_logo.ico" (
     copy "public\securevault_logo.ico" "%INSTALL_DIR%\logo.ico" >nul
-) else if exist "%~dp0..\public\securevault_logo.ico" (
-    copy "%~dp0..\public\securevault_logo.ico" "%INSTALL_DIR%\logo.ico" >nul
 ) else (
-    powershell -Command "Invoke-WebRequest -Uri 'http://localhost:5000/api/system-shield/icon' -OutFile '%INSTALL_DIR%\logo.ico' -ErrorAction SilentlyContinue"
-    if not exist "%INSTALL_DIR%\logo.ico" (
-        powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/icon' -OutFile '%INSTALL_DIR%\logo.ico' -ErrorAction SilentlyContinue"
-    )
+    powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/icon' -OutFile '%INSTALL_DIR%\logo.ico' -UseBasicParsing -ErrorAction SilentlyContinue"
 )
 
-:: 3. Configure Shortcuts
-echo [GHOST_SETUP] [3/3] Fortifying Desktop Shortcuts...
-powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut('%USERPROFILE%\Desktop\SecureVault AI Antivirus.lnk'); $Shortcut.TargetPath = 'powershell.exe'; $Shortcut.Arguments = '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"'+$env:APPDATA+'\SecureVault\sentinel_gui.ps1\"'; if (Test-Path '%INSTALL_DIR%\logo.ico') { $Shortcut.IconLocation = '%INSTALL_DIR%\logo.ico' }; $Shortcut.Save()"
+:: 3. Create a .bat launcher on Desktop (100% reliable, no PowerShell shortcut bugs)
+echo [GHOST_SETUP] [3/3] Creating Desktop Launcher...
+
+set "LAUNCHER=%USERPROFILE%\Desktop\SecureVault AI Antivirus.bat"
+
+(
+echo @echo off
+echo powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%INSTALL_DIR%\sentinel_gui.ps1"
+) > "%LAUNCHER%"
 
 echo.
 echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 echo !!  [SUCCESS] SECUREVAULT AI TOTAL PROTECTION INSTALLED   !!
-echo !!  Shortcut created: 'SecureVault AI Antivirus' (Desktop)!!
+echo !!  Launcher: 'SecureVault AI Antivirus.bat' on Desktop   !!
 echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 echo.
 echo Launching the Antivirus Suite now...
-start "" "%USERPROFILE%\Desktop\SecureVault AI Antivirus.lnk"
+start "" "%LAUNCHER%"
 exit
