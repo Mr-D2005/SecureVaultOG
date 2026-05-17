@@ -146,8 +146,8 @@ router.post('/scan', async (req, res) => {
       const result = await geminiModel.generateContent(`Forensic Audit: ${targetUrl}. IP: ${addresses[0]}. SSL Issuer: ${sslData.issuer}. Days Left: ${sslData.daysLeft}. MX Records: ${mxRecords.length}. Reason: ${threatReason}. 1-sentence expert report.`);
       aiAssessment = result.response.text();
     } catch (geminiErr) {
-      aiAssessment = isWhiteListed 
-        ? `Verified corporate asset. 0% threat footprint.` 
+      aiAssessment = isWhiteListed
+        ? `Verified corporate asset. 0% threat footprint.`
         : `Telemetric audit of ${hostname} (IP: ${addresses[0] || 'NULL'}) confirms ${threatReason || 'unverified status'} with ${sslData.issuer} SSL authority.`;
     }
 
@@ -194,17 +194,17 @@ router.post('/deploy-tarpit', async (req, res) => {
   const { scanId } = req.body;
   const trapId = crypto.randomBytes(4).toString('hex');
   const trapUrl = `/api/threat/trap/${trapId}`; // Relative for better compatibility
-  
+
   activeTraps.set(trapId, { timestamp: Date.now(), connections: 0, hits: 0 });
 
   const fullTrapUrl = `https://${req.get('host')}${trapUrl}`;
   const payload = { status: 'NEUTRALIZED', trapUrl: fullTrapUrl };
 
-  
+
   try {
     if (scanId) {
       await ThreatScan.update(
-        { tarpitActivated: true, trapUrl: fullTrapUrl }, 
+        { tarpitActivated: true, trapUrl: fullTrapUrl },
         { where: { id: scanId } }
       );
     }
@@ -223,7 +223,7 @@ router.get('/trap/:id', (req, res) => {
   const trapData = activeTraps.get(id);
   trapData.connections++;
   trapData.hits++;
-  
+
   const hitLog = {
     id: crypto.randomUUID(),
     trapId: id,
@@ -236,7 +236,7 @@ router.get('/trap/:id', (req, res) => {
 
   console.log(`[IRON_TARPIT] Attacker trapped from ${req.ip} on trap-${id}`);
 
-  res.writeHead(200, { 
+  res.writeHead(200, {
     'Content-Type': 'text/plain',
     'Transfer-Encoding': 'chunked',
     'X-Content-Type-Options': 'nosniff',
