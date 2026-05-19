@@ -1,6 +1,9 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+# ======================================================
+# COLOR PALETTE (Obsidian Dark & Cyber Neon Accents)
+# ======================================================
 $bgColor    = [System.Drawing.Color]::FromArgb(8, 8, 20)
 $cardBg     = [System.Drawing.Color]::FromArgb(16, 18, 36)
 $neonGreen  = [System.Drawing.Color]::FromArgb(0, 220, 156)
@@ -10,12 +13,16 @@ $white      = [System.Drawing.Color]::FromArgb(240, 240, 240)
 $gray       = [System.Drawing.Color]::FromArgb(120, 125, 140)
 $darkPanel  = [System.Drawing.Color]::FromArgb(5, 5, 14)
 
-$fTitle  = New-Object System.Drawing.Font("Segoe UI", 22, [System.Drawing.FontStyle]::Bold)
-$fBig    = New-Object System.Drawing.Font("Segoe UI", 13, [System.Drawing.FontStyle]::Bold)
-$fMed    = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
-$fSmall  = New-Object System.Drawing.Font("Segoe UI", 8.5)
-$fMono   = New-Object System.Drawing.Font("Consolas", 9)
+# ======================================================
+# TYPOGRAPHY
+# ======================================================
+$fTitle  = New-Object System.Drawing.Font("Segoe UI Semibold", 22, [System.Drawing.FontStyle]::Bold)
+$fBig    = New-Object System.Drawing.Font("Segoe UI Semibold", 13, [System.Drawing.FontStyle]::Bold)
+$fMed    = New-Object System.Drawing.Font("Segoe UI Semibold", 9.5, [System.Drawing.FontStyle]::Bold)
+$fSmall  = New-Object System.Drawing.Font("Segoe UI", 9)
+$fMono   = New-Object System.Drawing.Font("Consolas", 9.5)
 
+# Icons
 $emojiShield  = [char]::ConvertFromUtf32(0x1F6E1)
 $emojiDna     = [char]::ConvertFromUtf32(0x1F9EC)
 $emojiNet     = [char]::ConvertFromUtf32(0x1F310)
@@ -25,22 +32,23 @@ $emojiPhish   = [char]::ConvertFromUtf32(0x1F3A3)
 $emojiStealth = [char]::ConvertFromUtf32(0x1F464)
 
 # ======================================================
-# FORM
+# FORM CONFIGURATION
 # ======================================================
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "SecureVault Sentinel AI - Total Protection"
-$form.Size = New-Object System.Drawing.Size(1000, 820)
+$form.Text = "SecureVault Sentinel AI - Total Protection Dashboard"
+$form.Size = New-Object System.Drawing.Size(1020, 850)
+$form.MinimumSize = New-Object System.Drawing.Size(950, 780)
 $form.StartPosition = "CenterScreen"
 $form.BackColor = $bgColor
-$form.FormBorderStyle = "FixedSingle"
-$form.MaximizeBox = $false
+$form.FormBorderStyle = "Sizable"
+$form.MaximizeBox = $true
 
 # ======================================================
-# TOP HEADER
+# TOP HEADER BAR
 # ======================================================
 $topBar = New-Object System.Windows.Forms.Panel
-$topBar.Size = New-Object System.Drawing.Size(1000, 60)
-$topBar.Location = New-Object System.Drawing.Point(0, 0)
+$topBar.Height = 60
+$topBar.Dock = "Top"
 $topBar.BackColor = $darkPanel
 $form.Controls.Add($topBar)
 
@@ -50,6 +58,7 @@ $lblBrand.Font = New-Object System.Drawing.Font("Segoe UI", 14, [System.Drawing.
 $lblBrand.ForeColor = $neonGreen
 $lblBrand.Location = New-Object System.Drawing.Point(20, 16)
 $lblBrand.AutoSize = $true
+$lblBrand.Anchor = "Top, Left"
 $topBar.Controls.Add($lblBrand)
 
 $lblTagline = New-Object System.Windows.Forms.Label
@@ -58,6 +67,7 @@ $lblTagline.Font = $fMono
 $lblTagline.ForeColor = $gray
 $lblTagline.Location = New-Object System.Drawing.Point(185, 21)
 $lblTagline.AutoSize = $true
+$lblTagline.Anchor = "Top, Left"
 $topBar.Controls.Add($lblTagline)
 
 $lblVer = New-Object System.Windows.Forms.Label
@@ -66,109 +76,133 @@ $lblVer.Font = $fMono
 $lblVer.ForeColor = $dimGreen
 $lblVer.Location = New-Object System.Drawing.Point(855, 21)
 $lblVer.AutoSize = $true
+$lblVer.Anchor = "Top, Right"
 $topBar.Controls.Add($lblVer)
 
 # ======================================================
 # HERO PANEL - McAfee Style "You are Protected"
 # ======================================================
 $heroPanel = New-Object System.Windows.Forms.Panel
-$heroPanel.Size = New-Object System.Drawing.Size(960, 160)
+$heroPanel.Size = New-Object System.Drawing.Size(964, 165)
 $heroPanel.Location = New-Object System.Drawing.Point(20, 75)
 $heroPanel.BackColor = $cardBg
 $heroPanel.BorderStyle = "FixedSingle"
+$heroPanel.Anchor = "Top, Left, Right"
 $form.Controls.Add($heroPanel)
 
 $lblShield = New-Object System.Windows.Forms.Label
 $lblShield.Text = $emojiShield
 $lblShield.Font = New-Object System.Drawing.Font("Segoe UI", 55)
 $lblShield.ForeColor = $neonGreen
-$lblShield.Location = New-Object System.Drawing.Point(28, 18)
+$lblShield.Location = New-Object System.Drawing.Point(28, 15)
 $lblShield.AutoSize = $true
+$lblShield.Anchor = "Top, Left"
 $heroPanel.Controls.Add($lblShield)
 
 $lblProtected = New-Object System.Windows.Forms.Label
-$lblProtected.Text = "YOUR SYSTEM IS PROTECTED"
+$lblProtected.Text = "YOUR SYSTEM IS SECURED"
 $lblProtected.Font = $fTitle
 $lblProtected.ForeColor = $neonGreen
-$lblProtected.Location = New-Object System.Drawing.Point(140, 28)
+$lblProtected.Location = New-Object System.Drawing.Point(140, 22)
 $lblProtected.AutoSize = $true
+$lblProtected.Anchor = "Top, Left"
 $heroPanel.Controls.Add($lblProtected)
 
 $lblProtSub = New-Object System.Windows.Forms.Label
-$lblProtSub.Text = "6 Autonomous AI Agents active. Powered by Google Gemini AI. Real-time threat detection enabled."
+$lblProtSub.Text = "6 Autonomous AI Agents active. Powered by Google Gemini AI. Real-time protection online."
 $lblProtSub.Font = $fSmall
 $lblProtSub.ForeColor = $gray
-$lblProtSub.Location = New-Object System.Drawing.Point(142, 78)
+$lblProtSub.Location = New-Object System.Drawing.Point(142, 66)
 $lblProtSub.AutoSize = $true
+$lblProtSub.Anchor = "Top, Left"
 $heroPanel.Controls.Add($lblProtSub)
+
+# Live pulse scan indicator inside Hero panel
+$lblLastScan = New-Object System.Windows.Forms.Label
+$lblLastScan.Name = "LastScan"
+$lblLastScan.Text = "● Shield Pulse: Active (calculating heartbeat...)"
+$lblLastScan.Font = $fMono
+$lblLastScan.ForeColor = $neonGreen
+$lblLastScan.Location = New-Object System.Drawing.Point(142, 88)
+$lblLastScan.AutoSize = $true
+$lblLastScan.Anchor = "Top, Left"
+$heroPanel.Controls.Add($lblLastScan)
 
 # Stats labels
 $lblStatThreatsVal = New-Object System.Windows.Forms.Label
 $lblStatThreatsVal.Name = "StatThreats"
 $lblStatThreatsVal.Text = "0"
-$lblStatThreatsVal.Font = New-Object System.Drawing.Font("Segoe UI", 16, [System.Drawing.FontStyle]::Bold)
+$lblStatThreatsVal.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 15, [System.Drawing.FontStyle]::Bold)
 $lblStatThreatsVal.ForeColor = $neonGreen
-$lblStatThreatsVal.Location = New-Object System.Drawing.Point(142, 108)
+$lblStatThreatsVal.Location = New-Object System.Drawing.Point(142, 112)
 $lblStatThreatsVal.AutoSize = $true
+$lblStatThreatsVal.Anchor = "Top, Left"
 $heroPanel.Controls.Add($lblStatThreatsVal)
 
 $lblStatThreatsKey = New-Object System.Windows.Forms.Label
 $lblStatThreatsKey.Text = "AI THREATS BLOCKED"
-$lblStatThreatsKey.Font = New-Object System.Drawing.Font("Consolas", 7)
+$lblStatThreatsKey.Font = New-Object System.Drawing.Font("Consolas", 7.5)
 $lblStatThreatsKey.ForeColor = $gray
-$lblStatThreatsKey.Location = New-Object System.Drawing.Point(142, 132)
+$lblStatThreatsKey.Location = New-Object System.Drawing.Point(142, 136)
 $lblStatThreatsKey.AutoSize = $true
+$lblStatThreatsKey.Anchor = "Top, Left"
 $heroPanel.Controls.Add($lblStatThreatsKey)
 
 $lblStatProcsVal = New-Object System.Windows.Forms.Label
 $lblStatProcsVal.Name = "StatProcs"
 $lblStatProcsVal.Text = "0"
-$lblStatProcsVal.Font = New-Object System.Drawing.Font("Segoe UI", 16, [System.Drawing.FontStyle]::Bold)
+$lblStatProcsVal.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 15, [System.Drawing.FontStyle]::Bold)
 $lblStatProcsVal.ForeColor = $neonGreen
-$lblStatProcsVal.Location = New-Object System.Drawing.Point(310, 108)
+$lblStatProcsVal.Location = New-Object System.Drawing.Point(310, 112)
 $lblStatProcsVal.AutoSize = $true
+$lblStatProcsVal.Anchor = "Top, Left"
 $heroPanel.Controls.Add($lblStatProcsVal)
 
 $lblStatProcsKey = New-Object System.Windows.Forms.Label
-$lblStatProcsKey.Text = "PROCESSES SCANNED"
-$lblStatProcsKey.Font = New-Object System.Drawing.Font("Consolas", 7)
+$lblStatProcsKey.Text = "PROCESSES MONITORED"
+$lblStatProcsKey.Font = New-Object System.Drawing.Font("Consolas", 7.5)
 $lblStatProcsKey.ForeColor = $gray
-$lblStatProcsKey.Location = New-Object System.Drawing.Point(310, 132)
+$lblStatProcsKey.Location = New-Object System.Drawing.Point(310, 136)
 $lblStatProcsKey.AutoSize = $true
+$lblStatProcsKey.Anchor = "Top, Left"
 $heroPanel.Controls.Add($lblStatProcsKey)
 
 $lblStatMBVal = New-Object System.Windows.Forms.Label
 $lblStatMBVal.Name = "StatMB"
-$lblStatMBVal.Text = "0"
-$lblStatMBVal.Font = New-Object System.Drawing.Font("Segoe UI", 16, [System.Drawing.FontStyle]::Bold)
+$lblStatMBVal.Text = "0.0"
+$lblStatMBVal.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 15, [System.Drawing.FontStyle]::Bold)
 $lblStatMBVal.ForeColor = $neonGreen
-$lblStatMBVal.Location = New-Object System.Drawing.Point(480, 108)
+$lblStatMBVal.Location = New-Object System.Drawing.Point(480, 112)
 $lblStatMBVal.AutoSize = $true
+$lblStatMBVal.Anchor = "Top, Left"
 $heroPanel.Controls.Add($lblStatMBVal)
 
 $lblStatMBKey = New-Object System.Windows.Forms.Label
-$lblStatMBKey.Text = "MB RECLAIMED"
-$lblStatMBKey.Font = New-Object System.Drawing.Font("Consolas", 7)
+$lblStatMBKey.Text = "JUNK PURGED (MB)"
+$lblStatMBKey.Font = New-Object System.Drawing.Font("Consolas", 7.5)
 $lblStatMBKey.ForeColor = $gray
-$lblStatMBKey.Location = New-Object System.Drawing.Point(480, 132)
+$lblStatMBKey.Location = New-Object System.Drawing.Point(480, 136)
 $lblStatMBKey.AutoSize = $true
+$lblStatMBKey.Anchor = "Top, Left"
 $heroPanel.Controls.Add($lblStatMBKey)
 
 $lblStatCanaryVal = New-Object System.Windows.Forms.Label
 $lblStatCanaryVal.Name = "StatCanary"
 $lblStatCanaryVal.Text = "ACTIVE"
-$lblStatCanaryVal.Font = New-Object System.Drawing.Font("Segoe UI", 16, [System.Drawing.FontStyle]::Bold)
+$lblStatCanaryVal.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 15, [System.Drawing.FontStyle]::Bold)
 $lblStatCanaryVal.ForeColor = $neonGreen
-$lblStatCanaryVal.Location = New-Object System.Drawing.Point(620, 108)
+$lblStatCanaryVal.Location = New-Object System.Drawing.Point(620, 112)
 $lblStatCanaryVal.AutoSize = $true
+$lblStatCanaryVal.Anchor = "Top, Left"
 $heroPanel.Controls.Add($lblStatCanaryVal)
 
 $lblStatCanaryKey = New-Object System.Windows.Forms.Label
 $lblStatCanaryKey.Text = "CANARY SHIELD"
-$lblStatCanaryKey.Font = New-Object System.Drawing.Font("Consolas", 7)
+$lblStatCanaryKey.Font = New-Object System.Drawing.Font("Consolas", 7.5)
 $lblStatCanaryKey.ForeColor = $gray
-$lblStatCanaryKey.Location = New-Object System.Drawing.Point(620, 132)
+$lblStatCanaryKey.Location = New-Object System.Drawing.Point(620, 136)
 $lblStatCanaryKey.AutoSize = $true
+$lblStatCanaryKey.Anchor = "Top, Left"
 $heroPanel.Controls.Add($lblStatCanaryKey)
 
 # Full Scan Button
@@ -182,10 +216,13 @@ $btnScanAll.ForeColor = [System.Drawing.Color]::FromArgb(5, 5, 14)
 $btnScanAll.FlatStyle = "Flat"
 $btnScanAll.FlatAppearance.BorderSize = 0
 $btnScanAll.Cursor = [System.Windows.Forms.Cursors]::Hand
+$btnScanAll.Anchor = "Top, Right"
+$btnScanAll.add_MouseEnter({ param($s,$e); $s.BackColor=[System.Drawing.Color]::FromArgb(0, 255, 180) })
+$btnScanAll.add_MouseLeave({ param($s,$e); $s.BackColor=$neonGreen })
 $heroPanel.Controls.Add($btnScanAll)
 
 # ======================================================
-# AI CONSOLE TERMINAL
+# AI CONSOLE TERMINAL (Wider and stretches vertically)
 # ======================================================
 $console = New-Object System.Windows.Forms.RichTextBox
 $console.Multiline = $true
@@ -194,9 +231,10 @@ $console.BackColor = [System.Drawing.Color]::FromArgb(4, 4, 10)
 $console.ForeColor = $neonGreen
 $console.Font = $fMono
 $console.Location = New-Object System.Drawing.Point(20, 252)
-$console.Size = New-Object System.Drawing.Size(960, 158)
+$console.Size = New-Object System.Drawing.Size(964, 150)
 $console.BorderStyle = "FixedSingle"
 $console.ScrollBars = "Vertical"
+$console.Anchor = "Top, Bottom, Left, Right"
 $console.Text = "[SECUREVAULT AI v6.0] Gemini-powered neural defense suite online."
 $console.AppendText("`r`n[SYSTEM] 6 autonomous AI agents loaded. Real-time telemetry ready.")
 $console.AppendText("`r`n[WAITING] Click any agent card below to run a scan...")
@@ -396,37 +434,59 @@ $stealthScan = {
 }
 
 # ======================================================
-# CARD GRID (McAfee style 3x2)
+# DYNAMIC GRID CONTAINER (Auto-sizes with window)
 # ======================================================
-$cardW = 303; $cardH = 148; $gX = 12; $gY = 10; $cX0 = 20; $cY0 = 425
+$grid = New-Object System.Windows.Forms.TableLayoutPanel
+$grid.Location = New-Object System.Drawing.Point(20, 415)
+$grid.Size = New-Object System.Drawing.Size(964, 330)
+$grid.ColumnCount = 3
+$grid.RowCount = 2
+$grid.Anchor = "Bottom, Left, Right"
+$form.Controls.Add($grid)
 
+# Set grid columns to 33.3% width
+[void]$grid.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 33.33)))
+[void]$grid.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 33.33)))
+[void]$grid.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 33.33)))
+
+# Set grid rows to 50% height
+[void]$grid.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 50.0)))
+[void]$grid.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 50.0)))
+
+# ======================================================
+# AGENT CARDS IMPLEMENTATION
+# ======================================================
 $agentDefs = @(
-    @{ name="Antivirus AI";  sub="Gemini-powered process scan";  icon=$emojiDna;     scan=$dnaScan;     row=0; col=0 },
-    @{ name="Firewall AI";   sub="TCP socket threat analysis";   icon=$emojiNet;     scan=$netScan;     row=0; col=1 },
-    @{ name="Vault Guard";   sub="Credential exposure audit";    icon=$emojiVault;   scan=$vaultScan;   row=0; col=2 },
-    @{ name="QuickClean";    sub="Temp purge and CPU boost";     icon=$emojiPurge;   scan=$purgeScan;   row=1; col=0 },
-    @{ name="Web Shield";    sub="Phishing and DNS protection";  icon=$emojiPhish;   scan=$phishScan;   row=1; col=1 },
-    @{ name="Stealth VPN";   sub="Network adapter hardening";    icon=$emojiStealth; scan=$stealthScan; row=1; col=2 }
+    @{ name="Antivirus AI";  sub="Gemini process behavioral scan"; icon=$emojiDna;     scan=$dnaScan;     row=0; col=0; color=[System.Drawing.Color]::FromArgb(0, 220, 156) },
+    @{ name="Firewall AI";   sub="TCP socket telemetry threat scan";icon=$emojiNet;     scan=$netScan;     row=0; col=1; color=[System.Drawing.Color]::FromArgb(0, 200, 255) },
+    @{ name="Vault Guard";   sub="Documents credential leak audit";  icon=$emojiVault;   scan=$vaultScan;   row=0; col=2; color=[System.Drawing.Color]::FromArgb(255, 180, 0) },
+    @{ name="QuickClean";    sub="Purge temp caches & boost CPU";    icon=$emojiPurge;   scan=$purgeScan;   row=1; col=0; color=[System.Drawing.Color]::FromArgb(255, 0, 180) },
+    @{ name="Web Shield";    sub="Phishing guard & HOSTS checker";   icon=$emojiPhish;   scan=$phishScan;   row=1; col=1; color=[System.Drawing.Color]::FromArgb(180, 0, 255) },
+    @{ name="Stealth VPN";   sub="Hardens physical network adapters"; icon=$emojiStealth; scan=$stealthScan; row=1; col=2; color=[System.Drawing.Color]::FromArgb(0, 255, 220) }
 )
 
 foreach ($ag in $agentDefs) {
-    $cx = $cX0 + $ag.col * ($cardW + $gX)
-    $cy = $cY0 + $ag.row * ($cardH + $gY)
-
     $card = New-Object System.Windows.Forms.Panel
-    $card.Size = New-Object System.Drawing.Size($cardW, $cardH)
-    $card.Location = New-Object System.Drawing.Point($cx, $cy)
+    $card.Dock = "Fill"
+    $card.Margin = New-Object System.Windows.Forms.Padding(6, 6, 6, 6)
     $card.BackColor = $cardBg
     $card.BorderStyle = "FixedSingle"
-    $form.Controls.Add($card)
+
+    # Colorful Top Accent Border Panel
+    $cardTop = New-Object System.Windows.Forms.Panel
+    $cardTop.Height = 4
+    $cardTop.Dock = "Top"
+    $cardTop.BackColor = $ag.color
+    $card.Controls.Add($cardTop)
 
     # Emoji icon
     $ico = New-Object System.Windows.Forms.Label
     $ico.Text = $ag.icon
     $ico.Font = New-Object System.Drawing.Font("Segoe UI", 24)
-    $ico.ForeColor = $neonGreen
-    $ico.Location = New-Object System.Drawing.Point(14, 14)
+    $ico.ForeColor = $ag.color
+    $ico.Location = New-Object System.Drawing.Point(14, 18)
     $ico.AutoSize = $true
+    $ico.Anchor = "Top, Left"
     $card.Controls.Add($ico)
 
     # Agent name
@@ -434,8 +494,9 @@ foreach ($ag in $agentDefs) {
     $lname.Text = $ag.name
     $lname.Font = $fBig
     $lname.ForeColor = $white
-    $lname.Location = New-Object System.Drawing.Point(72, 16)
+    $lname.Location = New-Object System.Drawing.Point(72, 20)
     $lname.AutoSize = $true
+    $lname.Anchor = "Top, Left"
     $card.Controls.Add($lname)
 
     # GEMINI AI badge
@@ -443,9 +504,10 @@ foreach ($ag in $agentDefs) {
     $badge.Text = " GEMINI AI "
     $badge.Font = New-Object System.Drawing.Font("Consolas", 7, [System.Drawing.FontStyle]::Bold)
     $badge.ForeColor = $bgColor
-    $badge.BackColor = $neonGreen
-    $badge.Location = New-Object System.Drawing.Point(72, 48)
+    $badge.BackColor = $ag.color
+    $badge.Location = New-Object System.Drawing.Point(72, 50)
     $badge.AutoSize = $true
+    $badge.Anchor = "Top, Left"
     $card.Controls.Add($badge)
 
     # Description
@@ -453,25 +515,28 @@ foreach ($ag in $agentDefs) {
     $lsub.Text = $ag.sub
     $lsub.Font = $fSmall
     $lsub.ForeColor = $gray
-    $lsub.Location = New-Object System.Drawing.Point(14, 78)
-    $lsub.Size = New-Object System.Drawing.Size(274, 20)
+    $lsub.Location = New-Object System.Drawing.Point(14, 80)
+    $lsub.Size = New-Object System.Drawing.Size(264, 20)
+    $lsub.Anchor = "Top, Left, Right"
     $card.Controls.Add($lsub)
 
     # Status dot
     $dot = New-Object System.Windows.Forms.Label
-    $dot.Text = "  PROTECTED"
+    $dot.Name = "StatusDot"
+    $dot.Text = "●  PROTECTED"
     $dot.Font = New-Object System.Drawing.Font("Segoe UI", 8, [System.Drawing.FontStyle]::Bold)
     $dot.ForeColor = $neonGreen
-    $dot.Location = New-Object System.Drawing.Point(14, 100)
+    $dot.Location = New-Object System.Drawing.Point(14, 115)
     $dot.AutoSize = $true
+    $dot.Anchor = "Bottom, Left"
     $card.Controls.Add($dot)
 
     # RUN AI SCAN button
     $btn = New-Object System.Windows.Forms.Button
-    $btn.Text = "RUN AI SCAN"
+    $btn.Text = "RUN SCAN"
     $btn.Font = $fMed
-    $btn.Size = New-Object System.Drawing.Size(128, 30)
-    $btn.Location = New-Object System.Drawing.Point(162, 94)
+    $btn.Size = New-Object System.Drawing.Size(110, 30)
+    $btn.Location = New-Object System.Drawing.Point(168, 109)
     $btn.BackColor = [System.Drawing.Color]::FromArgb(0, 50, 40)
     $btn.ForeColor = $neonGreen
     $btn.FlatStyle = "Flat"
@@ -479,6 +544,7 @@ foreach ($ag in $agentDefs) {
     $btn.FlatAppearance.BorderSize = 1
     $btn.Cursor = [System.Windows.Forms.Cursors]::Hand
     $btn.Tag = $ag.scan
+    $btn.Anchor = "Bottom, Right"
 
     $btn.add_MouseEnter({ param($s,$e); $s.BackColor=[System.Drawing.Color]::FromArgb(0,120,90); $s.ForeColor=[System.Drawing.Color]::White })
     $btn.add_MouseLeave({ param($s,$e); $s.BackColor=[System.Drawing.Color]::FromArgb(0,50,40);  $s.ForeColor=[System.Drawing.Color]::FromArgb(0,220,156) })
@@ -488,14 +554,30 @@ foreach ($ag in $agentDefs) {
         $s.Text = "SCANNING..."
         $s.BackColor = [System.Drawing.Color]::FromArgb(60,15,0)
         $s.ForeColor = [System.Drawing.Color]::FromArgb(255,60,60)
+        
+        $parent = $s.Parent
+        $statusDot = $parent.Controls["StatusDot"]
+        if ($statusDot) {
+            $statusDot.Text = "●  SCANNING..."
+            $statusDot.ForeColor = [System.Drawing.Color]::FromArgb(255,180,0)
+        }
+
         $sb = $s.Tag
         if ($sb) { & $sb }
-        $s.Text = "RUN AI SCAN"
+        
+        if ($statusDot) {
+            $statusDot.Text = "●  PROTECTED"
+            $statusDot.ForeColor = $neonGreen
+        }
+
+        $s.Text = "RUN SCAN"
         $s.BackColor = [System.Drawing.Color]::FromArgb(0,50,40)
         $s.ForeColor = [System.Drawing.Color]::FromArgb(0,220,156)
         $s.Enabled = $true
     })
     $card.Controls.Add($btn)
+
+    [void]$grid.Controls.Add($card, $ag.col, $ag.row)
 }
 
 # ======================================================
@@ -512,22 +594,28 @@ $btnScanAll.Add_Click({
 })
 
 # ======================================================
-# STATUS BAR
+# BOTTOM STATUS BAR (Sticks to bottom, stretch width)
 # ======================================================
 $statusBar = New-Object System.Windows.Forms.Panel
-$statusBar.Size = New-Object System.Drawing.Size(1000, 36)
-$statusBar.Location = New-Object System.Drawing.Point(0, 756)
+$statusBar.Height = 40
+$statusBar.Dock = "Bottom"
 $statusBar.BackColor = $darkPanel
 $form.Controls.Add($statusBar)
+
+$statusBorder = New-Object System.Windows.Forms.Panel
+$statusBorder.Height = 1
+$statusBorder.Dock = "Bottom"
+$statusBorder.BackColor = $dimGreen
+$form.Controls.Add($statusBorder)
 
 $lblStatus = New-Object System.Windows.Forms.Label
 $lblStatus.Text = "[SENTINEL AI]  Real-time protection active  //  Gemini AI engine online  //  6/6 agents loaded"
 $lblStatus.Font = $fMono
 $lblStatus.ForeColor = $dimGreen
-$lblStatus.Location = New-Object System.Drawing.Point(14, 10)
+$lblStatus.Location = New-Object System.Drawing.Point(14, 12)
 $lblStatus.AutoSize = $true
+$lblStatus.Anchor = "Bottom, Left"
 $statusBar.Controls.Add($lblStatus)
-
 
 # ======================================================
 # CANARY-FILE SHIELD (ACTIVE RANSOMWARE ROLLBACK)
@@ -575,9 +663,6 @@ try {
 }
 
 # ======================================================
-# REAL-TIME DEFENSE SHIELD (BACKGROUND WATCHDOG)
-# ======================================================
-# ======================================================
 # TELEMETRY SYNC ENGINE
 # ======================================================
 $dir = $PSScriptRoot
@@ -586,9 +671,10 @@ if (-not $dir) { $dir = $PWD.Path }
 if (-not $dir) { $dir = "." }
 $telemetryFile = Join-Path $dir "sentinel_telemetry.json"
 $script:lastLogCount = 0
+$script:blinkState = $true
 
 $rtTimer = New-Object System.Windows.Forms.Timer
-$rtTimer.Interval = 2000 # Sync GUI with background service telemetry every 2 seconds
+$rtTimer.Interval = 1000 # Sync and pulse every 1 second
 $rtTimer.add_Tick({
     $isDaemonRunning = $false
     if (Test-Path $telemetryFile) {
@@ -596,7 +682,7 @@ $rtTimer.add_Tick({
             $json = Get-Content $telemetryFile -Raw -EA SilentlyContinue
             $data = $json | ConvertFrom-Json
             if ($data) {
-                # 1. Check Heartbeat (within 15 seconds)
+                # Check Heartbeat (within 15 seconds)
                 if ($data.lastHeartbeat) {
                     $ticksDiff = [DateTime]::UtcNow.Ticks - [int64]$data.lastHeartbeat
                     if ($ticksDiff -lt 150000000) {
@@ -604,11 +690,28 @@ $rtTimer.add_Tick({
                     }
                 }
                 
-                # 2. Update Hero Statistics
+                # Update Hero Statistics
                 UpdateStat "StatThreats" $data.threatsKilled
                 UpdateStat "StatProcs" $data.procsScanned
+                UpdateStat "StatMB" $data.mbReclaimed
                 
-                # 3. Process Logs
+                # Update pulsing scanner status in Hero panel
+                $lblLastScan = $heroPanel.Controls["LastScan"]
+                if ($lblLastScan) {
+                    if ($isDaemonRunning) {
+                        $secAgo = [Math]::Round(($ticksDiff / 10000000), 1)
+                        if ($secAgo -lt 0) { $secAgo = 0.0 }
+                        $pulseDot = if ($script:blinkState) { "●" } else { " " }
+                        $script:blinkState = -not $script:blinkState
+                        $lblLastScan.Text = "$pulseDot Shield Pulse: Active (last scan: $($secAgo)s ago)  |  $($data.procsScanned) processes monitored"
+                        $lblLastScan.ForeColor = $neonGreen
+                    } else {
+                        $lblLastScan.Text = "○ Shield Pulse: Offline (Background daemon is not running)"
+                        $lblLastScan.ForeColor = $alertRed
+                    }
+                }
+                
+                # Process Logs
                 $totalLogs = @($data.logs)
                 if ($totalLogs.Count -gt $script:lastLogCount) {
                     for ($i = $script:lastLogCount; $i -lt $totalLogs.Count; $i++) {
@@ -630,8 +733,10 @@ $rtTimer.add_Tick({
                     }
                     $script:lastLogCount = $totalLogs.Count
                 } else {
-                    $lblStatCanaryVal.Text = "ACTIVE"
-                    $lblStatCanaryVal.ForeColor = $neonGreen
+                    if (-not $lblStatCanaryVal.ForeColor.Equals($alertRed)) {
+                        $lblStatCanaryVal.Text = "ACTIVE"
+                        $lblStatCanaryVal.ForeColor = $neonGreen
+                    }
                 }
             }
         } catch {}
@@ -658,4 +763,3 @@ $form.add_FormClosing({
 # LAUNCH
 # ======================================================
 [System.Windows.Forms.Application]::Run($form)
-
