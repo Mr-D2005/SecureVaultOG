@@ -865,6 +865,7 @@ $agentDefs = @(
 
 foreach ($ag in $agentDefs) {
     $card = New-Object System.Windows.Forms.Panel
+    $card.Size = New-Object System.Drawing.Size(300, 160)
     $card.Dock = "Fill"
     $card.Margin = New-Object System.Windows.Forms.Padding(8, 8, 8, 8)
     $card.BackColor = $bgColor
@@ -946,7 +947,6 @@ foreach ($ag in $agentDefs) {
     $dot.ForeColor = $neonGreen
     $dot.Location = New-Object System.Drawing.Point(22, 116)
     $dot.AutoSize = $true
-    $dot.Anchor = "Bottom, Left"
     $card.Controls.Add($dot)
 
     $btn = New-Object System.Windows.Forms.Button
@@ -958,7 +958,6 @@ foreach ($ag in $agentDefs) {
     $btn.FlatAppearance.BorderSize = 0
     $btn.Cursor = [System.Windows.Forms.Cursors]::Hand
     $btn.Tag = $ag.scan
-    $btn.Anchor = "Bottom, Right"
 
     # Rounded scan button inside card
     $btn.add_Paint({
@@ -1063,6 +1062,12 @@ foreach ($ag in $agentDefs) {
         $s.Invalidate()
     })
     $card.Controls.Add($btn)
+
+    $card.add_Resize({
+        param($s,$e)
+        $btn.Location = New-Object System.Drawing.Point(($s.Width - $btn.Width - 18), ($s.Height - $btn.Height - 16))
+        $dot.Location = New-Object System.Drawing.Point(18, ($s.Height - $dot.Height - 18))
+    })
 
     [void]$grid.Controls.Add($card, $ag.col, $ag.row)
 }
