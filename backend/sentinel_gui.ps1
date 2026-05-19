@@ -16,7 +16,7 @@ $gray         = [System.Drawing.Color]::FromArgb(120, 125, 140)
 $darkPanel    = [System.Drawing.Color]::FromArgb(4, 4, 10)
 
 # ======================================================
-# TYPOGRAPHY
+# TYPOGRAPHY & NATIVE MDL2 VECTOR ICONS
 # ======================================================
 $fTitle  = New-Object System.Drawing.Font("Segoe UI Semibold", 22, [System.Drawing.FontStyle]::Bold)
 $fBig    = New-Object System.Drawing.Font("Segoe UI Semibold", 13, [System.Drawing.FontStyle]::Bold)
@@ -24,13 +24,13 @@ $fMed    = New-Object System.Drawing.Font("Segoe UI Semibold", 9.5, [System.Draw
 $fSmall  = New-Object System.Drawing.Font("Segoe UI", 9)
 $fMono   = New-Object System.Drawing.Font("Consolas", 9.5)
 
-# Icons
-$emojiDna     = [char]::ConvertFromUtf32(0x1F9EC)
-$emojiNet     = [char]::ConvertFromUtf32(0x1F310)
-$emojiVault   = [char]::ConvertFromUtf32(0x1F512)
-$emojiPurge   = [char]::ConvertFromUtf32(0x1F9F9)
-$emojiPhish   = [char]::ConvertFromUtf32(0x1F3A3)
-$emojiStealth = [char]::ConvertFromUtf32(0x1F464)
+# Unicode characters from Segoe MDL2 Assets (Native Vector Glyphs)
+$iconDna     = [char]0xE8A1 # Defender Shield
+$iconNet     = [char]0xE839 # Ethernet Connection
+$iconVault   = [char]0xE72E # Padlock / Vault Lock
+$iconPurge   = [char]0xE74D # System Trash / Purge
+$iconPhish   = [char]0xE909 # World / DNS Globe
+$iconStealth = [char]0xE740 # User Privacy / Stealth Eye
 
 # ======================================================
 # FORM CONFIGURATION
@@ -44,7 +44,7 @@ $form.BackColor = $bgColor
 $form.FormBorderStyle = "Sizable"
 $form.MaximizeBox = $true
 
-# Custom paint handler for a gorgeous gradient background
+# Custom paint handler for a gorgeous gradient background & thin border
 $form.add_Paint({
     param($s,$e)
     $rect = $s.ClientRectangle
@@ -52,6 +52,11 @@ $form.add_Paint({
         $brush = New-Object System.Drawing.Drawing2D.LinearGradientBrush($rect, $bgColor, $bgGradient, 90)
         $e.Graphics.FillRectangle($brush, $rect)
         $brush.Dispose()
+        
+        # Subtle premium outline border
+        $pen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(40, 50, 90), 1)
+        $e.Graphics.DrawRectangle($pen, 0, 0, $rect.Width - 1, $rect.Height - 1)
+        $pen.Dispose()
     }
 })
 
@@ -98,9 +103,20 @@ $heroPanel = New-Object System.Windows.Forms.Panel
 $heroPanel.Size = New-Object System.Drawing.Size(964, 165)
 $heroPanel.Location = New-Object System.Drawing.Point(20, 75)
 $heroPanel.BackColor = $cardBg
-$heroPanel.BorderStyle = "FixedSingle"
+$heroPanel.BorderStyle = "None"
 $heroPanel.Anchor = "Top, Left, Right"
 $form.Controls.Add($heroPanel)
+
+# Border painting for Hero Panel
+$heroPanel.add_Paint({
+    param($s,$e)
+    $rect = $s.ClientRectangle
+    $rect.Width -= 1
+    $rect.Height -= 1
+    $pen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(40, 50, 90), 1.5)
+    $e.Graphics.DrawRectangle($pen, $rect)
+    $pen.Dispose()
+})
 
 # Dynamic Sweeping Radar Scanner (Custom Drawn)
 $radarPanel = New-Object System.Windows.Forms.Panel
@@ -113,7 +129,7 @@ $lblProtected = New-Object System.Windows.Forms.Label
 $lblProtected.Text = "YOUR SYSTEM IS SECURED"
 $lblProtected.Font = $fTitle
 $lblProtected.ForeColor = $neonGreen
-$lblProtected.Location = New-Object System.Drawing.Point(155, 20)
+$lblProtected.Location = New-Object System.Drawing.Point(155, 18)
 $lblProtected.AutoSize = $true
 $lblProtected.Anchor = "Top, Left"
 $heroPanel.Controls.Add($lblProtected)
@@ -122,7 +138,7 @@ $lblProtSub = New-Object System.Windows.Forms.Label
 $lblProtSub.Text = "6 Autonomous AI Agents active. Powered by Google Gemini AI. Real-time protection online."
 $lblProtSub.Font = $fSmall
 $lblProtSub.ForeColor = $gray
-$lblProtSub.Location = New-Object System.Drawing.Point(157, 62)
+$lblProtSub.Location = New-Object System.Drawing.Point(157, 52)
 $lblProtSub.AutoSize = $true
 $lblProtSub.Anchor = "Top, Left"
 $heroPanel.Controls.Add($lblProtSub)
@@ -133,87 +149,57 @@ $lblLastScan.Name = "LastScan"
 $lblLastScan.Text = "● Shield Pulse: Active (calculating heartbeat...)"
 $lblLastScan.Font = $fMono
 $lblLastScan.ForeColor = $neonGreen
-$lblLastScan.Location = New-Object System.Drawing.Point(157, 84)
+$lblLastScan.Location = New-Object System.Drawing.Point(157, 72)
 $lblLastScan.AutoSize = $true
 $lblLastScan.Anchor = "Top, Left"
 $heroPanel.Controls.Add($lblLastScan)
 
-# Stats labels (Aligned with X = 157)
-$lblStatThreatsVal = New-Object System.Windows.Forms.Label
-$lblStatThreatsVal.Name = "StatThreats"
-$lblStatThreatsVal.Text = "0"
-$lblStatThreatsVal.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 15, [System.Drawing.FontStyle]::Bold)
-$lblStatThreatsVal.ForeColor = $neonGreen
-$lblStatThreatsVal.Location = New-Object System.Drawing.Point(157, 108)
-$lblStatThreatsVal.AutoSize = $true
-$lblStatThreatsVal.Anchor = "Top, Left"
-$heroPanel.Controls.Add($lblStatThreatsVal)
+# Stats panels helper
+function Create-StatPanel {
+    param([string]$title, [string]$name, [string]$defaultVal, [int]$x)
+    
+    $p = New-Object System.Windows.Forms.Panel
+    $p.Size = New-Object System.Drawing.Size(140, 55)
+    $p.Location = New-Object System.Drawing.Point($x, 98)
+    $p.BackColor = [System.Drawing.Color]::FromArgb(10, 12, 24)
+    $p.Anchor = "Top, Left"
+    
+    $p.add_Paint({
+        param($s,$e)
+        $rect = $s.ClientRectangle
+        $rect.Width -= 1
+        $rect.Height -= 1
+        $pen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(40, 50, 90), 1)
+        $e.Graphics.DrawRectangle($pen, $rect)
+        $pen.Dispose()
+    })
+    
+    $val = New-Object System.Windows.Forms.Label
+    $val.Name = $name
+    $val.Text = $defaultVal
+    $val.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 13, [System.Drawing.FontStyle]::Bold)
+    $val.ForeColor = $neonGreen
+    $val.Location = New-Object System.Drawing.Point(10, 6)
+    $val.AutoSize = $true
+    $p.Controls.Add($val)
+    
+    $lbl = New-Object System.Windows.Forms.Label
+    $lbl.Text = $title
+    $lbl.Font = New-Object System.Drawing.Font("Consolas", 6.5, [System.Drawing.FontStyle]::Bold)
+    $lbl.ForeColor = $gray
+    $lbl.Location = New-Object System.Drawing.Point(10, 32)
+    $lbl.AutoSize = $true
+    $p.Controls.Add($lbl)
+    
+    $heroPanel.Controls.Add($p)
+    return $val
+}
 
-$lblStatThreatsKey = New-Object System.Windows.Forms.Label
-$lblStatThreatsKey.Text = "AI THREATS BLOCKED"
-$lblStatThreatsKey.Font = New-Object System.Drawing.Font("Consolas", 7.5)
-$lblStatThreatsKey.ForeColor = $gray
-$lblStatThreatsKey.Location = New-Object System.Drawing.Point(157, 134)
-$lblStatThreatsKey.AutoSize = $true
-$lblStatThreatsKey.Anchor = "Top, Left"
-$heroPanel.Controls.Add($lblStatThreatsKey)
-
-$lblStatProcsVal = New-Object System.Windows.Forms.Label
-$lblStatProcsVal.Name = "StatProcs"
-$lblStatProcsVal.Text = "0"
-$lblStatProcsVal.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 15, [System.Drawing.FontStyle]::Bold)
-$lblStatProcsVal.ForeColor = $neonGreen
-$lblStatProcsVal.Location = New-Object System.Drawing.Point(335, 108)
-$lblStatProcsVal.AutoSize = $true
-$lblStatProcsVal.Anchor = "Top, Left"
-$heroPanel.Controls.Add($lblStatProcsVal)
-
-$lblStatProcsKey = New-Object System.Windows.Forms.Label
-$lblStatProcsKey.Text = "PROCESSES MONITORED"
-$lblStatProcsKey.Font = New-Object System.Drawing.Font("Consolas", 7.5)
-$lblStatProcsKey.ForeColor = $gray
-$lblStatProcsKey.Location = New-Object System.Drawing.Point(335, 134)
-$lblStatProcsKey.AutoSize = $true
-$lblStatProcsKey.Anchor = "Top, Left"
-$heroPanel.Controls.Add($lblStatProcsKey)
-
-$lblStatMBVal = New-Object System.Windows.Forms.Label
-$lblStatMBVal.Name = "StatMB"
-$lblStatMBVal.Text = "0.0"
-$lblStatMBVal.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 15, [System.Drawing.FontStyle]::Bold)
-$lblStatMBVal.ForeColor = $neonGreen
-$lblStatMBVal.Location = New-Object System.Drawing.Point(515, 108)
-$lblStatMBVal.AutoSize = $true
-$lblStatMBVal.Anchor = "Top, Left"
-$heroPanel.Controls.Add($lblStatMBVal)
-
-$lblStatMBKey = New-Object System.Windows.Forms.Label
-$lblStatMBKey.Text = "JUNK PURGED (MB)"
-$lblStatMBKey.Font = New-Object System.Drawing.Font("Consolas", 7.5)
-$lblStatMBKey.ForeColor = $gray
-$lblStatMBKey.Location = New-Object System.Drawing.Point(515, 134)
-$lblStatMBKey.AutoSize = $true
-$lblStatMBKey.Anchor = "Top, Left"
-$heroPanel.Controls.Add($lblStatMBKey)
-
-$lblStatCanaryVal = New-Object System.Windows.Forms.Label
-$lblStatCanaryVal.Name = "StatCanary"
-$lblStatCanaryVal.Text = "ACTIVE"
-$lblStatCanaryVal.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 15, [System.Drawing.FontStyle]::Bold)
-$lblStatCanaryVal.ForeColor = $neonGreen
-$lblStatCanaryVal.Location = New-Object System.Drawing.Point(675, 108)
-$lblStatCanaryVal.AutoSize = $true
-$lblStatCanaryVal.Anchor = "Top, Left"
-$heroPanel.Controls.Add($lblStatCanaryVal)
-
-$lblStatCanaryKey = New-Object System.Windows.Forms.Label
-$lblStatCanaryKey.Text = "CANARY SHIELD"
-$lblStatCanaryKey.Font = New-Object System.Drawing.Font("Consolas", 7.5)
-$lblStatCanaryKey.ForeColor = $gray
-$lblStatCanaryKey.Location = New-Object System.Drawing.Point(675, 134)
-$lblStatCanaryKey.AutoSize = $true
-$lblStatCanaryKey.Anchor = "Top, Left"
-$heroPanel.Controls.Add($lblStatCanaryKey)
+# Create glassmorphic statistics frames
+$lblStatThreatsVal = Create-StatPanel "AI THREATS BLOCKED" "StatThreats" "0" 157
+$lblStatProcsVal   = Create-StatPanel "PROCESSES MONITORED" "StatProcs" "0" 312
+$lblStatMBVal      = Create-StatPanel "JUNK PURGED (MB)" "StatMB" "0.0" 467
+$lblStatCanaryVal  = Create-StatPanel "CANARY SHIELD" "StatCanary" "ACTIVE" 622
 
 # Full Scan Button
 $btnScanAll = New-Object System.Windows.Forms.Button
@@ -221,14 +207,52 @@ $btnScanAll.Text = "RUN FULL AI SCAN"
 $btnScanAll.Font = $fMed
 $btnScanAll.Size = New-Object System.Drawing.Size(165, 42)
 $btnScanAll.Location = New-Object System.Drawing.Point(782, 58)
-$btnScanAll.BackColor = $neonGreen
-$btnScanAll.ForeColor = [System.Drawing.Color]::FromArgb(5, 5, 14)
 $btnScanAll.FlatStyle = "Flat"
 $btnScanAll.FlatAppearance.BorderSize = 0
 $btnScanAll.Cursor = [System.Windows.Forms.Cursors]::Hand
 $btnScanAll.Anchor = "Top, Right"
-$btnScanAll.add_MouseEnter({ param($s,$e); $s.BackColor=[System.Drawing.Color]::FromArgb(0, 255, 180) })
-$btnScanAll.add_MouseLeave({ param($s,$e); $s.BackColor=$neonGreen })
+
+# Custom Paint event for a high-tech gradient Scan button
+$btnScanAll.add_Paint({
+    param($s,$e)
+    $rect = $s.ClientRectangle
+    $isHovered = $s.ClientRectangle.Contains($s.PointToClient([System.Windows.Forms.Control]::MousePosition))
+    
+    if ($s.Enabled) {
+        if ($isHovered) {
+            $color1 = $neonGreen
+            $color2 = [System.Drawing.Color]::FromArgb(0, 160, 200)
+            $textColor = [System.Drawing.Color]::FromArgb(6, 6, 14)
+        } else {
+            $color1 = [System.Drawing.Color]::FromArgb(16, 18, 38)
+            $color2 = [System.Drawing.Color]::FromArgb(28, 32, 60)
+            $textColor = $neonGreen
+        }
+    } else {
+        $color1 = [System.Drawing.Color]::FromArgb(40, 10, 10)
+        $color2 = [System.Drawing.Color]::FromArgb(20, 5, 5)
+        $textColor = $alertRed
+    }
+    
+    $brush = New-Object System.Drawing.Drawing2D.LinearGradientBrush($rect, $color1, $color2, 90)
+    $e.Graphics.FillRectangle($brush, $rect)
+    $brush.Dispose()
+    
+    $sf = New-Object System.Drawing.StringFormat
+    $sf.Alignment = "Center"
+    $sf.LineAlignment = "Center"
+    $textBrush = New-Object System.Drawing.SolidBrush($textColor)
+    $e.Graphics.DrawString($s.Text, $s.Font, $textBrush, $rect, $sf)
+    $textBrush.Dispose()
+    $sf.Dispose()
+    
+    $borderPen = New-Object System.Drawing.Pen(if ($s.Enabled) { $neonGreen } else { $alertRed }, 1.5)
+    $e.Graphics.DrawRectangle($borderPen, 0, 0, $rect.Width-1, $rect.Height-1)
+    $borderPen.Dispose()
+})
+
+$btnScanAll.add_MouseEnter({ param($s,$e) $s.Invalidate() })
+$btnScanAll.add_MouseLeave({ param($s,$e) $s.Invalidate() })
 $heroPanel.Controls.Add($btnScanAll)
 
 # Glowing bottom progress bar inside Hero panel (revealed during scans)
@@ -274,6 +298,16 @@ $script:isScanning    = $false
 $script:radarAngle    = 0
 $script:blips         = [System.Collections.ArrayList]::new()
 
+$telemetryFile = Join-Path "$env:APPDATA\SecureVault" "sentinel_telemetry.json"
+if (-not (Test-Path $telemetryFile)) {
+    $dir = $PSScriptRoot
+    if (-not $dir -and $MyInvocation -and $MyInvocation.MyCommand -and $MyInvocation.MyCommand.Path) { 
+        $dir = Split-Path $MyInvocation.MyCommand.Path -Parent 
+    }
+    if (-not $dir) { $dir = "." }
+    $telemetryFile = Join-Path $dir "sentinel_telemetry.json"
+}
+
 function Log {
     param([string]$msg, [string]$color = "green")
     $console.SelectionStart = $console.TextLength
@@ -291,8 +325,15 @@ function Log {
 
 function UpdateStat {
     param([string]$name, $val)
-    $ctrl = $heroPanel.Controls[$name]
-    if ($ctrl) { $ctrl.Text = "$val" }
+    foreach ($ctrl in $heroPanel.Controls) {
+        if ($ctrl.GetType().Name -eq "Panel") {
+            $lbl = $ctrl.Controls[$name]
+            if ($lbl) {
+                $lbl.Text = "$val"
+                break
+            }
+        }
+    }
 }
 
 function Query-AI {
@@ -345,14 +386,22 @@ $radarPanel.add_Paint({
     $g.DrawLine($gridPen, $cx, 5, $cx, $h-5)
     $gridPen.Dispose()
     
-    # Draw sweeping line
-    $rad = ($script:radarAngle * [Math]::PI) / 180
-    $lx = $cx + $r * [Math]::Cos($rad)
-    $ly = $cy + $r * [Math]::Sin($rad)
-    
-    $sweepPen = New-Object System.Drawing.Pen($neonGreen, 2)
-    $g.DrawLine($sweepPen, $cx, $cy, $lx, $ly)
-    $sweepPen.Dispose()
+    # Draw sweeping persistence trail lines
+    for ($i = 0; $i -lt 30; $i++) {
+        $trailAngle = ($script:radarAngle - $i + 360) % 360
+        $trailRad = ($trailAngle * [Math]::PI) / 180
+        $tx = $cx + $r * [Math]::Cos($trailRad)
+        $ty = $cy + $r * [Math]::Sin($trailRad)
+        
+        $opacity = [int](255 * (1 - ($i / 30)))
+        if ($opacity -gt 255) { $opacity = 255 }
+        if ($opacity -lt 0) { $opacity = 0 }
+        
+        $trailColor = [System.Drawing.Color]::FromArgb($opacity, 0, 220, 156)
+        $trailPen = New-Object System.Drawing.Pen($trailColor, 1.5)
+        $g.DrawLine($trailPen, $cx, $cy, $tx, $ty)
+        $trailPen.Dispose()
+    }
     
     # Draw radar scope outer ring
     $outerPen = New-Object System.Drawing.Pen($neonGreen, 2)
@@ -564,12 +613,12 @@ $form.Controls.Add($grid)
 # AGENT CARDS IMPLEMENTATION
 # ======================================================
 $agentDefs = @(
-    @{ name="Antivirus AI";  sub="Gemini process behavioral scan"; icon=$emojiDna;     scan=$dnaScan;     row=0; col=0; color=[System.Drawing.Color]::FromArgb(0, 220, 156) },
-    @{ name="Firewall AI";   sub="TCP socket telemetry threat scan";icon=$emojiNet;     scan=$netScan;     row=0; col=1; color=[System.Drawing.Color]::FromArgb(0, 200, 255) },
-    @{ name="Vault Guard";   sub="Documents credential leak audit";  icon=$emojiVault;   scan=$vaultScan;   row=0; col=2; color=[System.Drawing.Color]::FromArgb(255, 180, 0) },
-    @{ name="QuickClean";    sub="Purge temp caches & boost CPU";    icon=$emojiPurge;   scan=$purgeScan;   row=1; col=0; color=[System.Drawing.Color]::FromArgb(255, 0, 180) },
-    @{ name="Web Shield";    sub="Phishing guard & HOSTS checker";   icon=$emojiPhish;   scan=$phishScan;   row=1; col=1; color=[System.Drawing.Color]::FromArgb(180, 0, 255) },
-    @{ name="Stealth VPN";   sub="Hardens physical network adapters"; icon=$emojiStealth; scan=$stealthScan; row=1; col=2; color=[System.Drawing.Color]::FromArgb(0, 255, 220) }
+    @{ name="Antivirus AI";  sub="Gemini process behavioral scan"; icon=$iconDna;     scan=$dnaScan;     row=0; col=0; color=[System.Drawing.Color]::FromArgb(0, 220, 156) },
+    @{ name="Firewall AI";   sub="TCP socket telemetry threat scan";icon=$iconNet;     scan=$netScan;     row=0; col=1; color=[System.Drawing.Color]::FromArgb(0, 200, 255) },
+    @{ name="Vault Guard";   sub="Documents credential leak audit";  icon=$iconVault;   scan=$vaultScan;   row=0; col=2; color=[System.Drawing.Color]::FromArgb(255, 180, 0) },
+    @{ name="QuickClean";    sub="Purge temp caches & boost CPU";    icon=$iconPurge;   scan=$purgeScan;   row=1; col=0; color=[System.Drawing.Color]::FromArgb(255, 0, 180) },
+    @{ name="Web Shield";    sub="Phishing guard & HOSTS checker";   icon=$iconPhish;   scan=$phishScan;   row=1; col=1; color=[System.Drawing.Color]::FromArgb(180, 0, 255) },
+    @{ name="Stealth VPN";   sub="Hardens physical network adapters"; icon=$iconStealth; scan=$stealthScan; row=1; col=2; color=[System.Drawing.Color]::FromArgb(0, 255, 220) }
 )
 
 foreach ($ag in $agentDefs) {
@@ -577,9 +626,9 @@ foreach ($ag in $agentDefs) {
     $card.Dock = "Fill"
     $card.Margin = New-Object System.Windows.Forms.Padding(6, 6, 6, 6)
     $card.BackColor = $cardBg
-    $card.BorderStyle = "None" # Remove default borders
+    $card.BorderStyle = "None"
 
-    # Custom card border outline painting and hover highlights
+    # Custom card border outline painting
     $card.add_Paint({
         param($s,$e)
         $rect = $s.ClientRectangle
@@ -597,12 +646,12 @@ foreach ($ag in $agentDefs) {
     $cardTop.BackColor = $ag.color
     $card.Controls.Add($cardTop)
 
-    # Emoji icon
+    # Native vector icon from Segoe MDL2 Assets font
     $ico = New-Object System.Windows.Forms.Label
     $ico.Text = $ag.icon
-    $ico.Font = New-Object System.Drawing.Font("Segoe UI", 24)
+    $ico.Font = New-Object System.Drawing.Font("Segoe MDL2 Assets", 18)
     $ico.ForeColor = $ag.color
-    $ico.Location = New-Object System.Drawing.Point(14, 18)
+    $ico.Location = New-Object System.Drawing.Point(20, 20)
     $ico.AutoSize = $true
     $ico.Anchor = "Top, Left"
     $card.Controls.Add($ico)
@@ -612,7 +661,7 @@ foreach ($ag in $agentDefs) {
     $lname.Text = $ag.name
     $lname.Font = $fBig
     $lname.ForeColor = $white
-    $lname.Location = New-Object System.Drawing.Point(72, 20)
+    $lname.Location = New-Object System.Drawing.Point(62, 18)
     $lname.AutoSize = $true
     $lname.Anchor = "Top, Left"
     $card.Controls.Add($lname)
@@ -623,7 +672,7 @@ foreach ($ag in $agentDefs) {
     $badge.Font = New-Object System.Drawing.Font("Consolas", 7, [System.Drawing.FontStyle]::Bold)
     $badge.ForeColor = $bgColor
     $badge.BackColor = $ag.color
-    $badge.Location = New-Object System.Drawing.Point(72, 50)
+    $badge.Location = New-Object System.Drawing.Point(62, 46)
     $badge.AutoSize = $true
     $badge.Anchor = "Top, Left"
     $card.Controls.Add($badge)
@@ -649,25 +698,62 @@ foreach ($ag in $agentDefs) {
     $dot.Anchor = "Bottom, Left"
     $card.Controls.Add($dot)
 
-    # RUN AI SCAN button
+    # RUN SCAN button with theme-aware gradient paint & hover handler
     $btn = New-Object System.Windows.Forms.Button
     $btn.Text = "RUN SCAN"
     $btn.Font = $fMed
     $btn.Size = New-Object System.Drawing.Size(110, 30)
     $btn.Location = New-Object System.Drawing.Point(168, 109)
-    $btn.BackColor = [System.Drawing.Color]::FromArgb(0, 50, 40)
-    $btn.ForeColor = $neonGreen
     $btn.FlatStyle = "Flat"
-    $btn.FlatAppearance.BorderColor = $dimGreen
-    $btn.FlatAppearance.BorderSize = 1
+    $btn.FlatAppearance.BorderSize = 0
     $btn.Cursor = [System.Windows.Forms.Cursors]::Hand
     $btn.Tag = $ag.scan
     $btn.Anchor = "Bottom, Right"
 
-    $btn.add_MouseEnter({ param($s,$e); $s.BackColor=[System.Drawing.Color]::FromArgb(0,120,90); $s.ForeColor=[System.Drawing.Color]::White })
-    $btn.add_MouseLeave({ param($s,$e); $s.BackColor=[System.Drawing.Color]::FromArgb(0,50,40);  $s.ForeColor=[System.Drawing.Color]::FromArgb(0,220,156) })
+    # Gradient Drawing for card buttons
+    $btn.add_Paint({
+        param($s,$e)
+        $rect = $s.ClientRectangle
+        $isHovered = $s.ClientRectangle.Contains($s.PointToClient([System.Windows.Forms.Control]::MousePosition))
+        
+        if ($s.Enabled) {
+            if ($isHovered) {
+                $color1 = $ag.color
+                $color2 = [System.Drawing.Color]::FromArgb(255, [Math]::Max(0, $ag.color.R - 80), [Math]::Max(0, $ag.color.G - 80), [Math]::Max(0, $ag.color.B - 80))
+                $textColor = [System.Drawing.Color]::FromArgb(6, 6, 14)
+            } else {
+                $color1 = [System.Drawing.Color]::FromArgb(16, 18, 38)
+                $color2 = [System.Drawing.Color]::FromArgb(28, 32, 60)
+                $textColor = $ag.color
+            }
+        } else {
+            $color1 = [System.Drawing.Color]::FromArgb(40, 10, 10)
+            $color2 = [System.Drawing.Color]::FromArgb(20, 5, 5)
+            $textColor = $alertRed
+        }
+        
+        $brush = New-Object System.Drawing.Drawing2D.LinearGradientBrush($rect, $color1, $color2, 90)
+        $e.Graphics.FillRectangle($brush, $rect)
+        $brush.Dispose()
+        
+        $sf = New-Object System.Windows.Forms.StringFormat
+        $sf.Alignment = "Center"
+        $sf.LineAlignment = "Center"
+        $textBrush = New-Object System.Drawing.SolidBrush($textColor)
+        $e.Graphics.DrawString($s.Text, $s.Font, $textBrush, $rect, $sf)
+        $textBrush.Dispose()
+        $sf.Dispose()
+        
+        # Border
+        $borderPen = New-Object System.Drawing.Pen(if ($s.Enabled) { $ag.color } else { $alertRed }, 1)
+        $e.Graphics.DrawRectangle($borderPen, 0, 0, $rect.Width-1, $rect.Height-1)
+        $borderPen.Dispose()
+    })
+
+    $btn.add_MouseEnter({ param($s,$e) $s.Invalidate() })
+    $btn.add_MouseLeave({ param($s,$e) $s.Invalidate() })
     
-    # Hover highlight handlers
+    # Hover highlight handlers for card background
     $hoverIn = {
         $card.BackColor = $cardHoverBg
     }
@@ -695,8 +781,6 @@ foreach ($ag in $agentDefs) {
         param($s,$e)
         $s.Enabled = $false
         $s.Text = "SCANNING..."
-        $s.BackColor = [System.Drawing.Color]::FromArgb(60,15,0)
-        $s.ForeColor = [System.Drawing.Color]::FromArgb(255,60,60)
         
         $parent = $s.Parent
         $statusDot = $parent.Controls["StatusDot"]
@@ -714,9 +798,8 @@ foreach ($ag in $agentDefs) {
         }
 
         $s.Text = "RUN SCAN"
-        $s.BackColor = [System.Drawing.Color]::FromArgb(0,50,40)
-        $s.ForeColor = [System.Drawing.Color]::FromArgb(0,220,156)
         $s.Enabled = $true
+        $s.Invalidate()
     })
     $card.Controls.Add($btn)
 
@@ -729,20 +812,21 @@ foreach ($ag in $agentDefs) {
 $btnScanAll.Add_Click({
     $btnScanAll.Enabled = $false
     $btnScanAll.Text = "SCANNING..."
+    $btnScanAll.Invalidate()
     $progVal.Width = 0
     $scans = @($dnaScan, $netScan, $vaultScan, $purgeScan, $phishScan, $stealthScan)
     
     for ($i = 0; $i -lt $scans.Count; $i++) {
         & $scans[$i]
-        # Smoothly advance progress bar width
         $progVal.Width = [int]($heroPanel.Width * (($i + 1) / $scans.Count))
         $heroPanel.Refresh()
     }
     
     Start-Sleep -Milliseconds 600
-    $progVal.Width = 0 # Reset progress
+    $progVal.Width = 0
     $btnScanAll.Text = "RUN FULL AI SCAN"
     $btnScanAll.Enabled = $true
+    $btnScanAll.Invalidate()
 })
 
 # ======================================================
@@ -818,18 +902,18 @@ try {
 # ANIMATION & TELEMETRY TIMERS
 # ======================================================
 $rtTimer = New-Object System.Windows.Forms.Timer
-$rtTimer.Interval = 1000 # 1 second telemetry loop
+$rtTimer.Interval = 1000
 $script:lastLogCount = 0
 $script:blinkState = $true
 
 $rtTimer.add_Tick({
     $isDaemonRunning = $false
-    if (Test-Path $telemetryFile) {
+    if ($telemetryFile -and (Test-Path $telemetryFile)) {
         try {
             $json = Get-Content $telemetryFile -Raw -EA SilentlyContinue
             $data = $json | ConvertFrom-Json
             if ($data) {
-                # Check Heartbeat (within 15 seconds)
+                # Check Heartbeat
                 if ($data.lastHeartbeat) {
                     $ticksDiff = [DateTime]::UtcNow.Ticks - [int64]$data.lastHeartbeat
                     if ($ticksDiff -lt 150000000) {
@@ -870,8 +954,7 @@ $rtTimer.add_Tick({
                         $color = "gray"
                         if ($type -eq "canary" -or $type -eq "tarpit" -or $type -eq "watchdog") {
                             $color = "red"
-                            $lblStatCanaryVal.Text = "RESTORED"
-                            $lblStatCanaryVal.ForeColor = $alertRed
+                            UpdateStat "StatCanary" "RESTORED"
                         } elseif ($type -eq "system") {
                             $color = "white"
                         }
@@ -879,11 +962,6 @@ $rtTimer.add_Tick({
                         Log "[$time] [$type.ToUpper()] $msg" $color
                     }
                     $script:lastLogCount = $totalLogs.Count
-                } else {
-                    if (-not $lblStatCanaryVal.ForeColor.Equals($alertRed)) {
-                        $lblStatCanaryVal.Text = "ACTIVE"
-                        $lblStatCanaryVal.ForeColor = $neonGreen
-                    }
                 }
             }
         } catch {}
@@ -930,4 +1008,29 @@ $form.add_FormClosing({
 # ======================================================
 # LAUNCH
 # ======================================================
+# Ensure the background service is running. If not, start it hidden.
+$isDaemonRunning = $false
+if ($telemetryFile -and (Test-Path $telemetryFile)) {
+    try {
+        $json = Get-Content $telemetryFile -Raw -EA SilentlyContinue
+        $data = $json | ConvertFrom-Json
+        if ($data -and $data.lastHeartbeat) {
+            $ticksDiff = [DateTime]::UtcNow.Ticks - [int64]$data.lastHeartbeat
+            if ($ticksDiff -lt 150000000) {
+                $isDaemonRunning = $true
+            }
+        }
+    } catch {}
+}
+
+if (-not $isDaemonRunning) {
+    $serviceScript = Join-Path "$env:APPDATA\SecureVault" "sentinel_service.ps1"
+    if (-not (Test-Path $serviceScript)) {
+        $serviceScript = Join-Path $PSScriptRoot "sentinel_service.ps1"
+    }
+    if (Test-Path $serviceScript) {
+        Start-Process powershell -ArgumentList "-WindowStyle Hidden -ExecutionPolicy Bypass -File `"$serviceScript`"" -WindowStyle Hidden
+    }
+}
+
 [System.Windows.Forms.Application]::Run($form)
