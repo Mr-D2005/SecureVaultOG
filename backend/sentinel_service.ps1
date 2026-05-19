@@ -1,7 +1,10 @@
 # ======================================================
 # SECUREVAULT SENTINEL DAEMON (BACKGROUND SERVICE)
 # ======================================================
-$telemetryFile = Join-Path $PSScriptRoot "sentinel_telemetry.json"
+$dir = $PSScriptRoot
+if (-not $dir) { $dir = Split-Path $MyInvocation.MyCommand.Path -Parent }
+if (-not $dir) { $dir = Get-Location }
+$telemetryFile = Join-Path $dir "sentinel_telemetry.json"
 
 # Schema migration: delete old telemetry files missing lastHeartbeat
 if (Test-Path $telemetryFile) {

@@ -580,7 +580,10 @@ try {
 # ======================================================
 # TELEMETRY SYNC ENGINE
 # ======================================================
-$telemetryFile = Join-Path $PSScriptRoot "sentinel_telemetry.json"
+$dir = $PSScriptRoot
+if (-not $dir) { $dir = Split-Path $MyInvocation.MyCommand.Path -Parent }
+if (-not $dir) { $dir = Get-Location }
+$telemetryFile = Join-Path $dir "sentinel_telemetry.json"
 $script:lastLogCount = 0
 
 $rtTimer = New-Object System.Windows.Forms.Timer
