@@ -218,7 +218,7 @@ while ($true) {
             $isSuspicious = $true
             $reason = "Office Hijack Attempt (Parent: $parentName.exe launched: $name.exe)"
         }
-        elseif ($cliArgs -match '-enc' -or $cliArgs -match 'bypass' -or $cliArgs -match 'hidden' -or $cliArgs -match 'iex\(') {
+        elseif (($cliArgs -match '-enc' -or $cliArgs -match 'bypass' -or $cliArgs -match 'hidden' -or $cliArgs -match 'iex\(') -and $cliArgs -notmatch 'sentinel_' -and $cliArgs -notmatch 'SecureVault') {
             $isSuspicious = $true
             $reason = "Obfuscated Command Line Detected"
         }
