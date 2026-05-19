@@ -21,13 +21,13 @@ echo [GHOST_SETUP] [1/5] Fetching 6-Agent Core Engine...
 
 if exist "%~dp0sentinel_gui.ps1" (
     echo [LOCAL] Copying sentinel_gui.ps1...
-    copy "%~dp0sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
+    copy /Y "%~dp0sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
 ) else if exist "sentinel_gui.ps1" (
     echo [LOCAL] Copying sentinel_gui.ps1...
-    copy "sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
+    copy /Y "sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
 ) else if exist "backend\sentinel_gui.ps1" (
     echo [LOCAL] Copying sentinel_gui.ps1...
-    copy "backend\sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
+    copy /Y "backend\sentinel_gui.ps1" "%INSTALL_DIR%\sentinel_gui.ps1" >nul
 ) else (
     echo [NETWORK] Downloading from SecureVault servers...
     powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/gui-script' -OutFile '%INSTALL_DIR%\sentinel_gui.ps1' -UseBasicParsing -ErrorAction SilentlyContinue"
@@ -44,13 +44,13 @@ echo [GHOST_SETUP] [2/5] Fetching Persistent Protection Daemon...
 
 if exist "%~dp0sentinel_service.ps1" (
     echo [LOCAL] Copying sentinel_service.ps1...
-    copy "%~dp0sentinel_service.ps1" "%INSTALL_DIR%\sentinel_service.ps1" >nul
+    copy /Y "%~dp0sentinel_service.ps1" "%INSTALL_DIR%\sentinel_service.ps1" >nul
 ) else if exist "sentinel_service.ps1" (
     echo [LOCAL] Copying sentinel_service.ps1...
-    copy "sentinel_service.ps1" "%INSTALL_DIR%\sentinel_service.ps1" >nul
+    copy /Y "sentinel_service.ps1" "%INSTALL_DIR%\sentinel_service.ps1" >nul
 ) else if exist "backend\sentinel_service.ps1" (
     echo [LOCAL] Copying sentinel_service.ps1...
-    copy "backend\sentinel_service.ps1" "%INSTALL_DIR%\sentinel_service.ps1" >nul
+    copy /Y "backend\sentinel_service.ps1" "%INSTALL_DIR%\sentinel_service.ps1" >nul
 ) else (
     echo [NETWORK] Downloading from SecureVault servers...
     powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/service-script' -OutFile '%INSTALL_DIR%\sentinel_service.ps1' -UseBasicParsing -ErrorAction SilentlyContinue"
@@ -67,13 +67,13 @@ echo [GHOST_SETUP] [3/5] Fetching Unified Launcher...
 
 if exist "%~dp0sentinel_defender.bat" (
     echo [LOCAL] Copying sentinel_defender.bat...
-    copy "%~dp0sentinel_defender.bat" "%INSTALL_DIR%\sentinel_defender.bat" >nul
+    copy /Y "%~dp0sentinel_defender.bat" "%INSTALL_DIR%\sentinel_defender.bat" >nul
 ) else if exist "sentinel_defender.bat" (
     echo [LOCAL] Copying sentinel_defender.bat...
-    copy "sentinel_defender.bat" "%INSTALL_DIR%\sentinel_defender.bat" >nul
+    copy /Y "sentinel_defender.bat" "%INSTALL_DIR%\sentinel_defender.bat" >nul
 ) else if exist "backend\sentinel_defender.bat" (
     echo [LOCAL] Copying sentinel_defender.bat...
-    copy "backend\sentinel_defender.bat" "%INSTALL_DIR%\sentinel_defender.bat" >nul
+    copy /Y "backend\sentinel_defender.bat" "%INSTALL_DIR%\sentinel_defender.bat" >nul
 ) else (
     echo [NETWORK] Downloading from SecureVault servers...
     powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/launcher-script' -OutFile '%INSTALL_DIR%\sentinel_defender.bat' -UseBasicParsing -ErrorAction SilentlyContinue"
@@ -89,9 +89,9 @@ if not exist "%INSTALL_DIR%\sentinel_defender.bat" (
 echo [GHOST_SETUP] [4/5] Downloading Icon...
 
 if exist "%~dp0logo.ico" (
-    copy "%~dp0logo.ico" "%INSTALL_DIR%\logo.ico" >nul
+    copy /Y "%~dp0logo.ico" "%INSTALL_DIR%\logo.ico" >nul
 ) else if exist "public\securevault_logo.ico" (
-    copy "public\securevault_logo.ico" "%INSTALL_DIR%\logo.ico" >nul
+    copy /Y "public\securevault_logo.ico" "%INSTALL_DIR%\logo.ico" >nul
 ) else (
     powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/system-shield/icon' -OutFile '%INSTALL_DIR%\logo.ico' -UseBasicParsing -ErrorAction SilentlyContinue"
 )
