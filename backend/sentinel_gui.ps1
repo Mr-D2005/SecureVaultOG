@@ -581,8 +581,9 @@ try {
 # TELEMETRY SYNC ENGINE
 # ======================================================
 $dir = $PSScriptRoot
-if (-not $dir) { $dir = Split-Path $MyInvocation.MyCommand.Path -Parent }
-if (-not $dir) { $dir = Get-Location }
+if (-not $dir -and $MyInvocation.MyCommand -and $MyInvocation.MyCommand.Path) { $dir = Split-Path $MyInvocation.MyCommand.Path -Parent }
+if (-not $dir) { $dir = $PWD.Path }
+if (-not $dir) { $dir = "." }
 $telemetryFile = Join-Path $dir "sentinel_telemetry.json"
 $script:lastLogCount = 0
 
