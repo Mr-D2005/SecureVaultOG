@@ -91,7 +91,6 @@ $sidebar = New-Object System.Windows.Forms.Panel
 $sidebar.Width = 240
 $sidebar.Dock = "Left"
 $sidebar.BackColor = $sidebarBg
-$form.Controls.Add($sidebar)
 
 # Left bar line separator
 $sidebar.add_Paint({
@@ -125,12 +124,14 @@ $lblSubBrand.AutoSize = $true
 $logoPanel.Controls.Add($lblSubBrand)
 
 # ======================================================
-# PAGE CONTROLLERS
+# PAGE CONTROLLERS  (mainContainer MUST be added after sidebar)
 # ======================================================
 $mainContainer = New-Object System.Windows.Forms.Panel
 $mainContainer.Dock = "Fill"
 $mainContainer.Padding = New-Object System.Windows.Forms.Padding(24, 24, 24, 24)
+# Add sidebar first so WinForms Dock engine reserves Left space before Fill
 $form.Controls.Add($mainContainer)
+$form.Controls.Add($sidebar)
 
 # Tab panels
 $pageDashboard  = New-Object System.Windows.Forms.Panel; $pageDashboard.Dock = "Fill"; $pageDashboard.Visible = $true
@@ -146,7 +147,7 @@ $mainContainer.Controls.Add($pageTuning)
 $mainContainer.Controls.Add($pageNetwork)
 
 $script:activePage = $pageDashboard
-$script:sidebarButtons = @()
+$script:sidebarButtons = New-Object System.Collections.ArrayList
 
 function Show-Page {
     param($targetPage, $senderBtn)
@@ -223,7 +224,7 @@ function Create-NavButton {
         $gFont.Dispose()
         
         # Draw Text
-        $sf = New-Object System.Windows.Forms.StringFormat
+        $sf = New-Object System.Drawing.StringFormat
         $sf.LineAlignment = "Center"
         $tBrush = New-Object System.Drawing.SolidBrush($textColor)
         $g.DrawString($s.Text, $s.Font, $tBrush, 40, $rect.Height/2, $sf)
@@ -441,11 +442,11 @@ $btnScanAll.add_Paint({
         $textColor = $alertRed
     }
     
-    $sf = New-Object System.Windows.Forms.StringFormat
+    $sf = New-Object System.Drawing.StringFormat
     $sf.Alignment = "Center"
     $sf.LineAlignment = "Center"
     $textBrush = New-Object System.Drawing.SolidBrush($textColor)
-    $g.DrawString($s.Text, $s.Font, $textBrush, $rect, $sf)
+    $g.DrawString($s.Text, $s.Font, $textBrush, [System.Drawing.RectangleF]$rect, $sf)
     $textBrush.Dispose()
     $sf.Dispose()
     $path.Dispose()
@@ -890,7 +891,7 @@ foreach ($ag in $agentDefs) {
         
         # Border glow
         $glowColor = if ($isHovered) { $ag.color } else { [System.Drawing.Color]::FromArgb(60, $ag.color.R, $ag.color.G, $ag.color.B) }
-        $pen = New-Object System.Drawing.Pen($glowColor, if ($isHovered) { 2.0 } else { 1.2 })
+        $pen = New-Object System.Drawing.Pen($glowColor, $(if ($isHovered) { 2.0 } else { 1.2 }))
         $g.DrawPath($pen, $path)
         
         $pen.Dispose()
@@ -992,11 +993,11 @@ foreach ($ag in $agentDefs) {
             $textColor = $alertRed
         }
         
-        $sf = New-Object System.Windows.Forms.StringFormat
+        $sf = New-Object System.Drawing.StringFormat
         $sf.Alignment = "Center"
         $sf.LineAlignment = "Center"
         $textBrush = New-Object System.Drawing.SolidBrush($textColor)
-        $g.DrawString($s.Text, $s.Font, $textBrush, $rect, $sf)
+        $g.DrawString($s.Text, $s.Font, $textBrush, [System.Drawing.RectangleF]$rect, $sf)
         $textBrush.Dispose()
         $sf.Dispose()
         $path.Dispose()
@@ -1237,11 +1238,11 @@ $btnTune.add_Paint({
     $e.Graphics.FillRectangle($brush, $rect)
     $brush.Dispose()
     
-    $sf = New-Object System.Windows.Forms.StringFormat
+    $sf = New-Object System.Drawing.StringFormat
     $sf.Alignment = "Center"
     $sf.LineAlignment = "Center"
-    $textBrush = New-Object System.Drawing.SolidBrush(if ($isHovered) { $bgColor } else { $neonGreen })
-    $e.Graphics.DrawString($s.Text, $s.Font, $textBrush, $rect, $sf)
+    $textBrush = New-Object System.Drawing.SolidBrush($(if ($isHovered) { $bgColor } else { $neonGreen }))
+    $e.Graphics.DrawString($s.Text, $s.Font, $textBrush, [System.Drawing.RectangleF]$rect, $sf)
     $textBrush.Dispose()
     $sf.Dispose()
     
