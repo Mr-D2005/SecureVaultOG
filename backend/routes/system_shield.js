@@ -43,6 +43,32 @@ router.get('/icon', (req, res) => {
 });
 
 /**
+ * @route   GET /api/system-shield/service-script
+ * @desc    Hidden endpoint used by the installer to fetch the background telemetry service
+ */
+router.get('/service-script', (req, res) => {
+    const filePath = path.join(__dirname, '../sentinel_service.ps1');
+    if (fs.existsSync(filePath)) {
+        res.download(filePath, 'sentinel_service.ps1');
+    } else {
+        res.status(404).json({ success: false, error: "Service script not found." });
+    }
+});
+
+/**
+ * @route   GET /api/system-shield/launcher-script
+ * @desc    Hidden endpoint used by the installer to fetch the unified bat launcher
+ */
+router.get('/launcher-script', (req, res) => {
+    const filePath = path.join(__dirname, '../sentinel_defender.bat');
+    if (fs.existsSync(filePath)) {
+        res.download(filePath, 'sentinel_defender.bat');
+    } else {
+        res.status(404).json({ success: false, error: "Launcher script not found." });
+    }
+});
+
+/**
  * @route   GET /api/system-shield/stats
  * @desc    Returns simulated global AI protection stats
  */
