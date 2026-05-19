@@ -13,4 +13,9 @@ if "%ERRORLEVEL%" neq "0" (
 :: 2. Launch the interactive GUI Dashboard
 echo [SYSTEM] Launching SecureVault Total AI Protection GUI...
 powershell -ExecutionPolicy Bypass -File sentinel_gui.ps1
+if %ERRORLEVEL% neq 0 (
+    echo.
+    echo [ERROR] Sentinel GUI failed to launch or exited with error code %ERRORLEVEL%.
+    pause
+)
 exit
