@@ -87,6 +87,11 @@ const analyzeSteganographyAI = (buffer, fileName = '') => {
         "ALPN-Protocol-Hopping", "QUIC-Stream-Inject", "HTTP/3-Frame-Padding", "GRPC-Metadata-Hide"
     ];
 
+    // Convert first/last portion to lowercase string for signature scanning
+    const sampleSize = Math.min(len, 20000);
+    const headerStr = buffer.subarray(0, sampleSize).toString('binary').toLowerCase();
+    const footerStr = buffer.subarray(Math.max(0, len - sampleSize)).toString('binary').toLowerCase();
+
     // ── LAYER 1: SECUREVAULT NATIVE SIGNATURE ──────────────────────────────
     const isSVStego = buffer.lastIndexOf(MAGIC_END) !== -1;
     if (isSVStego) {
@@ -103,34 +108,42 @@ const analyzeSteganographyAI = (buffer, fileName = '') => {
         { name: 'MP4', footer: [0x00, 0x00, 0x00, 0x08, 0x66, 0x72, 0x65, 0x65] }
     ];
 
-    // Tool-specific Magic Bytes / Headers (Internet Stego Tools)
+    // Real pattern matchers for online/open-source tools
     const toolSignatures = [
-        { name: 'OpenStego', pattern: 'stego', offset: 0, algo: 'OpenStego LSB' },
-        { name: 'SilentEye', pattern: 'silent', offset: 0, algo: 'SilentEye Hiding' },
-        { name: 'OurSecret', pattern: 'oursecret', offset: 0, algo: 'OurSecret 1.4' },
-        { name: 'StegHide', pattern: 'stghide', offset: 0, algo: 'StegHide AES-256' },
-        { name: 'JPHide', pattern: 'jphide', offset: 0, algo: 'JPHide/Seek Matrix' }
+        { name: 'OpenStego', patterns: ['openstego', 'stego'], algo: 'OpenStego RandomLSB' },
+        { name: 'SilentEye', patterns: ['silenteye', 'se_stego', 'silent-eye'], algo: 'SilentEye 0.4.1' },
+        { name: 'OurSecret', patterns: ['oursecret', '[oursecret]', 'our-secret'], algo: 'OurSecret 1.4' },
+        { name: 'StegHide', patterns: ['stghide', 'steghide', 'stg_'], algo: 'StegHide AES-256' },
+        { name: 'JPHide', patterns: ['jphide', 'jpseek'], algo: 'JPHide/Seek' },
+        { name: 'OutGuess', patterns: ['outguess', 'guess'], algo: 'OutGuess v0.2' }
     ];
 
+    // Check footer structural anomaly
     for (const sig of signatures) {
         const footerBuf = Buffer.from(sig.footer);
         const idx = buffer.lastIndexOf(footerBuf);
-        if (idx !== -1 && (len - (idx + footerBuf.length)) > 5) {
+        if (idx !== -1 && (len - (idx + footerBuf.length)) > 10) {
             score += 45;
             methods.push(`STRUCTURAL_ANOMALY_${sig.name}`);
-            if (!isSVStego) detectedAlgorithm = 'Third-Party Structural Hiding';
+            if (!isSVStego && detectedAlgorithm === 'None') {
+                detectedAlgorithm = 'Tail-End Append (TEA)';
+            }
         }
     }
 
+    // Check for tool signatures in header or footer
     for (const tool of toolSignatures) {
-        if (buffer.toString('utf-8', 0, 100).toLowerCase().includes(tool.pattern)) {
-            score = 100;
-            methods.push(`TOOL_SIGNATURE_${tool.name.toUpperCase()}`);
-            detectedAlgorithm = tool.algo;
+        for (const pattern of tool.patterns) {
+            if (headerStr.includes(pattern) || footerStr.includes(pattern)) {
+                score = 100;
+                methods.push(`TOOL_SIGNATURE_${tool.name.toUpperCase()}`);
+                detectedAlgorithm = tool.algo;
+                break;
+            }
         }
     }
 
-    // ── LAYER 3: ENTROPY CLUSTER (Extreme Accuracy: 7.9+) ───────────────
+    // ── LAYER 3: ENTROPY CLUSTER (Accuracy: 7.9+) ───────────────
     const calculateEntropy = (buf) => {
         if (buf.length < 256) return 0;
         const freq = new Array(256).fill(0);
@@ -154,7 +167,9 @@ const analyzeSteganographyAI = (buffer, fileName = '') => {
     if (maxClusterEntropy > 7.95) {
         score += 35;
         methods.push('NEURAL_ENTROPY_PEAK');
-        if (!isSVStego) detectedAlgorithm = algorithmRegistry[20 + Math.floor(Math.random() * 30)];
+        if (!isSVStego && detectedAlgorithm === 'None') {
+            detectedAlgorithm = 'Encrypted Payload (Entropy Peak)';
+        }
     }
 
     // ── LAYER 4: BIT-PLANE VARIANCE (LSB Analysis) ───────────────────────
@@ -169,24 +184,28 @@ const analyzeSteganographyAI = (buffer, fileName = '') => {
         }
         const ratio = bitMatches / testSize;
         lsbVariance = Math.abs(0.5 - ratio);
-        if (lsbVariance > 0.12) {
-            score += 30;
+        // Standard LSB hiding produces high randomization in LSB bits (variance close to 0)
+        if (lsbVariance < 0.03 && maxClusterEntropy > 7.2) {
+            score += 40;
             methods.push('BITPLANE_LSB_ANOMALY');
-            if (!isSVStego) detectedAlgorithm = algorithmRegistry[50 + Math.floor(Math.random() * 20)];
+            if (!isSVStego && detectedAlgorithm === 'None') {
+                detectedAlgorithm = 'OpenStego RandomLSB';
+            }
         }
     }
 
     // ── LAYER 5: FREQUENCY DOMAIN ANOMALY (DCT/FFT SIM) ─────────────────
     if (len > 50000) {
-        // High frequency noise check
         let noiseCount = 0;
         for (let i = 0; i < 5000; i++) {
-            if (Math.abs(buffer[i] - buffer[i+1]) > 200) noiseCount++;
+            if (Math.abs(buffer[i] - buffer[i+1]) > 220) noiseCount++;
         }
-        if (noiseCount > 50) {
+        if (noiseCount > 40) {
             score += 25;
             methods.push('FREQUENCY_SPECTRUM_NOISE');
-            if (!isSVStego) detectedAlgorithm = algorithmRegistry[70 + Math.floor(Math.random() * 30)];
+            if (!isSVStego && detectedAlgorithm === 'None') {
+                detectedAlgorithm = 'F5 Matrix Encoding';
+            }
         }
     }
 
@@ -200,13 +219,14 @@ const analyzeSteganographyAI = (buffer, fileName = '') => {
             if ((c >= 32 && c <= 126) || c === 10 || c === 13) {
                 chunk.unshift(String.fromCharCode(c));
             } else {
-                if (chunk.length > 40) break;
+                if (chunk.length > 30) break;
                 chunk = [];
             }
         }
-        if (chunk.length > 40) {
+        if (chunk.length > 30) {
             extractedForeignText = chunk.join('').trim();
-            if (extractedForeignText.length > 10) {
+            // Filter out common binary artifacts
+            if (extractedForeignText.length > 10 && !/^[A-Za-z0-9+/=]{4,}$/.test(extractedForeignText.substring(0, 10)) && extractedForeignText.includes(' ')) {
                 score = 100;
                 methods.push('DEFINITIVE_RECOVERY_TAIL');
                 detectedAlgorithm = 'Standard Append Stego';
@@ -218,22 +238,18 @@ const analyzeSteganographyAI = (buffer, fileName = '') => {
 
     // ── LAYER 7: SEMANTIC FILENAME ANALYSIS ───────────────────────────
     const lowName = fileName.toLowerCase();
-    const isThirdPartyStegoCheck = !isSVStego && (score >= 50 || methods.includes('DEFINITIVE_RECOVERY_TAIL'));
+    const isThirdPartyStegoCheck = !isSVStego && (score >= 40 || methods.includes('DEFINITIVE_RECOVERY_TAIL') || detectedAlgorithm !== 'None');
     
     if (!isSVStego && !isThirdPartyStegoCheck) {
-        if (lowName.includes('secured_') || lowName.includes('stego_')) {
+        if (lowName.includes('secured_') || lowName.includes('stego_') || lowName.includes('hidden')) {
             score += 35;
             methods.push('SEMANTIC_SIGNAL_ENCODED');
             detectedAlgorithm = 'Suspected Encoded Carrier';
-        } else if (lowName.includes('decrypted_')) {
-            score += 15;
-            methods.push('SEMANTIC_SIGNAL_POST_EXTRACT');
-            detectedAlgorithm = 'Post-Extraction Evidence';
         }
     }
 
     // ── FINAL DECISION ─────────────────────────────────────────────────────
-    const isThirdPartyStego = !isSVStego && (score >= 50 || methods.includes('DEFINITIVE_RECOVERY_TAIL'));
+    const isThirdPartyStego = !isSVStego && (score >= 40 || methods.includes('DEFINITIVE_RECOVERY_TAIL') || detectedAlgorithm !== 'None');
     
     // Smooth confidence calculation
     let finalConfidence = "0.0";
@@ -253,7 +269,7 @@ const analyzeSteganographyAI = (buffer, fileName = '') => {
         heuristics: {
             entropy: maxClusterEntropy.toFixed(4),
             variance: lsbVariance.toFixed(4),
-            layers_scanned: 6,
+            layers_scanned: 7,
             algo_patterns: algorithmRegistry.length
         }
     };
@@ -263,6 +279,66 @@ const attemptThirdPartyExtraction = (buffer, analysis) => {
     if (analysis.extractedForeignText) {
         return { type: 'text', data: analysis.extractedForeignText, method: 'RECOVERED_FROM_TAIL' };
     }
+    
+    const len = buffer.length;
+    const signatures = [
+        { name: 'JPEG', footer: [0xFF, 0xD9] },
+        { name: 'PNG', footer: [0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82] },
+        { name: 'GIF', footer: [0x3B] }
+    ];
+    
+    let footerEnd = -1;
+    for (const sig of signatures) {
+        const footerBuf = Buffer.from(sig.footer);
+        const idx = buffer.lastIndexOf(footerBuf);
+        if (idx !== -1) {
+            footerEnd = idx + footerBuf.length;
+            break;
+        }
+    }
+    
+    if (footerEnd !== -1 && footerEnd < len - 5) {
+        const payload = buffer.subarray(footerEnd);
+        
+        // 1. Check for ZIP signature (PK..)
+        if (payload[0] === 0x50 && payload[1] === 0x4B && payload[2] === 0x03 && payload[3] === 0x04) {
+            return {
+                type: 'file',
+                name: 'extracted_payload.zip',
+                data: payload.toString('base64'),
+                method: 'STRUCTURED_ZIP_APPEND'
+            };
+        }
+        // 2. Check for PNG signature
+        if (payload[0] === 0x89 && payload[1] === 0x50 && payload[2] === 0x4E && payload[3] === 0x47) {
+            return {
+                type: 'file',
+                name: 'extracted_payload.png',
+                data: payload.toString('base64'),
+                method: 'STRUCTURED_PNG_APPEND'
+            };
+        }
+        // 3. Check for JPEG signature
+        if (payload[0] === 0xFF && payload[1] === 0xD8) {
+            return {
+                type: 'file',
+                name: 'extracted_payload.jpg',
+                data: payload.toString('base64'),
+                method: 'STRUCTURED_JPEG_APPEND'
+            };
+        }
+        // 4. Try parsing as string
+        const text = payload.toString('utf-8').trim();
+        // Check if printable
+        if (/^[\x20-\x7E\r\n\t]+$/.test(text) && text.length > 5) {
+            return {
+                type: 'text',
+                data: text,
+                method: 'APPENDED_PLAINTEXT_RECOVERY'
+            };
+        }
+    }
+    
     return null;
 };
 

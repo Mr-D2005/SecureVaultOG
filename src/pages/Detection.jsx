@@ -435,6 +435,18 @@ const Detection = () => {
                         </div>
                       </div>
 
+                      {/* MIDDLE ROW: AI FORENSIC DIAGNOSIS */}
+                      {result.aiAnalysis?.aiExplanation && (
+                        <div style={{ background: 'rgba(139,92,246,0.04)', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(139,92,246,0.18)', display: 'flex', flexDirection: 'column', gap: '0.4rem', flexShrink: 0 }}>
+                          <p style={{ fontSize: '0.7rem', color: '#a855f7', fontWeight: 900, margin: 0, textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                            <Cpu size={14} /> RAVAN_AI_FORENSIC_DIAGNOSIS
+                          </p>
+                          <p style={{ margin: 0, fontSize: '0.9rem', color: '#e0e0e0', lineHeight: 1.4, fontStyle: 'italic', fontWeight: 400 }}>
+                            "{result.aiAnalysis.aiExplanation}"
+                          </p>
+                        </div>
+                      )}
+
                       {/* BOTTOM ROW: DATA RECOVERY MODULE */}
                       <div style={{ flex: 1, background: 'rgba(0,0,0,0.5)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', padding: '1.5rem', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexShrink: 0 }}>

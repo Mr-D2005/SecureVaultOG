@@ -54,9 +54,9 @@ const SystemShield = () => {
       {/* Feature Grid */}
       <div style={{ padding: '2rem 3rem 4rem', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
         {[
-          { icon: Cpu, name: 'AGENT_DNA (Antivirus)', desc: 'Heuristic pattern scanner that monitors active process memory and neutralizes zero-day malware.' },
+          { icon: Cpu, name: 'AGENT_DNA (Antivirus)', desc: 'Continuous real-time background monitor that audits PIDs for suspicious zero-day threat execution patterns.' },
           { icon: ShieldAlert, name: 'AGENT_NET (Firewall)', desc: 'AI NetGuard firewall that audits open network sockets, filters packets, and stops intrusion.' },
-          { icon: Lock, name: 'AGENT_VAULT (Locker)', desc: 'Secure credential locker sandbox that isolates files, encrypts passwords, and guards clipboard integrity.' },
+          { icon: Lock, name: 'AGENT_VAULT (Locker)', desc: 'Secure sandbox featuring Canary Honey-Vault files with automatic cryptographic file rollback to stop ransomware.' },
           { icon: Zap, name: 'AGENT_PURGE (Booster)', desc: 'QuickClean speed optimizer that clears local tracking caches, sweeps system temp files, and boots CPU execution.' },
           { icon: Globe, name: 'AGENT_PHISH (WebShield)', desc: 'Safe Browsing defender that audits browser Cache, blocks phishing hooks, and blacklists malicious domains.' },
           { icon: BrainCircuit, name: 'AGENT_STEALTH (VPN)', desc: 'Obfuscated VPN proxy agent that scrambles physical MAC addresses and routes traffic through secure crypt tunnels.' }

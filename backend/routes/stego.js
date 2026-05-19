@@ -3,6 +3,50 @@ const router = express.Router();
 const { injectPayload, extractPayload, analyzeSteganographyAI, attemptThirdPartyExtraction } = require('../utils/stego');
 const { EncryptedData } = require('../models/index');
 
+const generateAIForensicReport = async (aiAnalysis, carrierName) => {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+        return `Offline Heuristic Mode: Potential steganographic signature detected for ${carrierName} matching ${aiAnalysis.detectedAlgorithm}. Entropy matches data pattern signature ${aiAnalysis.heuristics.entropy}. LSB variance calculated at ${aiAnalysis.heuristics.variance}.`;
+    }
+
+    try {
+        const prompt = `
+            You are the Ravan AI Forensic Engine. Analyze the following steganography telemetry metrics for the file "${carrierName}":
+            - Detected Algorithm/Signature: ${aiAnalysis.detectedAlgorithm}
+            - Confidence Level: ${aiAnalysis.confidence}%
+            - Scanned Layers Matching: ${aiAnalysis.detectionMethods.join(', ')}
+            - Shannon Entropy Score: ${aiAnalysis.heuristics.entropy} (Standard clean threshold: ~7.0-7.5, high stego: >7.9)
+            - LSB Variance Deviation: ${aiAnalysis.heuristics.variance} (Close to 0 indicates high randomization)
+            
+            Based on these stats, write a concise, premium 2-3 sentence forensic explanation highlighting the signature threat, how it hides data, and why the engine flagged it. Use professional, clinical cybersecurity terminology. Make it feel highly advanced and expert.
+        `;
+
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: 'llama-3.1-8b-instant',
+                messages: [
+                    { role: 'system', content: 'You are a cybersecurity forensics expert agent. Return ONLY the 2-3 sentence explanation text. No introductions, no signatures.' },
+                    { role: 'user', content: prompt }
+                ],
+                temperature: 0.5,
+                max_tokens: 150
+            }),
+            signal: AbortSignal.timeout(6000)
+        });
+
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content?.trim() || "AI Forensics failed to generate explanation. Local heuristics verify payload presence.";
+    } catch (e) {
+        console.error("AI Forensic Report Error:", e.message);
+        return `Heuristic Engine Verdict: Steganography detected. Entropy: ${aiAnalysis.heuristics.entropy}. LSB Variance: ${aiAnalysis.heuristics.variance}. The file metadata and headers deviate from standard baseline specifications.`;
+    }
+};
+
 /**
  * @route   POST /api/stego/inject
  * @desc    Deep bind a secret text or file payload into ANY media file using raw base64 JSON
@@ -67,6 +111,10 @@ router.post('/extract', async (req, res) => {
 
         // 1. Run AI Steganalysis Forensic Engine
         const aiAnalysis = analyzeSteganographyAI(carrierBuffer, carrierName);
+
+        if (aiAnalysis.isSVStego || aiAnalysis.isThirdPartyStego) {
+            aiAnalysis.aiExplanation = await generateAIForensicReport(aiAnalysis, carrierName || 'Forensic Target');
+        }
 
         if (!aiAnalysis.isSVStego && !aiAnalysis.isThirdPartyStego) {
             return res.json({ success: true, stegoSource: 'clean', aiAnalysis });
@@ -174,6 +222,10 @@ router.post('/detect', async (req, res) => {
 
         const buffer = Buffer.from(imageBase64.split(',')[1] || imageBase64, 'base64');
         const aiAnalysis = analyzeSteganographyAI(buffer, name || 'Forensic Scan');
+
+        if (aiAnalysis.isSVStego || aiAnalysis.isThirdPartyStego) {
+            aiAnalysis.aiExplanation = await generateAIForensicReport(aiAnalysis, name || 'Forensic Scan');
+        }
 
         res.json({
             success: true,

@@ -154,6 +154,23 @@ $lblStatMBKey.Location = New-Object System.Drawing.Point(480, 132)
 $lblStatMBKey.AutoSize = $true
 $heroPanel.Controls.Add($lblStatMBKey)
 
+$lblStatCanaryVal = New-Object System.Windows.Forms.Label
+$lblStatCanaryVal.Name = "StatCanary"
+$lblStatCanaryVal.Text = "ACTIVE"
+$lblStatCanaryVal.Font = New-Object System.Drawing.Font("Segoe UI", 16, [System.Drawing.FontStyle]::Bold)
+$lblStatCanaryVal.ForeColor = $neonGreen
+$lblStatCanaryVal.Location = New-Object System.Drawing.Point(620, 108)
+$lblStatCanaryVal.AutoSize = $true
+$heroPanel.Controls.Add($lblStatCanaryVal)
+
+$lblStatCanaryKey = New-Object System.Windows.Forms.Label
+$lblStatCanaryKey.Text = "CANARY SHIELD"
+$lblStatCanaryKey.Font = New-Object System.Drawing.Font("Consolas", 7)
+$lblStatCanaryKey.ForeColor = $gray
+$lblStatCanaryKey.Location = New-Object System.Drawing.Point(620, 132)
+$lblStatCanaryKey.AutoSize = $true
+$heroPanel.Controls.Add($lblStatCanaryKey)
+
 # Full Scan Button
 $btnScanAll = New-Object System.Windows.Forms.Button
 $btnScanAll.Text = "RUN FULL AI SCAN"
@@ -511,7 +528,130 @@ $lblStatus.Location = New-Object System.Drawing.Point(14, 10)
 $lblStatus.AutoSize = $true
 $statusBar.Controls.Add($lblStatus)
 
+
+# ======================================================
+# CANARY-FILE SHIELD (ACTIVE RANSOMWARE ROLLBACK)
+# ======================================================
+$canaryDir = "$env:PUBLIC\SecureVault_Canary"
+$backupDir = "$env:PUBLIC\SecureVault_Canary_Backup"
+
+if (-not (Test-Path $canaryDir)) { New-Item -Path $canaryDir -ItemType Directory -Force | Out-Null }
+if (-not (Test-Path $backupDir)) { New-Item -Path $backupDir -ItemType Directory -Force | Out-Null }
+
+$canaryFiles = @("financial_ledger.docx", "credentials_vault.txt", "tax_returns.xlsx")
+foreach ($cf in $canaryFiles) {
+    $cPath = Join-Path $canaryDir $cf
+    $bPath = Join-Path $backupDir $cf
+    if (-not (Test-Path $cPath)) {
+        "SecureVault Canary Protection File. Do not modify." | Out-File $cPath -Force -Encoding utf8
+    }
+    if (-not (Test-Path $bPath)) {
+        "SecureVault Canary Protection File. Do not modify." | Out-File $bPath -Force -Encoding utf8
+    }
+}
+
+$script:canaryAlerts = [System.Collections.Generic.List[string]]::new()
+
+$watcher = New-Object System.IO.FileSystemWatcher
+$watcher.Path = $canaryDir
+$watcher.Filter = "*.*"
+$watcher.IncludeSubdirectories = $false
+$watcher.EnableRaisingEvents = $true
+
+$onChanged = Register-ObjectEvent $watcher "Changed" -Action {
+    $name = $Event.SourceEventArgs.Name
+    $script:canaryAlerts.Add($name)
+}
+
+# ======================================================
+# AI NETWORK TARPIT HONEYPOT (PORT TARPITTING)
+# ======================================================
+$tarpitPort = 4444
+$tarpitListener = New-Object System.Net.Sockets.TcpListener([System.Net.IPAddress]::Any, $tarpitPort)
+try {
+    $tarpitListener.Start()
+} catch {
+    # Port already occupied or unavailable
+}
+
+# ======================================================
+# REAL-TIME DEFENSE SHIELD (BACKGROUND WATCHDOG)
+# ======================================================
+# ======================================================
+# TELEMETRY SYNC ENGINE
+# ======================================================
+$telemetryFile = Join-Path $PSScriptRoot "sentinel_telemetry.json"
+$script:lastLogCount = 0
+
+$rtTimer = New-Object System.Windows.Forms.Timer
+$rtTimer.Interval = 2000 # Sync GUI with background service telemetry every 2 seconds
+$rtTimer.add_Tick({
+    $isDaemonRunning = $false
+    if (Test-Path $telemetryFile) {
+        try {
+            $json = Get-Content $telemetryFile -Raw -EA SilentlyContinue
+            $data = $json | ConvertFrom-Json
+            if ($data) {
+                # 1. Check Heartbeat (within 15 seconds)
+                if ($data.lastHeartbeat) {
+                    $ticksDiff = [DateTime]::UtcNow.Ticks - [int64]$data.lastHeartbeat
+                    if ($ticksDiff -lt 150000000) {
+                        $isDaemonRunning = $true
+                    }
+                }
+                
+                # 2. Update Hero Statistics
+                UpdateStat "StatThreats" $data.threatsKilled
+                UpdateStat "StatProcs" $data.procsScanned
+                
+                # 3. Process Logs
+                $totalLogs = @($data.logs)
+                if ($totalLogs.Count -gt $script:lastLogCount) {
+                    for ($i = $script:lastLogCount; $i -lt $totalLogs.Count; $i++) {
+                        $logEntry = $totalLogs[$i]
+                        $time = $logEntry.time
+                        $type = $logEntry.type
+                        $msg = $logEntry.message
+                        
+                        $color = "gray"
+                        if ($type -eq "canary" -or $type -eq "tarpit" -or $type -eq "watchdog") {
+                            $color = "red"
+                            $lblStatCanaryVal.Text = "RESTORED"
+                            $lblStatCanaryVal.ForeColor = $alertRed
+                        } elseif ($type -eq "system") {
+                            $color = "white"
+                        }
+                        
+                        Log "[$time] [$type.ToUpper()] $msg" $color
+                    }
+                    $script:lastLogCount = $totalLogs.Count
+                } else {
+                    $lblStatCanaryVal.Text = "ACTIVE"
+                    $lblStatCanaryVal.ForeColor = $neonGreen
+                }
+            }
+        } catch {}
+    }
+    
+    $timestamp = Get-Date -Format "HH:mm:ss"
+    if ($isDaemonRunning) {
+        $lblStatus.Text = "[SENTINEL AI] PERSISTENT SHIELD: ACTIVE (24/7 Shield Online)  //  Daemon Sync: $timestamp"
+        $lblStatus.ForeColor = $neonGreen
+    } else {
+        $lblStatus.Text = "[SENTINEL AI] PERSISTENT SHIELD: OFFLINE (Daemon offline/crashed!)  //  Last Check: $timestamp"
+        $lblStatus.ForeColor = $alertRed
+    }
+})
+
+$rtTimer.Start()
+
+# Stop timer when form is closed
+$form.add_FormClosing({
+    $rtTimer.Stop()
+})
+
 # ======================================================
 # LAUNCH
 # ======================================================
 [System.Windows.Forms.Application]::Run($form)
+

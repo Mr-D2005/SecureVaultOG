@@ -1,0 +1,13 @@
+﻿{
+    "threatsKilled":  0,
+    "mbReclaimed":  0,
+    "logs":  [
+                 {
+                     "time":  "17:21:48",
+                     "message":  "Sentinel background protection engine active.",
+                     "type":  "system"
+                 }
+             ],
+    "procsScanned":  344,
+    "lastHeartbeat":  "639147884959069727"
+}

@@ -3,6 +3,7 @@ import json
 import time
 import sys
 import re
+import math
 
 # --- SAFE IMPORTS ---
 def safe_import_requests():
@@ -22,6 +23,26 @@ def safe_import_psutil():
 # --- CONFIGURATION ---
 RENDER_URL = "https://securevault-main.onrender.com/api/usb-lab/external-report"
 MALICIOUS_EXTENSIONS = {'.exe', '.scr', '.vbs', '.bat', '.cmd', '.ps1', '.js', '.wsf', '.hta'}
+
+def calculate_file_entropy(filepath):
+    try:
+        # Read up to 10KB to keep memory usage minimal and scan fast
+        with open(filepath, 'rb') as f:
+            data = f.read(10240)
+        if not data:
+            return 0.0
+        length = len(data)
+        frequencies = [0] * 256
+        for byte in data:
+            frequencies[byte] += 1
+        entropy = 0.0
+        for count in frequencies:
+            if count > 0:
+                p = count / length
+                entropy -= p * math.log2(p)
+        return entropy
+    except:
+        return 0.0
 
 def get_usb_devices():
     psutil = safe_import_psutil()
@@ -65,6 +86,11 @@ def aggressive_correction(mountpoint):
             elif ext == '.lnk':
                 is_malicious = True
                 reason = "Shortcut Bomb / LNK Exploit"
+            elif ext in {'.docx', '.pdf', '.txt', '.xlsx', '.pptx'}:
+                entropy = calculate_file_entropy(filepath)
+                if entropy > 7.85:
+                    is_malicious = True
+                    reason = f"Entropy Anomaly ({entropy:.2f}) - Suspected Ransomware"
 
             if is_malicious:
                 try:
@@ -98,7 +124,7 @@ def run_ghost_bridge():
         found_devices = get_usb_devices()
         if not found_devices:
             # Simple loading animation
-            for char in "/-\|":
+            for char in r"/-\|":
                 sys.stdout.write(f"\rScanning for hardware ports... {char}")
                 sys.stdout.flush()
                 time.sleep(0.1)
