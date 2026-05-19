@@ -77,12 +77,14 @@ powershell -Command "$b64 = (Get-Content '%INSTALL_DIR%\\icon.b64') -join ''; [S
 :: 3. Clean up base64 temp files
 del /q "%INSTALL_DIR%\\*.b64" >nul 2>&1
 
-:: 4. Create Desktop Shortcut (.lnk) instead of batch file for completely silent launch
+:: 4. Create robust .bat Launcher on Desktop
 echo [GHOST_SETUP] Creating Desktop Launcher...
-del /f /q "%USERPROFILE%\\Desktop\\SecureVault AI Antivirus.bat" >nul 2>&1
 del /f /q "%USERPROFILE%\\Desktop\\SecureVault AI Antivirus.lnk" >nul 2>&1
 
-powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut($env:USERPROFILE + '\\Desktop\\SecureVault AI Antivirus.lnk'); $Shortcut.TargetPath = 'powershell.exe'; $Shortcut.Arguments = '-WindowStyle Hidden -STA -ExecutionPolicy Bypass -File \"' + $env:APPDATA + '\\SecureVault\\sentinel_gui.ps1\"'; $Shortcut.WorkingDirectory = $env:APPDATA + '\\SecureVault'; $Shortcut.IconLocation = $env:APPDATA + '\\SecureVault\\logo.ico'; $Shortcut.WindowStyle = 7; $Shortcut.Save()"
+(
+echo @echo off
+echo powershell.exe -WindowStyle Hidden -STA -ExecutionPolicy Bypass -File "%%APPDATA%%\SecureVault\sentinel_gui.ps1"
+) > "%USERPROFILE%\\Desktop\\SecureVault AI Antivirus.bat"
 
 echo.
 echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

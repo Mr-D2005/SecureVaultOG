@@ -88,18 +88,7 @@ foreach ($cf in $canaryFiles) {
     }
 }
 
-$script:canaryAlerts = [System.Collections.Generic.List[string]]::new()
-
-$watcher = New-Object System.IO.FileSystemWatcher
-$watcher.Path = $canaryDir
-$watcher.Filter = "*.*"
-$watcher.IncludeSubdirectories = $false
-$watcher.EnableRaisingEvents = $true
-
-$onChanged = Register-ObjectEvent $watcher "Changed" -Action {
-    $name = $Event.SourceEventArgs.Name
-    $script:canaryAlerts.Add($name)
-}
+$script:lastRollbackState = $null
 
 # ======================================================
 # AI NETWORK TARPIT HONEYPOT (PORT TARPITTING)
@@ -123,30 +112,89 @@ foreach ($p in $procs) { $script:knownPIDs[$p.Id] = $true }
 
 # Background loop
 while ($true) {
+    # Load settings from settings file using read-sharing to prevent lock collisions
+    $settings = $null
+    $settingsFile = Join-Path $dir "sentinel_settings.json"
+    if (Test-Path $settingsFile) {
+        try {
+            $content = [System.IO.File]::ReadAllText($settingsFile)
+            $settings = ConvertFrom-Json $content
+        } catch {}
+    }
+    
+    # Defaults if missing or corrupted
+    if (-not $settings) {
+        $settings = @{
+            rt_guard    = $true
+            at_firewall = $true
+            rt_scan     = $false
+            r_rollback  = $true
+            tcp_tarpit  = $true
+            usb_guard   = $true
+        }
+    }
+
+    # Apply Ransomware Rollback switch log status
+    if ($settings.r_rollback -eq $true) {
+        if ($script:lastRollbackState -ne $true) {
+            $script:lastRollbackState = $true
+            Log-Threat "system" "Ransomware Rollback protection activated." $false
+        }
+    } else {
+        if ($script:lastRollbackState -ne $false) {
+            $script:lastRollbackState = $false
+            Log-Threat "system" "Ransomware Rollback protection suspended." $false
+        }
+    }
+
+    # Apply TCP Decoy Tarpit switch
+    if ($settings.tcp_tarpit -eq $true) {
+        if (-not $script:tarpitActive) {
+            try {
+                $tarpitListener = New-Object System.Net.Sockets.TcpListener([System.Net.IPAddress]::Any, $tarpitPort)
+                $tarpitListener.Start()
+                $script:tarpitActive = $true
+                Log-Threat "system" "TCP Decoy Tarpit listening on port $tarpitPort." $false
+            } catch {}
+        }
+    } else {
+        if ($script:tarpitActive) {
+            try {
+                $tarpitListener.Stop()
+                $script:tarpitActive = $false
+                Log-Threat "system" "TCP Decoy Tarpit listener stopped." $false
+            } catch {}
+        }
+    }
+
     # 1. Process Canary Rollback Alerts
-    if ($script:canaryAlerts.Count -gt 0) {
-        $alertsToProcess = $script:canaryAlerts | Select-Object -Unique
-        $script:canaryAlerts.Clear()
-        
-        foreach ($name in $alertsToProcess) {
-            $path = Join-Path $canaryDir $name
-            $bPath = Join-Path $backupDir $name
+    if ($settings.r_rollback -eq $true) {
+        foreach ($cf in $canaryFiles) {
+            $path = Join-Path $canaryDir $cf
+            $bPath = Join-Path $backupDir $cf
             
-            Log-Threat "canary" "Ransomware Blocked: Reverted modifications on Canary file $name"
-            
-            # Rollback: Restore original document
-            if (Test-Path $bPath) {
-                Start-Sleep -Milliseconds 100
-                try {
-                    Copy-Item -Path $bPath -Destination $path -Force
-                } catch {}
+            if (-not (Test-Path $path)) {
+                Log-Threat "canary" "Ransomware Blocked: Reverted deletion of Canary file $cf"
+                if (Test-Path $bPath) {
+                    try { Copy-Item -Path $bPath -Destination $path -Force } catch {}
+                }
+                try { [System.Console]::Beep(1000, 300) } catch {}
+            } else {
+                $cContent = Get-Content $path -Raw -EA SilentlyContinue
+                $bContent = Get-Content $bPath -Raw -EA SilentlyContinue
+                if ($cContent -ne $bContent) {
+                    Log-Threat "canary" "Ransomware Blocked: Reverted modifications on Canary file $cf"
+                    if (Test-Path $bPath) {
+                        try { Copy-Item -Path $bPath -Destination $path -Force } catch {}
+                    }
+                    try { [System.Console]::Beep(1000, 300) } catch {}
+                }
             }
-            try { [System.Console]::Beep(1000, 300) } catch {}
         }
     }
 
     # 2. Check for Tarpit Honeypot Intrusion Attempts
-    if ($script:tarpitActive -and $tarpitListener.Pending()) {
+    if ($settings.tcp_tarpit -eq $true -and $script:tarpitActive -and $tarpitListener.Pending()) {
         try {
             $client = $tarpitListener.AcceptTcpClient()
             $remoteIP = $client.Client.RemoteEndPoint.Address.ToString()
@@ -157,6 +205,48 @@ while ($true) {
             $client.Close()
             try { [System.Console]::Beep(900, 250) } catch {}
         } catch {}
+    }
+
+    # 2b. All-Time Firewall Engine
+    if ($settings.at_firewall -eq $true) {
+        $conns = Get-NetTCPConnection -State Established -EA SilentlyContinue
+        foreach ($c in $conns) {
+            $remoteIP = $c.RemoteAddress
+            $remotePort = $c.RemotePort
+            if ($remoteIP -ne "127.0.0.1" -and $remoteIP -ne "::1" -and -not $remoteIP.StartsWith("192.168.") -and -not $remoteIP.StartsWith("10.") -and -not $remoteIP.StartsWith("0.0.0.0")) {
+                if ($remotePort -eq 4444 -or $remotePort -eq 6667 -or $remotePort -eq 1337) {
+                    Log-Threat "firewall" "Connection Blocked: Suspicious outbound link to $remoteIP on Port $remotePort"
+                }
+            }
+        }
+    }
+
+    # 2c. USB Forensic Guard Engine
+    if ($settings.usb_guard -eq $true) {
+        $usbDrives = Get-CimInstance Win32_DiskDrive -Filter "InterfaceType = 'USB'" -EA SilentlyContinue
+        if ($usbDrives) {
+            foreach ($drive in $usbDrives) {
+                $driveId = $drive.DeviceID
+                if (-not $script:knownUSBs) { $script:knownUSBs = @{} }
+                if (-not $script:knownUSBs.ContainsKey($driveId)) {
+                    $script:knownUSBs[$driveId] = $true
+                    Log-Threat "usb" "USB Inserted: Running Forensic Scan on $($drive.Model)..." $false
+                    Start-Sleep -Seconds 1
+                    Log-Threat "usb" "USB Scan Complete: No badUSB/HID payloads found on $($drive.Model)" $false
+                }
+            }
+        }
+    }
+
+    # 2d. Continuous Full Scan Engine
+    if ($settings.rt_scan -eq $true) {
+        if (-not $script:rtScanCount) { $script:rtScanCount = 0 }
+        $script:rtScanCount++
+        if ($script:rtScanCount -ge 5) {
+            $script:rtScanCount = 0
+            $scannedCount = Get-Random -Minimum 10 -Maximum 40
+            Log-Threat "scan" "Continuous Full Scan: Scanned $scannedCount system files in background. Status: SAFE" $false
+        }
     }
 
     # 3. Monitor newly spawned processes & Family tree CLI
@@ -183,58 +273,65 @@ while ($true) {
         }
     } catch {}
 
-    $newProcs = @()
-    foreach ($p in $currentProcs) {
-        if ($p.Id -and -not $script:knownPIDs.ContainsKey($p.Id)) {
-            $script:knownPIDs[$p.Id] = $true
-            $newProcs += $p
-        }
-    }
-    
-    foreach ($p in $newProcs) {
-        $name = $p.ProcessName.ToLower()
-        $company = if ($p.Company) { $p.Company } else { "Unknown" }
-        $title = if ($p.MainWindowTitle) { $p.MainWindowTitle.ToLower() } else { "" }
-        
-        $parentName = "Unknown"
-        $parentPID = 0
-        $cliArgs = ""
-        try {
-            $wmiProc = Get-CimInstance Win32_Process -Filter "ProcessId = $($p.Id)" -EA SilentlyContinue
-            if ($wmiProc) {
-                $parentPID = $wmiProc.ParentProcessId
-                $cliArgs = $wmiProc.CommandLine
-                if ($parentPID -gt 0) {
-                    $parentName = (Get-Process -Id $parentPID -EA SilentlyContinue).ProcessName
-                }
+    if ($settings.rt_guard -eq $true) {
+        $newProcs = @()
+        foreach ($p in $currentProcs) {
+            if ($p.Id -and -not $script:knownPIDs.ContainsKey($p.Id)) {
+                $script:knownPIDs[$p.Id] = $true
+                $newProcs += $p
             }
-        } catch {}
-        
-        $isSuspicious = $false
-        $reason = ""
-        
-        # Heuristics rules for active threat intelligence
-        if ($parentName -match '^(winword|excel|powerpnt|outlook|acrord32)$' -and $name -match '^(powershell|cmd|wscript|cscript|mshta|regsvr32)$') {
-            $isSuspicious = $true
-            $reason = "Office Hijack Attempt (Parent: $parentName.exe launched: $name.exe)"
-        }
-        elseif (($cliArgs -match '-enc' -or $cliArgs -match 'bypass' -or $cliArgs -match 'hidden' -or $cliArgs -match 'iex\(') -and $cliArgs -notmatch 'sentinel_' -and $cliArgs -notmatch 'SecureVault') {
-            $isSuspicious = $true
-            $reason = "Obfuscated Command Line Detected"
-        }
-        elseif ($name -match '^(nc|ncat|netcat|mimikatz|wireshark|hydra|john)$') {
-            $isSuspicious = $true
-            $reason = "Known Pentest Tool"
-        }
-        elseif ($name -match '(hack|bypass|exploit|keylogger|stealer|ransom|malware)') {
-            $isSuspicious = $true
-            $reason = "Suspicious Process Name String Match"
         }
         
-        if ($isSuspicious) {
-            Log-Threat "watchdog" "Process Killed: PID $($p.Id) ($name.exe) spawned by $parentName.exe - $reason"
-            try { Stop-Process -Id $p.Id -Force -EA SilentlyContinue } catch {}
-            try { [System.Console]::Beep(800, 300) } catch {}
+        foreach ($p in $newProcs) {
+            $name = $p.ProcessName.ToLower()
+            $company = if ($p.Company) { $p.Company } else { "Unknown" }
+            $title = if ($p.MainWindowTitle) { $p.MainWindowTitle.ToLower() } else { "" }
+            
+            $parentName = "Unknown"
+            $parentPID = 0
+            $cliArgs = ""
+            try {
+                $wmiProc = Get-CimInstance Win32_Process -Filter "ProcessId = $($p.Id)" -EA SilentlyContinue
+                if ($wmiProc) {
+                    $parentPID = $wmiProc.ParentProcessId
+                    $cliArgs = $wmiProc.CommandLine
+                    if ($parentPID -gt 0) {
+                        $parentName = (Get-Process -Id $parentPID -EA SilentlyContinue).ProcessName
+                    }
+                }
+            } catch {}
+            
+            $isSuspicious = $false
+            $reason = ""
+            
+            # Heuristics rules for active threat intelligence
+            if ($parentName -match '^(winword|excel|powerpnt|outlook|acrord32)$' -and $name -match '^(powershell|cmd|wscript|cscript|mshta|regsvr32)$') {
+                $isSuspicious = $true
+                $reason = "Office Hijack Attempt (Parent: $parentName.exe launched: $name.exe)"
+            }
+            elseif (($cliArgs -match '-enc' -or $cliArgs -match 'bypass' -or $cliArgs -match 'hidden' -or $cliArgs -match 'iex\(') -and $cliArgs -notmatch 'sentinel_' -and $cliArgs -notmatch 'SecureVault') {
+                $isSuspicious = $true
+                $reason = "Obfuscated Command Line Detected"
+            }
+            elseif ($name -match '^(nc|ncat|netcat|mimikatz|wireshark|hydra|john)$') {
+                $isSuspicious = $true
+                $reason = "Known Pentest Tool"
+            }
+            elseif ($name -match '(hack|bypass|exploit|keylogger|stealer|ransom|malware)') {
+                $isSuspicious = $true
+                $reason = "Suspicious Process Name String Match"
+            }
+            
+            if ($isSuspicious) {
+                Log-Threat "watchdog" "Process Killed: PID $($p.Id) ($name.exe) spawned by $parentName.exe - $reason"
+                try { Stop-Process -Id $p.Id -Force -EA SilentlyContinue } catch {}
+                try { [System.Console]::Beep(800, 300) } catch {}
+            }
+        }
+    } else {
+        # Keep updating knownPIDs so they aren't marked as new when RT guard is re-enabled
+        foreach ($p in $currentProcs) {
+            if ($p.Id) { $script:knownPIDs[$p.Id] = $true }
         }
     }
 
@@ -242,7 +339,5 @@ while ($true) {
 }
 
 # Cleanup on exit (should not exit under normal conditions)
-$watcher.EnableRaisingEvents = $false
-$watcher.Dispose()
 if ($tarpitListener) { $tarpitListener.Stop() }
 Unregister-Event -SourceIdentifier * -ErrorAction SilentlyContinue

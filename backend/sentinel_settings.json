@@ -1,0 +1,10 @@
+﻿{
+    "usb_guard":  true,
+    "at_firewall":  true,
+    "schedule_time":  "10:35 PM",
+    "rt_scan":  true,
+    "schedule_freq":  "Daily",
+    "r_rollback":  true,
+    "rt_guard":  true,
+    "tcp_tarpit":  true
+}
