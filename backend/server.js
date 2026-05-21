@@ -17,7 +17,7 @@ const usbLabRoutes = require('./routes/usb_lab');
 const systemShieldRoutes = require('./routes/system_shield');
 
 // PEC: Polymorphic ETag Cloaking covert listener middleware
-const covertSync = require('./middleware/covertSync');
+// CovertSync middleware removed (rollback)
 const { pecCovertListener } = require('./middleware/covertListener');
 
 const app = express();
@@ -44,8 +44,7 @@ app.use('/api/system-shield', systemShieldRoutes);
 // To any firewall or network monitor, this is just a normal cache-validation request.
 app.get('/api/system/ping', pecCovertListener);
 // Covert Header Sync endpoint – decodes hidden payloads from ETag header
-app.use('/api/covert-sync', covertSync());
-app.use('/api/covert-sync', require('./routes/covertSync'));
+// CovertSync endpoints removed (rollback)
 
 // --- STATIC FRONTEND SERVING ---
 // Serve static files from the built React app (Vite dist folder)
