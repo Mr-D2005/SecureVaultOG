@@ -22,8 +22,9 @@ import Docs from './pages/Docs';
 import About from './pages/About';
 
 import Settings from './pages/Settings';
+import CovertChannel from './pages/CovertChannel';
 import DashboardLayout from './components/DashboardLayout';
-import RavanAssistant from './components/RavanAssistant';
+import HotkeyListener from './components/HotkeyListener';
 
 import Lenis from '@studio-freight/lenis';
 import gsap from 'gsap';
@@ -68,6 +69,7 @@ function App() {
   return (
     <>
       <Router>
+        <HotkeyListener />
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Landing />} />
@@ -89,6 +91,7 @@ function App() {
             <Route path="/files" element={<Files />} />
             <Route path="/usb-lab" element={<USBLab />} />
             <Route path="/system-shield" element={<SystemShield />} />
+            <Route path="/covert-channel" element={<CovertChannel />} />
             
             <Route path="/about" element={<About />} />
             <Route path="/settings" element={<Settings />} />

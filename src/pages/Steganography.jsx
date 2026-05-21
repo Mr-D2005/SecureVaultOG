@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import {
+  Activity,
   CheckCircle2,
   Cpu,
   Download,
@@ -7,13 +8,17 @@ import {
   FileAudio, FileVideo,
   Image as ImageIcon,
   Lock,
+  Radio,
   ShieldAlert,
+  ShieldCheck,
   ShieldEllipsis,
   Type,
   Upload,
+  Wifi,
   Zap
 } from 'lucide-react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { pecTransmit, startEntropyCollection, pecEncode } from '../utils/pec_algorithm';
 import { KineticButton } from '../components/animations/KineticButton';
 import { SpotlightCard } from '../components/ui/SpotlightCard';
 
@@ -65,18 +70,83 @@ const SparklingDust = () => {
 };
 
 const Steganography = () => {
+  // ── Existing Image Stego State ──────────────────────────────────────────
   const [carrierFile, setCarrierFile] = useState(null);
-  const [payloadMode, setPayloadMode] = useState('text'); // 'text' or 'file'
+  const [payloadMode, setPayloadMode] = useState('text');
   const [payloadText, setPayloadText] = useState('');
   const [payloadFile, setPayloadFile] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [resultUrl, setResultUrl] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
-
   const [dragOverCarrier, setDragOverCarrier] = useState(false);
   const [dragOverPayload, setDragOverPayload] = useState(false);
   const carrierRef = useRef(null);
   const payloadRef = useRef(null);
+
+  // ── Page Tab State ───────────────────────────────────────────────────────
+  const [activeTab, setActiveTab] = useState('image'); // 'image' | 'network'
+
+  // ── PEC Network Stego State ──────────────────────────────────────────────
+  const [pecSecret, setPecSecret] = useState('');
+  const [pecStatus, setPecStatus] = useState('idle'); // idle | encoding | transmitting | success | error
+  const [pecEtagPreview, setPecEtagPreview] = useState('');
+  const [pecResult, setPecResult] = useState(null);
+  const [pecLog, setPecLog] = useState([]);
+
+  // Start collecting mouse entropy for PEC biometric key derivation
+  useEffect(() => {
+    startEntropyCollection();
+  }, []);
+
+  // Live ETag preview as user types
+  useEffect(() => {
+    if (pecSecret.trim().length > 0) {
+      const { etagValue } = pecEncode(pecSecret);
+      setPecEtagPreview(etagValue);
+    } else {
+      setPecEtagPreview('');
+    }
+  }, [pecSecret]);
+
+  const addLog = (msg, type = 'info') => {
+    const ts = new Date().toLocaleTimeString('en-US', { hour12: false });
+    setPecLog(prev => [...prev.slice(-6), { msg, type, ts }]);
+  };
+
+  const executePecTransmit = async () => {
+    if (!pecSecret.trim()) return;
+    setPecStatus('encoding');
+    setPecResult(null);
+    addLog('Deriving biometric entropy key from mouse coordinates...', 'info');
+    await new Promise(r => setTimeout(r, 600));
+
+    addLog('Injecting time-drift salt for polymorphic obfuscation...', 'info');
+    await new Promise(r => setTimeout(r, 400));
+
+    addLog('Applying XOR cipher — encoding as Apache ETag format...', 'info');
+    const { etagValue } = pecEncode(pecSecret);
+    setPecEtagPreview(etagValue);
+    await new Promise(r => setTimeout(r, 500));
+
+    setPecStatus('transmitting');
+    addLog(`Transmitting via GET /api/system/ping [ETag: ${etagValue.substring(0, 22)}...]`, 'warn');
+
+    try {
+      const result = await pecTransmit(pecSecret);
+      if (result.success) {
+        setPecStatus('success');
+        setPecResult(result);
+        addLog(`[SUCCESS] Server decoded secret: "${result.decoded}"`, 'success');
+        addLog(`Salt timestamp recovered: ${result.timestamp}`, 'success');
+      } else {
+        setPecStatus('error');
+        addLog('[WARN] Server received request but PEC decode returned no match.', 'error');
+      }
+    } catch (e) {
+      setPecStatus('error');
+      addLog(`[ERROR] Transmission failed: ${e.message}`, 'error');
+    }
+  };
 
   const resetAll = () => {
     setCarrierFile(null);
@@ -147,6 +217,8 @@ const Steganography = () => {
 
   const fmtSize = (b) => b < 1024 ? `${b} B` : b < 1048576 ? `${(b / 1024).toFixed(1)} KB` : `${(b / 1048576).toFixed(2)} MB`;
 
+  const logColors = { info: '#7dd3fc', warn: '#fbbf24', error: '#f87171', success: '#4ade80' };
+
   return (
     <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', boxSizing: 'border-box', background: '#010206' }}>
       <SparklingDust />
@@ -157,10 +229,173 @@ const Steganography = () => {
             🧬 DEEP-BIND <span style={{ color: 'var(--color-primary)' }}>STEGANOGRAPHY</span>
           </h1>
           <p className="text-dim" style={{ fontSize: '0.8rem', fontWeight: 500, margin: 0 }}>
-            Losslessly conceal any message or file inside an Image, Video, or Audio carrier.
+            Losslessly conceal any message or file inside an Image, Video, or Audio carrier — or transmit via a Covert Network Channel.
           </p>
         </header>
 
+        {/* ── TAB SWITCHER ──────────────────────────────────────────────── */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexShrink: 0, width: '90%', maxWidth: '1300px', margin: '0 auto 1rem auto' }}>
+          <button
+            id="tab-image-stego"
+            onClick={() => setActiveTab('image')}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.55rem 1.2rem', borderRadius: '10px', border: '1px solid', borderColor: activeTab === 'image' ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)', background: activeTab === 'image' ? 'rgba(0,220,180,0.1)' : 'rgba(0,0,0,0.3)', color: activeTab === 'image' ? 'var(--color-primary)' : 'rgba(255,255,255,0.5)', fontWeight: 800, cursor: 'pointer', fontSize: '0.85rem', transition: 'all 0.2s' }}
+          >
+            <ImageIcon size={15} /> Image / Audio Stego
+          </button>
+          <button
+            id="tab-network-pec"
+            onClick={() => setActiveTab('network')}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.55rem 1.2rem', borderRadius: '10px', border: '1px solid', borderColor: activeTab === 'network' ? '#a78bfa' : 'rgba(255,255,255,0.1)', background: activeTab === 'network' ? 'rgba(167,139,250,0.1)' : 'rgba(0,0,0,0.3)', color: activeTab === 'network' ? '#a78bfa' : 'rgba(255,255,255,0.5)', fontWeight: 800, cursor: 'pointer', fontSize: '0.85rem', transition: 'all 0.2s' }}
+          >
+            <Radio size={15} /> PEC Network Channel
+            <span style={{ fontSize: '0.65rem', background: 'rgba(167,139,250,0.2)', color: '#a78bfa', padding: '0.1rem 0.4rem', borderRadius: '6px', border: '1px solid rgba(167,139,250,0.3)' }}>NOVEL</span>
+          </button>
+        </div>
+
+        {/* ── CONDITIONAL PANELS ───────────────────────────────────────── */}
+        {activeTab === 'network' ? (
+
+          /* ══════════════════════════════════════════════════════════════
+              PEC — POLYMORPHIC ETAG CLOAKING PANEL
+             ══════════════════════════════════════════════════════════════ */
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', alignItems: 'stretch', width: '90%', maxWidth: '1300px', margin: '0 auto', minHeight: 0, overflow: 'auto' }}>
+
+            {/* LEFT: ENCODER */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: 'rgba(5,5,12,0.85)', backdropFilter: 'blur(40px)', border: '1px solid rgba(167,139,250,0.2)', borderRadius: '18px', padding: '1.5rem' }}>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ padding: '0.5rem', background: 'rgba(167,139,250,0.12)', borderRadius: '10px', border: '1px solid rgba(167,139,250,0.25)' }}>
+                  <Radio size={18} color="#a78bfa" />
+                </div>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: '#fff' }}>PEC <span style={{ color: '#a78bfa' }}>Encoder</span></h2>
+                  <p style={{ margin: 0, fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)' }}>Polymorphic ETag Cloaking — Application-Layer Steganography</p>
+                </div>
+              </div>
+
+              {/* Secret Input */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: '0.4rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Secret Payload (e.g., AWS S3 UUID or any message)</label>
+                <textarea
+                  id="pec-secret-input"
+                  rows={4}
+                  placeholder="Enter secret to transmit covertly..."
+                  value={pecSecret}
+                  onChange={e => setPecSecret(e.target.value)}
+                  style={{ width: '100%', boxSizing: 'border-box', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(167,139,250,0.2)', color: '#fff', padding: '1rem', borderRadius: '10px', resize: 'none', fontFamily: 'monospace', fontSize: '0.9rem', outline: 'none', transition: 'border-color 0.2s' }}
+                  onFocus={e => e.target.style.borderColor = '#a78bfa'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(167,139,250,0.2)'}
+                />
+              </div>
+
+              {/* Live ETag Preview */}
+              {pecEtagPreview && (
+                <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(167,139,250,0.15)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+                  <p style={{ margin: '0 0 0.35rem 0', fontSize: '0.68rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Live ETag Preview (Apache Format)</p>
+                  <p id="pec-etag-preview" style={{ margin: 0, fontFamily: 'monospace', fontSize: '0.78rem', color: '#a78bfa', wordBreak: 'break-all', lineHeight: 1.6 }}>{pecEtagPreview}</p>
+                </motion.div>
+              )}
+
+              {/* Algorithm Info Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                {[
+                  { label: 'Format Mimicry', desc: 'Apache ETag', icon: '🎭' },
+                  { label: 'Biometric Key', desc: 'Mouse Entropy', icon: '🖱️' },
+                  { label: 'Polymorphic', desc: 'Time-Drift Salt', icon: '🌀' },
+                ].map(c => (
+                  <div key={c.label} style={{ background: 'rgba(167,139,250,0.05)', border: '1px solid rgba(167,139,250,0.12)', borderRadius: '8px', padding: '0.6rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.2rem', marginBottom: '0.2rem' }}>{c.icon}</div>
+                    <p style={{ margin: 0, fontSize: '0.62rem', fontWeight: 800, color: '#a78bfa' }}>{c.label}</p>
+                    <p style={{ margin: 0, fontSize: '0.58rem', color: 'rgba(255,255,255,0.35)' }}>{c.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Transmit Button */}
+              <button
+                id="pec-transmit-btn"
+                onClick={executePecTransmit}
+                disabled={!pecSecret.trim() || pecStatus === 'encoding' || pecStatus === 'transmitting'}
+                style={{ padding: '1rem', borderRadius: '12px', border: '1px solid rgba(167,139,250,0.4)', background: (!pecSecret.trim() || pecStatus === 'encoding' || pecStatus === 'transmitting') ? 'rgba(255,255,255,0.03)' : 'rgba(167,139,250,0.15)', color: (!pecSecret.trim() || pecStatus === 'encoding' || pecStatus === 'transmitting') ? 'rgba(255,255,255,0.3)' : '#a78bfa', fontWeight: 900, cursor: (!pecSecret.trim() || pecStatus === 'encoding' || pecStatus === 'transmitting') ? 'not-allowed' : 'pointer', fontSize: '0.95rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'all 0.2s', letterSpacing: '0.05em' }}
+              >
+                {pecStatus === 'encoding' ? <><Cpu size={18} className="icon-spin" /> ENCODING...</> :
+                  pecStatus === 'transmitting' ? <><Wifi size={18} className="icon-spin" /> TRANSMITTING...</> :
+                  <><Radio size={18} /> TRANSMIT VIA PEC CHANNEL</>}
+              </button>
+
+            </div>
+
+            {/* RIGHT: LIVE TERMINAL + RESULT */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: 'rgba(5,5,12,0.9)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '18px', padding: '1.5rem' }}>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ padding: '0.5rem', background: 'rgba(34,197,94,0.1)', borderRadius: '10px', border: '1px solid rgba(34,197,94,0.2)' }}>
+                  <Activity size={18} color="#4ade80" />
+                </div>
+                <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: '#fff' }}>Covert <span style={{ color: '#4ade80' }}>Terminal</span></h2>
+              </div>
+
+              {/* Live Log */}
+              <div style={{ background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '1rem', fontFamily: 'monospace', fontSize: '0.75rem', minHeight: '160px', flex: 1, overflowY: 'auto' }}>
+                {pecLog.length === 0 ? (
+                  <div style={{ color: 'rgba(255,255,255,0.2)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '0.5rem', minHeight: '140px' }}>
+                    <Lock size={28} opacity={0.2} />
+                    <p style={{ margin: 0 }}>&gt; PEC channel standing by...</p>
+                    <motion.span animate={{ opacity: [1, 0] }} transition={{ repeat: Infinity, duration: 0.9 }} style={{ display: 'inline-block', width: 8, height: 14, background: 'rgba(167,139,250,0.4)' }} />
+                  </div>
+                ) : (
+                  pecLog.map((entry, i) => (
+                    <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} style={{ marginBottom: '0.4rem', display: 'flex', gap: '0.5rem' }}>
+                      <span style={{ color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>[{entry.ts}]</span>
+                      <span style={{ color: logColors[entry.type] || '#fff', wordBreak: 'break-all' }}>{entry.msg}</span>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+
+              {/* Result Display */}
+              {pecStatus === 'success' && pecResult && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: '12px', padding: '1.1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                    <ShieldCheck size={20} color="#4ade80" />
+                    <span style={{ fontWeight: 900, color: '#4ade80', fontSize: '0.9rem' }}>COVERT TRANSMISSION SUCCESSFUL</span>
+                  </div>
+                  <div style={{ background: 'rgba(0,0,0,0.4)', borderRadius: '8px', padding: '0.75rem', fontFamily: 'monospace', fontSize: '0.8rem', lineHeight: 1.7 }}>
+                    <p style={{ margin: 0, color: 'rgba(255,255,255,0.5)' }}>Decoded Secret:</p>
+                    <p id="pec-decoded-result" style={{ margin: '0.2rem 0 0.75rem 0', color: '#4ade80', fontWeight: 700, wordBreak: 'break-all' }}>{pecResult.decoded}</p>
+                    <p style={{ margin: 0, color: 'rgba(255,255,255,0.5)' }}>Salt Timestamp:</p>
+                    <p style={{ margin: '0.2rem 0 0', color: '#7dd3fc', wordBreak: 'break-all' }}>{pecResult.timestamp}</p>
+                  </div>
+                </motion.div>
+              )}
+
+              {pecStatus === 'error' && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <ShieldAlert size={18} color="#f87171" />
+                  <span style={{ color: '#f87171', fontWeight: 700, fontSize: '0.85rem' }}>Transmission failed. Check backend is running.</span>
+                </motion.div>
+              )}
+
+              {/* Network Request Info Box */}
+              <div style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+                <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.68rem', fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>What the Firewall Sees</p>
+                <p style={{ margin: 0, fontFamily: 'monospace', fontSize: '0.72rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.8 }}>
+                  GET /api/system/ping HTTP/1.1<br />
+                  <span style={{ color: '#7dd3fc' }}>ETag:</span> W/&quot;3a9f1c-8b2d5e-7c4a1f&quot;<br />
+                  <span style={{ color: '#7dd3fc' }}>X-Cache-Seed:</span> 1a2b3c4d<br />
+                  Cache-Control: no-cache<br />
+                  <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.65rem' }}>← Firewall sees a normal cache-validation request ✓</span>
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+        ) : (
+
+        /* ══════════════════════════════════════════════════════════════
+            EXISTING IMAGE / AUDIO STEGO PANEL
+           ══════════════════════════════════════════════════════════════ */
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', alignItems: 'stretch', width: '90%', maxWidth: '1300px', margin: '0 auto', minHeight: 0, overflow: 'auto' }}>
 
           {/* ── LEFT COLUMN: INJECTION CONFIGURATION ── */}
@@ -340,6 +575,7 @@ const Steganography = () => {
             </div>
           </SpotlightCard>
         </div>
+        )}
       </div>
     </div>
   );
