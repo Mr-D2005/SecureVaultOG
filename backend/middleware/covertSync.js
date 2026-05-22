@@ -1,19 +1,13 @@
 // backend/middleware/covertSync.js
-// Updated middleware implementing cryptographic validation, nonce replay protection, and basic rate limiting.
+// Updated middleware: AES-GCM + HMAC validation, Bloom-Filter nonce replay protection, dynamic header names, and rate limiting.
 
 const { decodeCovertTag } = require('../utils/crypto_helper');
+const nonceFilter = require('../utils/bloomfilter');
 
-// In‑memory stores for nonces and IP request counts
-const usedNonces = new Set();
+// In‑memory store for IP request counts
 const ipCounters = new Map();
-const NONCE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const MAX_REQUESTS_PER_MIN = 30; // per IP
-
-// Helper to clean up old nonces
-function scheduleNonceRemoval(nonce) {
-  setTimeout(() => usedNonces.delete(nonce.toString('hex')), NONCE_TTL_MS);
-}
 
 function rateLimited(ip) {
   const now = Date.now();
@@ -51,12 +45,12 @@ function covertHeaderSync(options = {}) {
       return next();
     }
     const nonceHex = result.nonce.toString('hex');
-    if (usedNonces.has(nonceHex)) {
+    // Use Bloom Filter for scalable, memory-efficient replay protection
+    if (nonceFilter.has(nonceHex)) {
       // Replay detected – reject silently.
       return next();
     }
-    usedNonces.add(nonceHex);
-    scheduleNonceRemoval(result.nonce);
+    nonceFilter.add(nonceHex);
     req.covertSecret = result.secret;
     req.covertTimestamp = result.timestamp;
     req.covertNonce = nonceHex;
