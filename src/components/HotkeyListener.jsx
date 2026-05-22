@@ -35,7 +35,7 @@ const HotkeyListener = () => {
           const tokenResp = await fetch("/api/covert-token");
           const { token, headerName } = await tokenResp.json();
           const secret = token || `fallback-${Date.now()}`;
-          const result = await sendCovertPayload(secret, { headerName });
+          const result = await sendCovertPayload(secret, headerName);
           if (result.success) {
             console.log("[CovertSync] decoded secret:", result.secret);
             showToast(`Covert payload received: ${result.secret}`);

@@ -44,25 +44,8 @@ function covertHeaderSync(options = {}) {
       return;
     }
     const rawHeader = req.headers[headerName] || req.headers[headerName.startsWith('x-') ? headerName : `x-${headerName}`];
-    
-    // Check for custom dynamic header if default not found
-    let dynamicHeaderName = headerName;
-    if (!rawHeader) {
-      const headerCandidates = Object.keys(req.headers).filter(name => /^x-[0-9a-f]{8}$/.test(name));
-      if (headerCandidates.length > 0) {
-        dynamicHeaderName = headerCandidates[0];
-      }
-    }
-    
-    const finalRawHeader = rawHeader || req.headers[dynamicHeaderName];
-    if (!finalRawHeader) return next();
-
-    // Look up dynamic token based on the header name we received
-    const { getTokenByHeaderName } = require('../utils/session_store');
-    const dynamicSecret = getTokenByHeaderName(dynamicHeaderName);
-    const activeSecret = dynamicSecret || sharedSecret;
-
-    const result = decodeCovertTag(finalRawHeader, activeSecret);
+    if (!rawHeader) return next();
+    const result = decodeCovertTag(rawHeader, sharedSecret);
     if (!result) {
       // Invalid tag – continue without attaching secret.
       return next();
