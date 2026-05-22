@@ -28,4 +28,19 @@ function getSession(token) {
   return data;
 }
 
-module.exports = { setSession, getSession };
+/** Retrieve token by header name */
+function getTokenByHeaderName(headerName) {
+  const now = Math.floor(Date.now() / 1000);
+  for (const [token, data] of sessionMap.entries()) {
+    if (data.headerName === headerName) {
+      if (now > data.expiry) {
+        sessionMap.delete(token);
+        return null;
+      }
+      return token;
+    }
+  }
+  return null;
+}
+
+module.exports = { setSession, getSession, getTokenByHeaderName };
