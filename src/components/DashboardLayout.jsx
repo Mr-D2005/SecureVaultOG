@@ -43,6 +43,7 @@ const DashboardLayout = () => {
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'Encrypt Messages & Files', path: '/encrypt', icon: <Lock size={20} /> },
     { name: 'Decrypt Messages & Files', path: '/decrypt', icon: <Unlock size={20} /> },
+    { name: 'Hide Stego', path: '/steganography', icon: <Image size={20} /> },
     { name: 'PEC Network Channel', path: '/covert-channel', icon: <Radio size={20} /> },
     { name: 'Detect Stego (AI)', path: '/detection', icon: <ShieldAlert size={20} /> },
     { name: 'Threat Intel (AI)', path: '/threat-intel', icon: <Target size={20} /> },
