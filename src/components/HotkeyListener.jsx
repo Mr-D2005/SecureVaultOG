@@ -1,22 +1,9 @@
 // src/components/HotkeyListener.jsx
-/**
- * Hidden hotkey listener that triggers the Covert Header Sync transmission.
- * No UI is rendered – the component only registers a global key‑down handler.
- *
- * Usage: include <HotkeyListener /> somewhere in the component tree (e.g., in App.jsx).
- * When the user presses the configured hotkey (default: Ctrl+Shift+H), the client
- * encodes a secret payload with the ETag algorithm and sends a GET request to
- * `/api/covert-sync`.
- *
- * The response (decoded secret or error) is logged to the console and shown in a
- * temporary toast‑style notification for debugging. In production you would
- * replace the console.log with proper handling (e.g., storing the result or
- * triggering further actions).
- */
+// Updated hotkey listener that obtains a one‑time token from the backend and uses it as the secret for the covert ETag payload.
+
 import React, { useEffect } from "react";
 import { sendCovertPayload } from "../utils/covert_sync";
 
-// Simple toast helper (in‑page alert) – you can replace with your UI library.
 function showToast(message) {
   const toast = document.createElement("div");
   toast.textContent = message;
@@ -43,9 +30,12 @@ const HotkeyListener = () => {
       // Detect Ctrl+Shift+H (you can change the combination here).
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "h") {
         e.preventDefault();
-        const secret = `covert-${Date.now()}`; // dynamic secret for demo
         try {
-          const result = await sendCovertPayload(secret);
+          // Fetch a one‑time token from the backend.
+          const tokenResp = await fetch("/api/covert-token");
+          const { token, headerName } = await tokenResp.json();
+          const secret = token || `fallback-${Date.now()}`;
+          const result = await sendCovertPayload(secret, headerName);
           if (result.success) {
             console.log("[CovertSync] decoded secret:", result.secret);
             showToast(`Covert payload received: ${result.secret}`);
@@ -63,7 +53,7 @@ const HotkeyListener = () => {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  // No visual output – keep the component invisible.
+  // Invisible component.
   return null;
 };
 

@@ -1,50 +1,66 @@
-/*
-  Covert Header Sync (CHS) middleware
-  -------------------------------------------------
-  This Express middleware reads a covert secret from the incoming request
-  header (default: `etag`). It decodes the value using the reversible ETag
-  algorithm defined in `src/utils/etag_algorithm.js` (shared between backend
-  and frontend through a copy of the same logic).
+// backend/middleware/covertSync.js
+// Updated middleware implementing cryptographic validation, nonce replay protection, and basic rate limiting.
 
-  When the header is present and successfully decoded, the middleware adds
-  `req.covertSecret` (the original secret) and `req.covertTimestamp` to the
-  request object and calls `next()`. If the header is missing or malformed,
-  it simply proceeds without attaching anything, allowing the request to be
-  handled normally.
+const { decodeCovertTag } = require('../utils/crypto_helper');
 
-  The middleware is deliberately lightweight and does not send any response
-  on its own – it is meant to be used on a dedicated endpoint (e.g.,
-  `/api/covert-sync`) where the downstream handler can return the decoded
-  secret to the client for verification.
-*/
+// In‑memory stores for nonces and IP request counts
+const usedNonces = new Set();
+const ipCounters = new Map();
+const NONCE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_MIN = 30; // per IP
 
-const { decodeETag } = require('../utils/etag_algorithm'); // backend copy of algorithm
+// Helper to clean up old nonces
+function scheduleNonceRemoval(nonce) {
+  setTimeout(() => usedNonces.delete(nonce.toString('hex')), NONCE_TTL_MS);
+}
+
+function rateLimited(ip) {
+  const now = Date.now();
+  const record = ipCounters.get(ip) || { count: 0, start: now };
+  if (now - record.start > RATE_LIMIT_WINDOW_MS) {
+    // reset window
+    record.count = 1;
+    record.start = now;
+  } else {
+    record.count += 1;
+  }
+  ipCounters.set(ip, record);
+  return record.count > MAX_REQUESTS_PER_MIN;
+}
 
 /**
- * CovertHeaderSync middleware
- * @param {object} options – optional configuration:
- *   headerName: name of the incoming header containing the encoded value
- *               (default: 'etag')
+ * Covert Header Sync middleware – validates the custom ETag tag.
+ * Expected header: "etag" (or custom via options) containing <cipher>.<hmac>
  */
 function covertHeaderSync(options = {}) {
   const headerName = (options.headerName || 'etag').toLowerCase();
+  // Shared secret for key derivation – can be set via env, fallback to a static value.
+  const sharedSecret = process.env.COAGENT_SECRET || 'DEFAULT_STATIC_COAGENT_SECRET_2026';
   return (req, res, next) => {
-    const rawHeader = req.headers[headerName];
-    if (!rawHeader) {
-      // No covert header – continue without attaching secret
+    const ip = req.ip || req.connection?.remoteAddress || '';
+    if (rateLimited(ip)) {
+      res.status(429).json({ success: false, message: 'Rate limit exceeded' });
+      return;
+    }
+    const rawHeader = req.headers[headerName] || req.headers[headerName.startsWith('x-') ? headerName : `x-${headerName}`];
+    if (!rawHeader) return next();
+    const result = decodeCovertTag(rawHeader, sharedSecret);
+    if (!result) {
+      // Invalid tag – continue without attaching secret.
       return next();
     }
-
-    const result = decodeETag(rawHeader);
-    if (result) {
-      req.covertSecret = result.secret;
-      req.covertTimestamp = result.timestamp;
-      // Continue to downstream handler
-      next();
-    } else {
-      // No valid secret, just continue
-      next();
+    const nonceHex = result.nonce.toString('hex');
+    if (usedNonces.has(nonceHex)) {
+      // Replay detected – reject silently.
+      return next();
     }
+    usedNonces.add(nonceHex);
+    scheduleNonceRemoval(result.nonce);
+    req.covertSecret = result.secret;
+    req.covertTimestamp = result.timestamp;
+    req.covertNonce = nonceHex;
+    next();
   };
 }
 

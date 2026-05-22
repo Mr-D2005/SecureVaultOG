@@ -1,68 +1,16 @@
+# render.yaml
+# Render configuration for SecureVaultOG (single Node.js service)
 services:
-  # 1. Python Encryption Core
   - type: web
-    name: securevault-python-core
-    env: python
-    region: singapore
-    plan: free
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: python encryption_core.py
-
-    envVars:
-      - key: PORT
-        value: 5002
-      - key: AWS_ACCESS_KEY_ID
-        sync: false
-      - key: AWS_SECRET_ACCESS_KEY
-        sync: false
-      - key: AWS_REGION
-        value: ap-south-1
-      - key: KMS_KEY_ID
-        sync: false
-
-  # 2. Node.js Main App (Frontend + Backend)
-  - type: web
-    name: securevault-main
+    name: securevault-og
     env: node
     region: singapore
     plan: free
-    buildCommand: npm run render-build
-    startCommand: npm start
+    buildCommand: "npm run render-build"
+    startCommand: "npm start"
     envVars:
-      - key: PYTHON_MICROSERVICE_URL
-        value: http://securevault-python-core:5002
-
-
+      - key: NODE_ENV
+        value: production
       - key: PORT
-        value: 5001
-      - key: RDS_HOSTNAME
-        sync: false
-      - key: RDS_DB_NAME
-        sync: false
-      - key: RDS_USERNAME
-        sync: false
-      - key: RDS_PASSWORD
-        sync: false
-      - key: RDS_PORT
-        value: "3306"
-      - key: JWT_SECRET
-        sync: false
-      - key: GROQ_API_KEY
-        sync: false
-      - key: GEMINI_API_KEY
-        sync: false
-      - key: SMTP_EMAIL
-        sync: false
-      - key: SMTP_PASSWORD
-        sync: false
-      - key: AWS_ACCESS_KEY_ID
-        sync: false
-      - key: AWS_SECRET_ACCESS_KEY
-        sync: false
-      - key: AWS_REGION
-        value: ap-south-1
-      - key: AWS_S3_BUCKET
-        sync: false
-      - key: KMS_KEY_ID
-        sync: false
+        value: 10000
+    healthCheckPath: "/api/health"
