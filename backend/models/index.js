@@ -75,8 +75,21 @@ const initDB = async () => {
   console.log('--- [IDENTITY LEDGER PULSE: INITIATING CONNECT...] ---');
   sequelize.authenticate()
     .then(async () => {
+      // Explicitly sync CovertDrop first to ensure it exists even if global sync fails
+      try {
+        await CovertDrop.sync({ alter: true });
+        console.log('--- [CovertDrop TABLE VERIFIED] ---');
+      } catch (e) {
+        console.error('--- [CovertDrop SYNC FAILED] ---', e.message);
+      }
+      
       // alter: true will automatically add missing columns to your existing manual tables
-      await sequelize.sync({ alter: true });
+      try {
+        await sequelize.sync({ alter: true });
+      } catch (e) {
+        console.warn('--- [GLOBAL SYNC WARNING: SOME TABLES MAY NOT HAVE ALTERED] ---', e.message);
+      }
+      
       console.log('--- [IDENTITY LEDGER PULSE NOMINAL: AWS RDS LINK ACTIVE] ---');
     })
     .catch(err => {
