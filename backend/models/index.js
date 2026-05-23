@@ -66,7 +66,7 @@ const ThreatScan = sequelize.define('ThreatScan', {
 // --- CovertDrop Model (PEC v2 Exfiltration Dead Drop) ---
 const CovertDrop = sequelize.define('CovertDrop', {
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  s3_url: { type: DataTypes.STRING(2048), allowNull: false },
+  s3_url: { type: DataTypes.TEXT, allowNull: false },
   status: { type: DataTypes.STRING, defaultValue: 'PENDING' },
   temporal_bits: { type: DataTypes.STRING, allowNull: true }
 }, { timestamps: true, freezeTableName: true });

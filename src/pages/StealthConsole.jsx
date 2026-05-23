@@ -73,9 +73,12 @@ const StealthConsole = () => {
       const data = await res.json();
       if (data.success) {
         setDrops(data.drops);
+      } else {
+        alert(`Failed to sync drops: ${data.message}\n\nStack: ${data.stack || 'N/A'}`);
       }
     } catch (err) {
       console.error(err);
+      alert(`Network Error: ${err.message}`);
     } finally {
       setIsFetching(false);
     }

@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
     res.json({ success: true, drops });
   } catch (err) {
     console.error('[CovertDrops API] Error fetching drops:', err);
-    res.status(500).json({ success: false, message: 'Failed to fetch drops' });
+    res.status(500).json({ success: false, message: 'Failed to fetch drops: ' + err.message, stack: err.stack });
   }
 });
 
