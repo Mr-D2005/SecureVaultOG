@@ -5,6 +5,8 @@ const { CovertDrop } = require('../models/index');
 // GET /api/covert-drops
 // Retrieves all intercepted S3 URLs from the dead drop
 router.get('/', async (req, res) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.set('Pragma', 'no-cache');
   try {
     const drops = await CovertDrop.findAll({
       order: [['createdAt', 'DESC']],
