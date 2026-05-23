@@ -56,7 +56,7 @@ async function getHmacKey(secret) {
  * @param {string} secret
  * @returns {Promise<string>}
  */
-export async function encodeCovertTag(secret) {
+export async function encodeCovertTag(secret, keyOverrideBase64 = null) {
   const timestamp = Date.now();
   // 8‑byte random nonce
   const nonce = crypto.getRandomValues(new Uint8Array(8));
@@ -67,7 +67,7 @@ export async function encodeCovertTag(secret) {
   new Uint8Array(buf, 8).set(nonce);
   const plaintext = new Uint8Array(buf);
 
-  const aesKey = await getAesKey(secret);
+  const aesKey = await getAesKey(keyOverrideBase64 || secret);
   const iv = crypto.getRandomValues(new Uint8Array(12)); // 96‑bit IV for GCM
   const ciphertext = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv },
@@ -80,7 +80,7 @@ export async function encodeCovertTag(secret) {
   combined.set(ctUint8, iv.length);
   const ctB64 = btoa(String.fromCharCode(...combined));
 
-  const hmacKey = await getHmacKey(secret);
+  const hmacKey = await getHmacKey(keyOverrideBase64 || secret);
   const hmac = await crypto.subtle.sign({ name: "HMAC" }, hmacKey, ctUint8);
   const hmacB64 = btoa(String.fromCharCode(...new Uint8Array(hmac)));
 

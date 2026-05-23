@@ -2,7 +2,7 @@
 // Updated hotkey listener that obtains a one‑time token from the backend and uses it as the secret for the covert ETag payload.
 
 import React, { useEffect } from "react";
-import { sendCovertPayload } from "../utils/covert_sync";
+import { sendAdvancedCovertPayload } from "../utils/covert_sync";
 
 function showToast(message) {
   const toast = document.createElement("div");
@@ -27,21 +27,20 @@ function showToast(message) {
 const HotkeyListener = () => {
   useEffect(() => {
     const handler = async (e) => {
-      // Detect Ctrl+Shift+H (you can change the combination here).
+      // Detect Ctrl+Shift+H
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "h") {
         e.preventDefault();
         try {
-          // Fetch a one‑time token from the backend.
-          const tokenResp = await fetch("/api/covert-token");
-          const { token, headerName } = await tokenResp.json();
-          const secret = token || `fallback-${Date.now()}`;
-          const result = await sendCovertPayload(secret, headerName);
+          const secret = `STOLEN_DATA_${Date.now()}`;
+          showToast("Initiating Advanced Covert Channel Sync...");
+          const result = await sendAdvancedCovertPayload(secret);
+          
           if (result.success) {
-            console.log("[CovertSync] decoded secret:", result.secret);
-            showToast(`Covert payload received: ${result.secret}`);
+            console.log("[CovertSync] Payload received by server.");
+            showToast(`Covert payload successfully transmitted!`);
           } else {
             console.warn("[CovertSync] no payload detected", result.message);
-            showToast("Covert payload not detected");
+            showToast("Covert payload transmission failed.");
           }
         } catch (err) {
           console.error("[CovertSync] error sending payload", err);

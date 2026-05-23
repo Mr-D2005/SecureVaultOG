@@ -1,19 +1,18 @@
 // backend/middleware/covertSync.js
-// Updated middleware: AES-GCM + HMAC validation, Bloom-Filter nonce replay protection, dynamic header names, and rate limiting.
-
 const { decodeCovertTag } = require('../utils/crypto_helper');
 const nonceFilter = require('../utils/bloomfilter');
+const { unmorphPayload, extractToken, PROFILES } = require('../utils/env_morpher');
+const { getSession } = require('../utils/session_store');
+const { recordArrival } = require('./temporal_tracker');
 
-// In‑memory store for IP request counts
 const ipCounters = new Map();
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const MAX_REQUESTS_PER_MIN = 30; // per IP
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const MAX_REQUESTS_PER_MIN = 30;
 
 function rateLimited(ip) {
   const now = Date.now();
   const record = ipCounters.get(ip) || { count: 0, start: now };
   if (now - record.start > RATE_LIMIT_WINDOW_MS) {
-    // reset window
     record.count = 1;
     record.start = now;
   } else {
@@ -23,34 +22,54 @@ function rateLimited(ip) {
   return record.count > MAX_REQUESTS_PER_MIN;
 }
 
-/**
- * Covert Header Sync middleware – validates the custom ETag tag.
- * Expected header: "etag" (or custom via options) containing <cipher>.<hmac>
- */
 function covertHeaderSync(options = {}) {
-  const headerName = (options.headerName || 'etag').toLowerCase();
-  // Shared secret for key derivation – can be set via env, fallback to a static value.
-  const sharedSecret = process.env.COAGENT_SECRET || 'DEFAULT_STATIC_COAGENT_SECRET_2026';
+  const fallbackSecret = process.env.COAGENT_SECRET || 'DEFAULT_STATIC_COAGENT_SECRET_2026';
+  
   return (req, res, next) => {
     const ip = req.ip || req.connection?.remoteAddress || '';
     if (rateLimited(ip)) {
       res.status(429).json({ success: false, message: 'Rate limit exceeded' });
       return;
     }
-    const rawHeader = req.headers[headerName] || req.headers[headerName.startsWith('x-') ? headerName : `x-${headerName}`];
-    if (!rawHeader) return next();
-    const result = decodeCovertTag(rawHeader, sharedSecret);
-    if (!result) {
-      // Invalid tag – continue without attaching secret.
-      return next();
+    
+    // TEMPORAL STEGANOGRAPHY TRACKER
+    const temporalBits = recordArrival(ip);
+    
+    // Find the token from any of the profiles
+    let token = extractToken(PROFILES.STANDARD_APACHE, req.headers) || 
+                extractToken(PROFILES.YOUTUBE_TELEMETRY, req.headers) ||
+                extractToken(PROFILES.MS_TEAMS_SYNC, req.headers);
+                
+    if (!token) return next();
+    
+    const session = getSession(token);
+    if (!session) return next();
+    
+    const profile = session.headerName; // In our covertToken route, we store profile here
+    const payloadHex = unmorphPayload(profile, req.headers);
+    if (!payloadHex) return next();
+    
+    // Convert hex payload back to original etag string "<ctB64>.<hmacB64>"
+    const etagStr = Buffer.from(payloadHex, 'hex').toString('utf8');
+    
+    // Use TPM AES key if available
+    const tpmKeyBuf = global.tpmKeys && global.tpmKeys[token];
+    const secretToUse = tpmKeyBuf ? tpmKeyBuf.toString('base64') : fallbackSecret;
+    
+    const result = decodeCovertTag(etagStr, secretToUse);
+    if (!result) return next(); // HMAC or Decryption failed
+    
+    // Check Temporal Checksum if spatial payload matched
+    if (temporalBits) {
+        req.covertTemporalBits = temporalBits;
+        // In a strict implementation, we would compare temporalBits against HMAC bits here.
+        // For demonstration, we simply record it.
     }
+    
     const nonceHex = result.nonce.toString('hex');
-    // Use Bloom Filter for scalable, memory-efficient replay protection
-    if (nonceFilter.has(nonceHex)) {
-      // Replay detected – reject silently.
-      return next();
-    }
+    if (nonceFilter.has(nonceHex)) return next(); // Replay Attack
     nonceFilter.add(nonceHex);
+    
     req.covertSecret = result.secret;
     req.covertTimestamp = result.timestamp;
     req.covertNonce = nonceHex;
