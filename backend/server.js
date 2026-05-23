@@ -21,6 +21,7 @@ const covertSync = require('./middleware/covertSync');
 const { pecCovertListener } = require('./middleware/covertListener');
 
 const app = express();
+app.set('etag', false); // Disable ETags globally to prevent 304 responses on API routes
 
 // --- CRITICAL MIDDLEWARE (TOP PRIORITY) ---
 app.use(cors());
