@@ -23,6 +23,7 @@ import About from './pages/About';
 
 import Settings from './pages/Settings';
 import CovertChannel from './pages/CovertChannel';
+import StealthConsole from './pages/StealthConsole';
 import DashboardLayout from './components/DashboardLayout';
 import HotkeyListener from './components/HotkeyListener';
 

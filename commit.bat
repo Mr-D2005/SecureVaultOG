@@ -1,3 +1,3 @@
 @echo off
-git commit -m "feat: Stealth Console and Dead Drop implementation for patent demo"
+git commit -m "fix: StealthConsole black screen - fixed bad crypto imports and AES API"
 git push origin main
