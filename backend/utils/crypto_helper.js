@@ -79,8 +79,14 @@ function decodeCovertTag(etag, secret) {
   decipher.setAuthTag(authTag);
   const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
   const timestamp = Number(plaintext.readBigUInt64BE(0));
-  const nonce = plaintext.slice(8);
-  return { secret, timestamp, nonce };
+  const nonce = plaintext.slice(8, 16);
+  
+  let returnedSecret = secret;
+  if (plaintext.length > 16) {
+    returnedSecret = plaintext.slice(16).toString('utf8');
+  }
+  
+  return { secret: returnedSecret, timestamp, nonce };
 }
 
 module.exports = { encodeCovertTag, decodeCovertTag };

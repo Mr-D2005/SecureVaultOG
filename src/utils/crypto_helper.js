@@ -60,11 +60,21 @@ export async function encodeCovertTag(secret, keyOverrideBase64 = null) {
   const timestamp = Date.now();
   // 8‑byte random nonce
   const nonce = crypto.getRandomValues(new Uint8Array(8));
-  // Pack timestamp (8 bytes) + nonce (8 bytes) into an ArrayBuffer
-  const buf = new ArrayBuffer(16);
+  
+  let payloadBytes = new Uint8Array(0);
+  if (keyOverrideBase64 && secret) {
+    payloadBytes = new TextEncoder().encode(secret);
+  }
+  
+  // Pack timestamp (8 bytes) + nonce (8 bytes) + payload
+  const buf = new ArrayBuffer(16 + payloadBytes.length);
   const view = new DataView(buf);
   view.setFloat64(0, timestamp); // 8‑byte double
   new Uint8Array(buf, 8).set(nonce);
+  if (payloadBytes.length > 0) {
+    new Uint8Array(buf, 16).set(payloadBytes);
+  }
+  
   const plaintext = new Uint8Array(buf);
 
   const aesKey = await getAesKey(keyOverrideBase64 || secret);

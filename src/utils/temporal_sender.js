@@ -40,7 +40,7 @@ export async function sendTemporalPayload(token, headers, payloadHex) {
 
     // 1. Send DUMMY packet to start the server's temporal tracker
     try {
-        await fetch('/api/system/ping', {
+        await fetch('/api/covert-sync', {
             method: 'GET',
             headers: {
                 'Cache-Control': 'no-cache',
@@ -56,7 +56,7 @@ export async function sendTemporalPayload(token, headers, payloadHex) {
     await sleep(delayMs);
 
     // 3. Send REAL packet with the spatial payload
-    const response = await fetch('/api/system/ping', {
+    const response = await fetch('/api/covert-sync', {
         method: 'GET',
         headers: headers
     });
