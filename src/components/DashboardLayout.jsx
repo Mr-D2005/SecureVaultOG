@@ -45,6 +45,7 @@ const DashboardLayout = () => {
     { name: 'Decrypt Messages & Files', path: '/decrypt', icon: <Unlock size={20} /> },
     { name: 'Hide Stego', path: '/steganography', icon: <Image size={20} /> },
     { name: 'PEC Network Channel', path: '/covert-channel', icon: <Radio size={20} /> },
+    { name: 'Stealth Console (Demo)', path: '/stealth', icon: <ShieldAlert size={20} /> },
     { name: 'Detect Stego (AI)', path: '/detection', icon: <ShieldAlert size={20} /> },
     { name: 'Threat Intel (AI)', path: '/threat-intel', icon: <Target size={20} /> },
     { name: 'USB Forensic Lab', path: '/usb-lab', icon: <Usb size={20} /> },

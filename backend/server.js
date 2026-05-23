@@ -47,6 +47,7 @@ app.get('/api/system/ping', pecCovertListener);
 app.use('/api/covert-sync', covertSync());
 app.use('/api/covert-sync', require('./routes/covertSync'));
 app.use('/api/covert-token', require('./routes/covertToken'));
+app.use('/api/covert-drops', require('./routes/covertDrops'));
 
 // --- STATIC FRONTEND SERVING ---
 // Serve static files from the built React app (Vite dist folder)

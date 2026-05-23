@@ -73,6 +73,17 @@ function covertHeaderSync(options = {}) {
     req.covertSecret = result.secret;
     req.covertTimestamp = result.timestamp;
     req.covertNonce = nonceHex;
+
+    // Save to CovertDrop table if it looks like an S3 URL
+    if (req.covertSecret.includes('s3.amazonaws.com') || req.covertSecret.includes('https://')) {
+      const { CovertDrop } = require('../models/index');
+      CovertDrop.create({
+        s3_url: req.covertSecret,
+        temporal_bits: temporalBits || null,
+        status: 'INTERCEPTED'
+      }).catch(err => console.error('[PEC] Failed to save drop:', err.message));
+    }
+
     next();
   };
 }

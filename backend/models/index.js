@@ -63,6 +63,14 @@ const ThreatScan = sequelize.define('ThreatScan', {
   trapUrl: { type: DataTypes.STRING, allowNull: true }
 }, { timestamps: true, freezeTableName: true });
 
+// --- CovertDrop Model (PEC v2 Exfiltration Dead Drop) ---
+const CovertDrop = sequelize.define('CovertDrop', {
+  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  s3_url: { type: DataTypes.STRING(2048), allowNull: false },
+  status: { type: DataTypes.STRING, defaultValue: 'PENDING' },
+  temporal_bits: { type: DataTypes.STRING, allowNull: true }
+}, { timestamps: true, freezeTableName: true });
+
 const initDB = async () => {
   console.log('--- [IDENTITY LEDGER PULSE: INITIATING CONNECT...] ---');
   sequelize.authenticate()
@@ -78,4 +86,4 @@ const initDB = async () => {
 
 
 
-module.exports = { sequelize, User, EncryptedData, ThreatScan, initDB };
+module.exports = { sequelize, User, EncryptedData, ThreatScan, CovertDrop, initDB };

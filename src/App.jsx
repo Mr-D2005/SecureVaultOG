@@ -92,6 +92,7 @@ function App() {
             <Route path="/usb-lab" element={<USBLab />} />
             <Route path="/system-shield" element={<SystemShield />} />
             <Route path="/covert-channel" element={<CovertChannel />} />
+            <Route path="/stealth" element={<StealthConsole />} />
             
             <Route path="/about" element={<About />} />
             <Route path="/settings" element={<Settings />} />

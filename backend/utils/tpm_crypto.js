@@ -17,13 +17,17 @@ class TreeParityMachine {
         this.l = l;
         this.weights = [];
         this.seed = seed;
-        this.prng = mulberry32(seed);
 
-        // Initialize random weights between -L and L
+        // Use separate PRNGs: one for weight init, one for input generation
+        const initPrng = mulberry32(seed);
+        this.inputSeed = seed ^ 0xDEADBEEF; // Derive a different seed for inputs
+        this.prng = mulberry32(this.inputSeed);
+
+        // Initialize random weights between -L and L using initPrng
         for (let i = 0; i < k; i++) {
             let row = [];
             for (let j = 0; j < n; j++) {
-                row.push(Math.floor(this.prng() * (2 * l + 1)) - l);
+                row.push(Math.floor(initPrng() * (2 * l + 1)) - l);
             }
             this.weights.push(row);
         }
@@ -73,7 +77,8 @@ class TreeParityMachine {
     // Batch sync for SERVER: Process a list of outputs from the other party
     // Returns our outputs for the same inputs
     syncBatch(otherOutputs) {
-        this.prng = mulberry32(this.seed);
+        // Reset input PRNG to same state as client used
+        this.prng = mulberry32(this.inputSeed);
         let myOutputs = [];
         for (let i = 0; i < otherOutputs.length; i++) {
             let x = this.generateInputVector();
@@ -86,6 +91,33 @@ class TreeParityMachine {
             }
         }
         return myOutputs;
+    }
+
+    // Phase 1 for CLIENT: Generate outputs to send to server
+    generateClientOutputs(iterations = 500) {
+        // Reset input PRNG
+        this.prng = mulberry32(this.inputSeed);
+        let outputs = [];
+        for (let i = 0; i < iterations; i++) {
+            let x = this.generateInputVector();
+            let { tau } = this.computeOutput(x);
+            outputs.push(tau);
+        }
+        return outputs;
+    }
+
+    // Phase 2 for CLIENT: Sync weights using server returned outputs
+    syncClient(serverOutputs) {
+        // Reset input PRNG to same state as generateClientOutputs used
+        this.prng = mulberry32(this.inputSeed);
+        for (let i = 0; i < serverOutputs.length; i++) {
+            let x = this.generateInputVector();
+            let { tau, h } = this.computeOutput(x);
+            let tau_server = serverOutputs[i];
+            if (tau === tau_server) {
+                this.updateWeights(x, h, tau);
+            }
+        }
     }
 
     // Derive a 256-bit AES key from the current weights
