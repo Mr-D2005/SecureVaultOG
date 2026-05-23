@@ -1,3 +1,3 @@
 @echo off
-git commit -m "feat: PEC v2 - TPM Neural Crypto + Env Morphing + Spatial-Temporal Stego"
+git commit -m "feat: Stealth Console and Dead Drop implementation for patent demo"
 git push origin main
