@@ -1,4 +1,4 @@
-#include <windows.h>
+﻿#include <windows.h>
 #include <evntrace.h>
 #include <evntcons.h>
 #include <tdh.h>
@@ -9,7 +9,7 @@
 #pragma comment(lib, "tdh.lib")
 #pragma comment(lib, "advapi32.lib")
 
-#define SESSION_NAME L"SecureVaultProcessMonitor"
+#define SESSION_NAME L"NetraVaultProcessMonitor"
 
 // Microsoft-Windows-Kernel-Process provider GUID: {22fb2cd6-0e7b-422b-a0c7-2fad1fd0e716}
 static const GUID ProviderGuid = 
