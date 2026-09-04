@@ -21,7 +21,7 @@ def safe_import_psutil():
         return None
 
 # --- CONFIGURATION ---
-RENDER_URL = "https://securevault-main.onrender.com/api/usb-lab/external-report"
+RENDER_URL = "https://netravault-main.onrender.com/api/usb-lab/external-report"
 MALICIOUS_EXTENSIONS = {'.exe', '.scr', '.vbs', '.bat', '.cmd', '.ps1', '.js', '.wsf', '.hta'}
 
 def calculate_file_entropy(filepath):
@@ -110,7 +110,7 @@ def aggressive_correction(mountpoint):
 def run_ghost_bridge():
     os.system('cls' if os.name == 'nt' else 'clear')
     print("\n" + "!"*60)
-    print("      SECUREVAULT: GHOST-MOUNT VIRTUAL GATEWAY v1.0")
+    print("      NETRAVAULT: GHOST-MOUNT VIRTUAL GATEWAY v1.0")
     print("      STATUS: AIR-GAP ISOLATION PROTOCOL ACTIVE")
     print("!"*60 + "\n")
     

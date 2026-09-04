@@ -133,7 +133,7 @@ export const NetraLogo = ({
           }}
         >
           <span className="text-neon" style={{ color: '#c084fc' }}>
-            Secure
+            Netra
           </span>
           <span style={{ color: '#ffffff' }}>Vault</span>
         </span>

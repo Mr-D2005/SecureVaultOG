@@ -27,7 +27,7 @@ kms_key_id = os.environ.get("KMS_KEY_ID")
 def health():
     return jsonify({
         "status": "Running",
-        "service": "SECUREVAULT_PYTHON_KMS_CORE_5011",
+        "service": "NETRAVAULT_PYTHON_KMS_CORE_5011",
         "kms": "Connected"
     })
 

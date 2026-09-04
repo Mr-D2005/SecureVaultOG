@@ -66,7 +66,7 @@ function Get-RoundedPath {
 # MAIN FORM SETUP
 # ======================================================
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "SecureVault Sentinel AI - Total Protection Dashboard"
+$form.Text = "NetraVault Sentinel AI - Total Protection Dashboard"
 $form.Size = New-Object System.Drawing.Size(1400, 920)
 $form.MinimumSize = New-Object System.Drawing.Size(1200, 820)
 $form.StartPosition = "CenterScreen"
@@ -115,7 +115,7 @@ $logoIcon.AutoSize = $true
 $logoPanel.Controls.Add($logoIcon)
 
 $lblBrand = New-Object System.Windows.Forms.Label
-$lblBrand.Text = "SECUREVAULT"
+$lblBrand.Text = "NETRAVAULT"
 $lblBrand.Font = New-Object System.Drawing.Font("Segoe UI", 14, [System.Drawing.FontStyle]::Bold)
 $lblBrand.ForeColor = $neonGreen
 $lblBrand.Location = New-Object System.Drawing.Point(50, 26)
@@ -563,7 +563,7 @@ $consoleContainer.add_Paint({
     # Title Text in Console Header
     $cTitleFont = New-Object System.Drawing.Font("Consolas", 8, [System.Drawing.FontStyle]::Bold)
     $cTitleBrush = New-Object System.Drawing.SolidBrush($gray)
-    $g.DrawString("terminal://securevault-cognitive-logs", $cTitleFont, $cTitleBrush, 64, 7)
+    $g.DrawString("terminal://netravault-cognitive-logs", $cTitleFont, $cTitleBrush, 64, 7)
     $cTitleBrush.Dispose()
     $cTitleFont.Dispose()
     
@@ -596,7 +596,7 @@ $console.Font = $fMono
 $console.Dock = "Fill"
 $console.BorderStyle = "None"
 $console.ScrollBars = "Vertical"
-$console.Text = "[SECUREVAULT AI v6.0] Gemini-powered neural defense suite online."
+$console.Text = "[NETRAVAULT AI v6.0] Gemini-powered neural defense suite online."
 $console.AppendText("`r`n[SYSTEM] 6 autonomous AI agents loaded. Real-time telemetry ready.")
 $console.AppendText("`r`n[WAITING] Click any agent card below to run a scan...")
 $consoleContainer.Controls.Add($console)
@@ -1096,7 +1096,7 @@ if (-not $_scriptDir -and $MyInvocation.MyCommand.Path) {
 if (-not $_scriptDir) { $_scriptDir = $PWD.Path }
 $telemetryFile = Join-Path $_scriptDir "sentinel_telemetry.json"
 if (-not (Test-Path $telemetryFile)) {
-    $telemetryFile = Join-Path "$env:APPDATA\SecureVault" "sentinel_telemetry.json"
+    $telemetryFile = Join-Path "$env:APPDATA\NetraVault" "sentinel_telemetry.json"
 }
 
 function Log {
@@ -1126,7 +1126,7 @@ function UpdateStat {
 function Query-AI {
     param([string]$endpoint, $bodyData)
     $json = ConvertTo-Json $bodyData -Depth 4
-    foreach ($url in @("http://localhost:5000/api/$endpoint", "https://securevault-main.onrender.com/api/$endpoint")) {
+    foreach ($url in @("http://localhost:5000/api/$endpoint", "https://netravault-main.onrender.com/api/$endpoint")) {
         try {
             return Invoke-RestMethod -Uri $url -Method Post -Body $json -ContentType "application/json" -TimeoutSec 3
         } catch {}
@@ -1297,7 +1297,7 @@ $vaultScan = {
         }
     } else {
         Log "[ALERT] Heuristic Match: Plaintext API keys detected in local logs database!" "red"
-        Log "[ACTION] Isolating database file to SecureVault: exposed_api_keys.db" "yellow"
+        Log "[ACTION] Isolating database file to NetraVault: exposed_api_keys.db" "yellow"
         Add-QuarantineItem "exposed_api_keys.db" "Identity Audit (Heuristic)" "HIGH"
         $script:threatsKilled++
         UpdateStat "StatThreats" $script:threatsKilled
@@ -1896,7 +1896,7 @@ $btnQuarDelete.add_Click({
     $confirm = [System.Windows.Forms.MessageBox]::Show("Are you sure you want to permanently purge '$fileName' from the disk? This action cannot be undone.", "Confirm Permanent Deletion", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Warning)
     if ($confirm -eq [System.Windows.Forms.DialogResult]::Yes) {
         $vaultTable.Items.Remove($selectedItem)
-        $console.AppendText("`r`n[QUARANTINE] File '$fileName' permanently erased from SecureVault quarantine archive.")
+        $console.AppendText("`r`n[QUARANTINE] File '$fileName' permanently erased from NetraVault quarantine archive.")
         [System.Windows.Forms.MessageBox]::Show("File '$fileName' has been permanently destroyed.", "Threat Purged", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
     }
 })
@@ -2100,8 +2100,8 @@ $statusBar.Controls.Add($lblStatus)
 # ======================================================
 # CANARY-FILE SHIELD (ACTIVE RANSOMWARE ROLLBACK)
 # ======================================================
-$canaryDir = "$env:PUBLIC\SecureVault_Canary"
-$backupDir = "$env:PUBLIC\SecureVault_Canary_Backup"
+$canaryDir = "$env:PUBLIC\NetraVault_Canary"
+$backupDir = "$env:PUBLIC\NetraVault_Canary_Backup"
 
 if (-not (Test-Path $canaryDir)) { New-Item -Path $canaryDir -ItemType Directory -Force | Out-Null }
 if (-not (Test-Path $backupDir)) { New-Item -Path $backupDir -ItemType Directory -Force | Out-Null }
@@ -2111,10 +2111,10 @@ foreach ($cf in $canaryFiles) {
     $cPath = Join-Path $canaryDir $cf
     $bPath = Join-Path $backupDir $cf
     if (-not (Test-Path $cPath)) {
-        "SecureVault Canary Protection File. Do not modify." | Out-File $cPath -Force -Encoding utf8
+        "NetraVault Canary Protection File. Do not modify." | Out-File $cPath -Force -Encoding utf8
     }
     if (-not (Test-Path $bPath)) {
-        "SecureVault Canary Protection File. Do not modify." | Out-File $bPath -Force -Encoding utf8
+        "NetraVault Canary Protection File. Do not modify." | Out-File $bPath -Force -Encoding utf8
     }
 }
 
@@ -2273,8 +2273,8 @@ if (-not $isDaemonRunning) {
     $serviceScript = ""
     if ($scriptDir -and (Test-Path (Join-Path $scriptDir "sentinel_service.ps1"))) {
         $serviceScript = Join-Path $scriptDir "sentinel_service.ps1"
-    } elseif (Test-Path (Join-Path "$env:APPDATA\SecureVault" "sentinel_service.ps1")) {
-        $serviceScript = Join-Path "$env:APPDATA\SecureVault" "sentinel_service.ps1"
+    } elseif (Test-Path (Join-Path "$env:APPDATA\NetraVault" "sentinel_service.ps1")) {
+        $serviceScript = Join-Path "$env:APPDATA\NetraVault" "sentinel_service.ps1"
     }
     if ($serviceScript -ne "" -and (Test-Path $serviceScript)) {
         Start-Process powershell -ArgumentList "-WindowStyle Hidden -ExecutionPolicy Bypass -File `"$serviceScript`"" -WindowStyle Hidden

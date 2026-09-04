@@ -1,5 +1,5 @@
 # ======================================================
-# SECUREVAULT SENTINEL DAEMON (BACKGROUND SERVICE)
+# NETRAVAULT SENTINEL DAEMON (BACKGROUND SERVICE)
 # ======================================================
 $dir = $PSScriptRoot
 if (-not $dir -and $MyInvocation.MyCommand -and $MyInvocation.MyCommand.Path) { $dir = Split-Path $MyInvocation.MyCommand.Path -Parent }
@@ -70,8 +70,8 @@ function Log-Threat {
 # ======================================================
 # CANARY-FILE SHIELD (ACTIVE RANSOMWARE ROLLBACK)
 # ======================================================
-$canaryDir = "$env:PUBLIC\SecureVault_Canary"
-$backupDir = "$env:PUBLIC\SecureVault_Canary_Backup"
+$canaryDir = "$env:PUBLIC\NetraVault_Canary"
+$backupDir = "$env:PUBLIC\NetraVault_Canary_Backup"
 
 if (-not (Test-Path $canaryDir)) { New-Item -Path $canaryDir -ItemType Directory -Force | Out-Null }
 if (-not (Test-Path $backupDir)) { New-Item -Path $backupDir -ItemType Directory -Force | Out-Null }
@@ -81,10 +81,10 @@ foreach ($cf in $canaryFiles) {
     $cPath = Join-Path $canaryDir $cf
     $bPath = Join-Path $backupDir $cf
     if (-not (Test-Path $cPath)) {
-        "SecureVault Canary Protection File. Do not modify." | Out-File $cPath -Force -Encoding utf8
+        "NetraVault Canary Protection File. Do not modify." | Out-File $cPath -Force -Encoding utf8
     }
     if (-not (Test-Path $bPath)) {
-        "SecureVault Canary Protection File. Do not modify." | Out-File $bPath -Force -Encoding utf8
+        "NetraVault Canary Protection File. Do not modify." | Out-File $bPath -Force -Encoding utf8
     }
 }
 
@@ -309,7 +309,7 @@ while ($true) {
                 $isSuspicious = $true
                 $reason = "Office Hijack Attempt (Parent: $parentName.exe launched: $name.exe)"
             }
-            elseif (($cliArgs -match '-enc' -or $cliArgs -match 'bypass' -or $cliArgs -match 'hidden' -or $cliArgs -match 'iex\(') -and $cliArgs -notmatch 'sentinel_' -and $cliArgs -notmatch 'SecureVault') {
+            elseif (($cliArgs -match '-enc' -or $cliArgs -match 'bypass' -or $cliArgs -match 'hidden' -or $cliArgs -match 'iex\(') -and $cliArgs -notmatch 'sentinel_' -and $cliArgs -notmatch 'NetraVault') {
                 $isSuspicious = $true
                 $reason = "Obfuscated Command Line Detected"
             }

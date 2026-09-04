@@ -88,7 +88,7 @@ const DashboardLayout = () => {
             <NetraEyeIcon size={26} />
           </div>
           <h2 style={{ fontSize: '1.25rem', margin: 0, fontWeight: 700, letterSpacing: '-0.5px', fontFamily: 'var(--font-display)' }}>
-            <span className="text-neon" style={{ color: '#c084fc' }}>Secure</span>Vault
+            <span className="text-neon" style={{ color: '#c084fc' }}>Netra</span>Vault
           </h2>
         </div>
 

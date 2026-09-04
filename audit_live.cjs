@@ -2,12 +2,12 @@ const http = require('https');
 
 const postData = JSON.stringify({
   email: 'final_audit_v7@test.com',
-  password: 'SecureVault123!',
+  password: 'NetraVault123!',
   username: 'Auditor'
 });
 
 const options = {
-  hostname: 'securevault-main.onrender.com',
+  hostname: 'netravault-main.onrender.com',
   port: 443,
   path: '/api/auth/register',
   method: 'POST',

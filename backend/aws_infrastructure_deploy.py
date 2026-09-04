@@ -10,7 +10,7 @@ AWS_REGION = os.environ.get("AWS_REGION", "ap-south-1")
 
 
 print("=========================================================")
-print("  ♦ SECUREVAULT - AWS DEVOPS INFRASTRUCTURE PIPELINE ♦ ")
+print("  ♦ NETRAVAULT - AWS DEVOPS INFRASTRUCTURE PIPELINE ♦ ")
 print("=========================================================")
 
 session = boto3.Session(
@@ -30,7 +30,7 @@ try:
     print("\n[2/5] Provisioning AWS KMS Asymmetric RSA_2048 Master Key...")
     kms = session.client('kms')
     kms_resp = kms.create_key(
-        Description='SecureVault Final Year Asymmetric Master Key',
+        Description='NetraVault Final Year Asymmetric Master Key',
         KeyUsage='ENCRYPT_DECRYPT',
         CustomerMasterKeySpec='RSA_2048',
         Origin='AWS_KMS'
@@ -41,7 +41,7 @@ try:
     # 3. S3 BUCKET
     print("\n[3/5] Provisioning AWS S3 Blacksite Storage...")
     s3 = session.client('s3')
-    bucket_name = f"securevault-blacksite-{uuid.uuid4().hex[:8]}"
+    bucket_name = f"netravault-blacksite-{uuid.uuid4().hex[:8]}"
     s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': AWS_REGION})
     print(f"      -> SUCCESS: New S3 Bucket Created: {bucket_name}")
 
@@ -51,8 +51,8 @@ try:
     vpc_response = ec2.describe_vpcs(Filters=[{'Name': 'isDefault', 'Values': ['true']}])
     vpc_id = vpc_response['Vpcs'][0]['VpcId']
 
-    sg_name = f"securevault-sg-{uuid.uuid4().hex[:4]}"
-    sg_desc = "Allow MySQL Port 3306 for SecureVault Architecture"
+    sg_name = f"netravault-sg-{uuid.uuid4().hex[:4]}"
+    sg_desc = "Allow MySQL Port 3306 for NetraVault Architecture"
     sg_resp = ec2.create_security_group(GroupName=sg_name, Description=sg_desc, VpcId=vpc_id)
     sg_id = sg_resp['GroupId']
 
@@ -65,12 +65,12 @@ try:
     # 5. RDS DATABASE
     print("\n[5/5] Provisioning AWS RDS MySQL Core Ledger...")
     rds = session.client('rds')
-    db_identifier = f"securevault-db-{uuid.uuid4().hex[:4]}"
-    db_password = "SecureVault123!"
+    db_identifier = f"netravault-db-{uuid.uuid4().hex[:4]}"
+    db_password = "NetraVault123!"
     db_username = "svadmin"
 
     rds.create_db_instance(
-        DBName='securevault',
+        DBName='netravault',
         DBInstanceIdentifier=db_identifier,
         AllocatedStorage=20,
         DBInstanceClass='db.t3.micro',  # Free tier eligible performance instance
@@ -98,7 +98,7 @@ try:
     print(" [SYSTEM] OVERWRITING LOCAL ENVIRONMENT VARIABLES ")
     print("=========================================================")
     
-    db_url = f"mysql://{db_username}:{db_password}@{endpoint}:{port}/securevault"
+    db_url = f"mysql://{db_username}:{db_password}@{endpoint}:{port}/netravault"
     
     env_content = f"""PORT=5001
 

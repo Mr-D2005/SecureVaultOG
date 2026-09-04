@@ -41,7 +41,7 @@ console.log('Created: steghide_demo.png');
 // 4. Appended Plaintext Demo Image (Simple Join)
 const appendedTextDemo = Buffer.concat([
     pngBytes,
-    Buffer.from('TOP_SECRET: Ravan Forensic Node activated. SecureVault deployment is functional.')
+    Buffer.from('TOP_SECRET: Ravan Forensic Node activated. NetraVault deployment is functional.')
 ]);
 fs.writeFileSync(path.join(outputDir, 'appended_text_demo.png'), appendedTextDemo);
 console.log('Created: appended_text_demo.png');

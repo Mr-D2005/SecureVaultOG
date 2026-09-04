@@ -7,7 +7,7 @@ AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = os.environ.get("AWS_REGION", "eu-north-1")
 
 
-print("--- [INITIALIZING SECUREVAULT AWS INFRASTRUCTURE] ---")
+print("--- [INITIALIZING NETRAVAULT AWS INFRASTRUCTURE] ---")
 
 try:
     # 1. Initialize boto3 KMS client
@@ -21,7 +21,7 @@ try:
     # 2. Provision New Symmetric Encryption Key
     print("[1/2] Provisioning new AWS KMS Envelope Encryption Key...")
     response = kms.create_key(
-        Description='SecureVault Final Year Master Key',
+        Description='NetraVault Final Year Master Key',
         KeyUsage='ENCRYPT_DECRYPT',
         Origin='AWS_KMS'
     )
@@ -32,7 +32,7 @@ try:
     # 3. Create an alias for easy identification
     try:
         kms.create_alias(
-            AliasName='alias/SecureVaultMaster',
+            AliasName='alias/NetraVaultMaster',
             TargetKeyId=key_id
         )
     except Exception as alias_e:

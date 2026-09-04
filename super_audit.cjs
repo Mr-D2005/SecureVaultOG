@@ -4,7 +4,7 @@ async function test(name, path, payload) {
   return new Promise((resolve) => {
     const postData = JSON.stringify(payload);
     const options = {
-      hostname: 'securevault-main.onrender.com',
+      hostname: 'netravault-main.onrender.com',
       port: 443,
       path: path,
       method: 'POST',
@@ -33,7 +33,7 @@ async function test(name, path, payload) {
 }
 
 async function runAudit() {
-  console.log('--- [STARTING SUPER AUDIT: SECUREVAULT LIVE] ---');
+  console.log('--- [STARTING SUPER AUDIT: NETRAVAULT LIVE] ---');
   
   await test('REGISTRATION', '/api/auth/register', { 
     email: `audit_${Date.now()}@test.com`, 

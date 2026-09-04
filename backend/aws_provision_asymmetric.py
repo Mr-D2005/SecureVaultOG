@@ -15,7 +15,7 @@ try:
     )
 
     response = kms.create_key(
-        Description='SecureVault Final Year Asymmetric Master Key',
+        Description='NetraVault Final Year Asymmetric Master Key',
         KeyUsage='ENCRYPT_DECRYPT',
         CustomerMasterKeySpec='RSA_2048',
         Origin='AWS_KMS'

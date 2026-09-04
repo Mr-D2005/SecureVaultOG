@@ -1,4 +1,4 @@
-with open(r"C:\Users\hp\Desktop\SecureVaultOG\backend\sentinel_gui.ps1", "rb") as f:
+with open(r"C:\Users\hp\Desktop\NetraVaultOG\backend\sentinel_gui.ps1", "rb") as f:
     content = f.read()
 
 # Let's search for "Cryptographically isolated"

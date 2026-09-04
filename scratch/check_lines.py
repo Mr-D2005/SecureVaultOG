@@ -1,4 +1,4 @@
-with open(r"C:\Users\hp\Desktop\SecureVaultOG\backend\sentinel_gui.ps1", "r", encoding="utf-8", errors="ignore") as f:
+with open(r"C:\Users\hp\Desktop\NetraVaultOG\backend\sentinel_gui.ps1", "r", encoding="utf-8", errors="ignore") as f:
     lines = f.readlines()
 
 print("Line 1089:")

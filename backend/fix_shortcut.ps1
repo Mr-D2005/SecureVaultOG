@@ -1,5 +1,5 @@
-$installDir = "$env:APPDATA\SecureVault"
-$desktopPath = "$env:USERPROFILE\Desktop\SecureVault AI Antivirus.lnk"
+$installDir = "$env:APPDATA\NetraVault"
+$desktopPath = "$env:USERPROFILE\Desktop\NetraVault AI Antivirus.lnk"
 $iconPath = "$installDir\logo.ico"
 
 # Rebuild the shortcut WITHOUT -WindowStyle Hidden so errors are visible
