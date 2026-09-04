@@ -103,7 +103,7 @@ const Web3Hero = () => {
         </div>
         <div className="w3-hud-corner w3-hud-br">
           <span className="w3-hud-label">CLOUD_NODE_LINKED</span>
-          <span className="w3-hud-value">SECURE_VAULT_v3.2.0</span>
+          <span className="w3-hud-value">NETRA_VAULT_v3.2.0</span>
         </div>
       </div>
 

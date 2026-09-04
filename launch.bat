@@ -1,6 +1,6 @@
 @echo off
 echo ===================================================
-echo     SECURE VAULT: MASTER IGNITION PROTOCOL v2
+echo     NETRA VAULT: MASTER IGNITION PROTOCOL v2
 echo ===================================================
 
 echo [CLEANUP] Terminating ghost processes...

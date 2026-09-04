@@ -1,4 +1,4 @@
-﻿#include <windows.h>
+#include <windows.h>
 #include <evntrace.h>
 #include <evntcons.h>
 #include <tdh.h>
@@ -133,7 +133,7 @@ BOOL WINAPI ConsoleHandler(DWORD signal) {
 
 int main() {
     std::cout << "==================================================" << std::endl;
-    std::cout << "   SECUREVAULT REAL-TIME PROCESS MONITOR (WLA)    " << std::endl;
+    std::cout << "   NETRAVAULT REAL-TIME PROCESS MONITOR (WLA)    " << std::endl;
     std::cout << "==================================================" << std::endl;
     
     // Set Console Ctrl handler for clean exit

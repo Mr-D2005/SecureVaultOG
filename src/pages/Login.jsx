@@ -210,7 +210,7 @@ const Login = () => {
           </div>
         </div>
         <h1 style={{ fontSize: '3rem', letterSpacing: '0.05em', marginBottom: '0.5rem', fontFamily: 'var(--font-display)' }}>
-          <TypewriterText text="SECURE" showCursor={false} style={{ color: 'var(--color-text)' }} />
+          <TypewriterText text="NETRA" showCursor={false} style={{ color: 'var(--color-text)' }} />
           <TypewriterText text="VAULT" delay={600} className="text-neon" />
         </h1>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', opacity: 0.8 }}>
