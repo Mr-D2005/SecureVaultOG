@@ -5,6 +5,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AntigravityParticles } from './ui/AntigravityParticles';
 import { AntigravityElement } from './ui/AntigravityElement';
+import { NetraLogo } from './ui/NetraLogo';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -113,10 +114,8 @@ const Web3Hero = () => {
       <nav className="w3-navbar w3-navbar-animate">
         <div className="w3-nav-left">
           {/* Logo wordmark */}
-          <div className="w3-logo">
-            <svg width="187" height="25" viewBox="0 0 187 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <text x="0" y="19" fill="white" fontFamily="'General Sans', sans-serif" fontSize="18" fontWeight="700" letterSpacing="0.08em">SECUREVAULT</text>
-            </svg>
+          <div className="w3-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+            <NetraLogo size={30} fontSize="1.25rem" />
           </div>
 
           {/* Nav links — hidden on mobile via CSS */}

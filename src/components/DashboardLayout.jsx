@@ -1,6 +1,10 @@
 import React, { useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import { LayoutDashboard, Lock, Unlock, Image, ShieldAlert, Settings, LogOut, Fingerprint, Users, Folder, Target, Usb, Shield, Radio } from 'lucide-react';
+import { 
+  LayoutDashboard, Lock, Unlock, Image, ShieldAlert, Settings, LogOut, Users, 
+  Radio, Target, Usb, Shield
+} from 'lucide-react';
+import { NetraEyeIcon } from './ui/NetraLogo';
 
 import RavanAssistant from './RavanAssistant';
 
@@ -75,15 +79,16 @@ const DashboardLayout = () => {
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2.5rem', paddingLeft: '0.5rem' }}>
           <div style={{
-            background: 'linear-gradient(135deg, var(--color-primary-fixed), var(--color-primary-container))',
-            width: '34px', height: '34px', borderRadius: 'var(--radius-md)',
+            background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.25), rgba(59, 130, 246, 0.25))',
+            width: '38px', height: '38px', borderRadius: 'var(--radius-md)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 15px var(--color-primary-glow)',
+            boxShadow: '0 0 20px rgba(124, 58, 237, 0.35)',
+            border: '1px solid rgba(192, 132, 252, 0.4)',
           }}>
-            <Fingerprint size={18} color="#022100" />
+            <NetraEyeIcon size={26} />
           </div>
           <h2 style={{ fontSize: '1.25rem', margin: 0, fontWeight: 700, letterSpacing: '-0.5px', fontFamily: 'var(--font-display)' }}>
-            <span className="text-neon">Secure</span>Vault
+            <span className="text-neon" style={{ color: '#c084fc' }}>Secure</span>Vault
           </h2>
         </div>
 

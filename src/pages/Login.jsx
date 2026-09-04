@@ -5,6 +5,7 @@ import ParticleBackground from '../components/ParticleBackground';
 import { TypewriterText } from '../components/animations/TypewriterText';
 import { KineticButton } from '../components/animations/KineticButton';
 import { motion, AnimatePresence } from 'framer-motion';
+import { NetraEyeIcon } from '../components/ui/NetraLogo';
 import './Login.css';
 
 const Login = () => {
@@ -196,6 +197,18 @@ const Login = () => {
 
       {/* Title */}
       <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }} className="login-header">
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.75rem' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.25), rgba(59, 130, 246, 0.25))',
+            padding: '10px',
+            borderRadius: '16px',
+            boxShadow: '0 0 25px rgba(124, 58, 237, 0.4)',
+            border: '1px solid rgba(192, 132, 252, 0.4)',
+            display: 'inline-flex'
+          }}>
+            <NetraEyeIcon size={40} />
+          </div>
+        </div>
         <h1 style={{ fontSize: '3rem', letterSpacing: '0.05em', marginBottom: '0.5rem', fontFamily: 'var(--font-display)' }}>
           <TypewriterText text="SECURE" showCursor={false} style={{ color: 'var(--color-text)' }} />
           <TypewriterText text="VAULT" delay={600} className="text-neon" />
