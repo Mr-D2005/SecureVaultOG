@@ -149,7 +149,7 @@ const Register = () => {
                 <label>Secure Email</label>
                 <div style={{ position: 'relative' }}>
                   <Mail size={16} className="icon-cyber" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-dim)' }} />
-                  <input type="email" className="input-control" placeholder="operator@securevault.io" style={{ paddingLeft: '2.5rem', background: 'rgba(0,0,0,0.3)' }} value={email} onChange={(e) => { setEmail(e.target.value); setError(''); }} required />
+                  <input type="email" className="input-control" placeholder="operator@netravault.io" style={{ paddingLeft: '2.5rem', background: 'rgba(0,0,0,0.3)' }} value={email} onChange={(e) => { setEmail(e.target.value); setError(''); }} required />
                 </div>
               </div>
 

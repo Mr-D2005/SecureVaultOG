@@ -1,4 +1,4 @@
-# Contributing to SecureVault
+# Contributing to NetraVault
 
 Thank you for your interest in contributing.
 

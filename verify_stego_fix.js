@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { analyzeSteganographyAI } = require('./backend/utils/stego');
 
-const buffer = fs.readFileSync('c:\\Users\\hp\\Desktop\\SecureVaultOG\\normal_test.png');
+const buffer = fs.readFileSync('c:\\Users\\hp\\Desktop\\NetraVaultOG\\normal_test.png');
 const result = analyzeSteganographyAI(buffer, 'normal_test.png');
 
 console.log('=== FORENSIC ANALYSIS RESULT ===');

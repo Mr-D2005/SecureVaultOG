@@ -303,7 +303,7 @@ const Login = () => {
               <input 
                 type="text"
                 className={`input-control ${fieldErrors.email ? 'input-error' : ''}`}
-                placeholder="operator@securevault.io" 
+                placeholder="operator@netravault.io" 
                 style={{ paddingLeft: '2.5rem', background: 'rgba(0,0,0,0.3)' }}
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); if (fieldErrors.email) clearErrors(); }}

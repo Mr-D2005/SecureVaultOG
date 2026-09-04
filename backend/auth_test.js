@@ -24,13 +24,13 @@ function post(path, body) {
 async function test() {
   console.log('--- AUTH LIVE TEST ---\n');
   
-  const reg = await post('/api/auth/register', { email: 'livetest2@securevault.io', password: 'TestPass123!' });
+  const reg = await post('/api/auth/register', { email: 'livetest2@netravault.io', password: 'TestPass123!' });
   console.log('REGISTER:', reg.status, JSON.stringify(reg.data));
 
-  const log = await post('/api/auth/login', { email: 'livetest2@securevault.io', password: 'TestPass123!' });
+  const log = await post('/api/auth/login', { email: 'livetest2@netravault.io', password: 'TestPass123!' });
   console.log('LOGIN OK :', log.status, log.data.token ? 'JWT ISSUED' : JSON.stringify(log.data));
 
-  const bad = await post('/api/auth/login', { email: 'livetest2@securevault.io', password: 'WrongPass!' });
+  const bad = await post('/api/auth/login', { email: 'livetest2@netravault.io', password: 'WrongPass!' });
   console.log('LOGIN BAD:', bad.status, JSON.stringify(bad.data));
 
   // Test with your default account

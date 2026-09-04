@@ -27,9 +27,9 @@ function fail(label, detail) { console.log('  [FAIL] ' + label + ' => ' + detail
 function section(n, name) { console.log('\n[' + n + '/8] ' + name); }
 
 async function runAll() {
-  console.log('=== SECUREVAULT FULL E2E VERIFICATION SUITE ===\n');
+  console.log('=== NETRAVAULT FULL E2E VERIFICATION SUITE ===\n');
 
-  const email = 'domtest_' + Date.now() + '@securevault.io';
+  const email = 'domtest_' + Date.now() + '@netravault.io';
   const pw = 'TestPass123!';
   let encResult, stegoBuffer;
 
@@ -64,7 +64,7 @@ async function runAll() {
   }
 
   section(5, 'ENCRYPT');
-  const enc = await post('/api/encrypt/data', { data: 'Hello SecureVault Test 2026', type: 'message', name: 'DOM_Test' });
+  const enc = await post('/api/encrypt/data', { data: 'Hello NetraVault Test 2026', type: 'message', name: 'DOM_Test' });
   if (enc.status === 200 && enc.data && enc.data.success) {
     pass('Payload uploaded to AWS S3 Blacksite bucket');
     pass('S3 URL sealed via Python KMS envelope encryption (AES-256-GCM)');

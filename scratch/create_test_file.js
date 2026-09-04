@@ -23,5 +23,5 @@ const idat = Buffer.from([
 const iend = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82]);
 
 const normalPng = Buffer.concat([signature, ihdr, idat, iend]);
-fs.writeFileSync('c:\\Users\\hp\\Desktop\\SecureVaultOG\\normal_test.png', normalPng);
+fs.writeFileSync('c:\\Users\\hp\\Desktop\\NetraVaultOG\\normal_test.png', normalPng);
 console.log('Created normal_test.png');

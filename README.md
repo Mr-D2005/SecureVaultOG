@@ -1,11 +1,11 @@
 <<<<<<< HEAD
-🔐 SecureVault
+🔐 NetraVault
 
-SecureVault is a cloud-integrated secure communication system designed to protect sensitive data through a combination of encryption, steganography, and AI-based detection. The platform ensures that information is not only encrypted but also concealed and monitored for potential misuse.
+NetraVault is a cloud-integrated secure communication system designed to protect sensitive data through a combination of encryption, steganography, and AI-based detection. The platform ensures that information is not only encrypted but also concealed and monitored for potential misuse.
 
 📌 Overview
 
-SecureVault enables users to securely transmit and store confidential information by:
+NetraVault enables users to securely transmit and store confidential information by:
 
 Encrypting messages using strong cryptographic techniques
 Embedding encrypted data within images using steganography
@@ -64,7 +64,7 @@ API key management
 Cloud configuration settings
 Emergency data purge functionality
 📂 Project Structure
-SecureVault/
+NetraVault/
 │
 ├── frontend/        # React (Vite) application
 ├── backend/         # Flask APIs and services
@@ -75,8 +75,8 @@ Prerequisites
 Node.js (v16 or above)
 npm or yarn
 Installation
-git clone https://github.com/your-username/securevault.git
-cd securevault
+git clone https://github.com/your-username/netravault.git
+cd netravault
 cd "Final Year Project"
 npm install
 Run the Application
@@ -100,7 +100,7 @@ Weak key management practices
 Detectable encrypted communication
 Solution
 
-SecureVault addresses these issues by:
+NetraVault addresses these issues by:
 
 Applying strong encryption techniques
 Managing keys securely using cloud services
@@ -129,7 +129,7 @@ Artificial Intelligence
 Full-Stack Web Development
 📌 Conclusion
 
-SecureVault presents a multi-layered security approach by integrating:
+NetraVault presents a multi-layered security approach by integrating:
 
 Encryption + Steganography + Cloud Infrastructure + AI Detection
 
@@ -152,4 +152,4 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
->>>>>>> 1ed3295 (Initial commit - SecureVault)
+>>>>>>> 1ed3295 (Initial commit - NetraVault)

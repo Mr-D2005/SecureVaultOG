@@ -93,7 +93,7 @@ const RadarSweep = () => {
 };
 
 const METHOD_METADATA = {
-  'SIGNATURE_SECUREVAULT':      { label: 'SecureVault Deep-Bind (Native)', color: '#ef4444', desc: 'SecureVault magic-byte marker detected. Definitive match.' },
+  'SIGNATURE_NETRAVAULT':      { label: 'NetraVault Deep-Bind (Native)', color: '#ef4444', desc: 'NetraVault magic-byte marker detected. Definitive match.' },
   'STRUCTURAL_ANOMALY_JPEG':    { label: 'JPEG Trailing Stream',      color: '#f97316', desc: 'Binary data found after JPEG EOF (0xFFD9) terminator.' },
   'STRUCTURAL_ANOMALY_PNG':     { label: 'PNG Stream Overload',       color: '#f97316', desc: 'Unexpected data packets detected after PNG IEND chunk.' },
   'STRUCTURAL_ANOMALY_GIF':     { label: 'GIF Footer Padding',        color: '#f97316', desc: 'Unauthorized stream detected after GIF 0x3B footer.' },

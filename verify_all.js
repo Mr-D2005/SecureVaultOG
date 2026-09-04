@@ -38,10 +38,10 @@ function section(n, name) { console.log(`\n[${n}/8] ${name}`); }
 
 async function runAll() {
   console.log('╔══════════════════════════════════════════════╗');
-  console.log('║   SECUREVAULT FULL E2E VERIFICATION SUITE    ║');
+  console.log('║   NETRAVAULT FULL E2E VERIFICATION SUITE    ║');
   console.log('╚══════════════════════════════════════════════╝\n');
 
-  const email = `domtest_${Date.now()}@securevault.io`;
+  const email = `domtest_${Date.now()}@netravault.io`;
   const pass_ = 'TestPass123!';
   let token, encResult, stegoBuffer;
 
@@ -82,7 +82,7 @@ async function runAll() {
 
   // 5. ENCRYPT
   section(5, 'ENCRYPT');
-  const enc = await post('/api/encrypt/data', { data: 'Hello SecureVault Test 2026', type: 'message', name: 'DOM_Test_Message' });
+  const enc = await post('/api/encrypt/data', { data: 'Hello NetraVault Test 2026', type: 'message', name: 'DOM_Test_Message' });
   if (enc.status === 200 && enc.data.success) {
     pass('Payload uploaded to AWS S3');
     pass('S3 URL sealed via Python KMS envelope encryption');

@@ -18,7 +18,7 @@ const sendEmail = (options) => {
 
     const payload = JSON.stringify({
       sender: {
-        name: 'SecureVault System',
+        name: 'NetraVault System',
         email: SENDER_EMAIL
       },
       to: [
@@ -29,12 +29,12 @@ const sendEmail = (options) => {
       subject: options.subject,
       htmlContent: `
         <div style="font-family: monospace; background-color: #050505; color: #00ffcc; padding: 30px; border: 1px solid #333; max-width: 600px; margin: 0 auto; border-radius: 8px;">
-          <h2 style="color: #00ffcc; border-bottom: 1px solid #333; padding-bottom: 10px;">[SECUREVAULT_DISPATCH]</h2>
+          <h2 style="color: #00ffcc; border-bottom: 1px solid #333; padding-bottom: 10px;">[NETRAVAULT_DISPATCH]</h2>
           <p style="font-size: 16px; color: #ccc;">${options.message.replace(/\n/g, '<br>')}</p>
           ${options.link ? `<div style="margin-top: 30px;"><a href="${options.link}" style="background-color: #00ffcc; color: #000; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 4px; display: inline-block;">Access Vault Sequence</a></div>` : ''}
           <div style="margin-top: 40px; font-size: 12px; color: #666; border-top: 1px solid #333; padding-top: 10px;">
             End of Transmission.<br>
-            SecureVault Quantum Ledger System
+            NetraVault Quantum Ledger System
           </div>
         </div>
       `

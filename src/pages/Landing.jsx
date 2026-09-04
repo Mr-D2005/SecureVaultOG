@@ -174,14 +174,14 @@ const Landing = () => {
     { number: '01', title: 'Create Your Vault', description: 'Register and receive your unique encrypted key-pair, secured by AWS KMS.' },
     { number: '02', title: 'Compose Your Message', description: 'Write your secret payload and our AI selects the optimal steganography strategy.' },
     { number: '03', title: 'Encode & Transmit', description: 'Your message is invisibly embedded into a carrier image and end-to-end encrypted.' },
-    { number: '04', title: 'Recipient Decodes', description: 'The recipient opens SecureVault, the AI extracts and decrypts your hidden message.' },
+    { number: '04', title: 'Recipient Decodes', description: 'The recipient opens NetraVault, the AI extracts and decrypts your hidden message.' },
   ];
 
   const faqs = [
     { q: 'What is steganography?', a: 'Steganography is the practice of hiding information within a non-secret carrier — like embedding a text message inside an image\'s pixel data, invisible to the naked eye.' },
     { q: 'How does AI detection work?', a: 'Our ML model analyses image fingerprints, statistical anomalies, and noise patterns to detect hidden payloads — alerting you to suspicious content before you open it.' },
     { q: 'Is my data stored on your servers?', a: 'All content is encrypted client-side before upload. Only you hold decryption keys, stored in AWS KMS under your account. We can never read your messages.' },
-    { q: 'Can I use SecureVault on mobile?', a: 'SecureVault is fully responsive and works on any modern mobile browser. A native app is on our roadmap.' },
+    { q: 'Can I use NetraVault on mobile?', a: 'NetraVault is fully responsive and works on any modern mobile browser. A native app is on our roadmap.' },
   ];
 
   return (
@@ -198,7 +198,7 @@ const Landing = () => {
           {/* LEFT COLUMN: Controls & Text */}
           <div style={{ flex: '1 1 400px', maxWidth: '500px' }}>
             <span className="lp-section-badge">CORE INFRASTRUCTURE</span>
-            <h2 className="lp-section-title" style={{ textAlign: 'left', marginBottom: '16px' }}>The <span className="lp-gradient-text">Engine</span> Behind SecureVault</h2>
+            <h2 className="lp-section-title" style={{ textAlign: 'left', marginBottom: '16px' }}>The <span className="lp-gradient-text">Engine</span> Behind NetraVault</h2>
             <p className="lp-section-subtitle" style={{ textAlign: 'left', margin: '0 0 32px 0' }}>
               Swipe through the modular layers of our high-fidelity security stack.
             </p>
@@ -309,7 +309,7 @@ const Landing = () => {
         <div className="lp-section-inner">
           <div className="lp-section-header">
             <span className="lp-section-badge">WORKFLOW</span>
-            <h2 className="lp-section-title">How <span className="lp-gradient-text">SecureVault</span> Works</h2>
+            <h2 className="lp-section-title">How <span className="lp-gradient-text">NetraVault</span> Works</h2>
             <p className="lp-section-subtitle">
               Four simple steps to hide, send, and receive a message — completely invisible to the outside world.
             </p>
@@ -412,7 +412,7 @@ const Landing = () => {
         <div className="lp-cta-inner">
           <h2 className="lp-cta-title">Ready to <span className="lp-gradient-text">Go Invisible?</span></h2>
           <p className="lp-cta-subtitle">
-            Join thousands of users who protect their communications with SecureVault. 
+            Join thousands of users who protect their communications with NetraVault. 
             No subscription required for basic access.
           </p>
           <div className="lp-cta-actions">
@@ -430,10 +430,10 @@ const Landing = () => {
       <footer className="lp-footer">
         <div className="lp-footer-inner">
           <div className="lp-footer-brand">
-            <span className="lp-footer-logo">SecureVault</span>
+            <span className="lp-footer-logo">NetraVault</span>
           </div>
           <div className="lp-footer-links">
-            <span>&copy; {new Date().getFullYear()} SECUREVAULT ENGINE. ALL RIGHTS RESERVED.</span>
+            <span>&copy; {new Date().getFullYear()} NETRAVAULT ENGINE. ALL RIGHTS RESERVED.</span>
           </div>
         </div>
       </footer>

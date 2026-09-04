@@ -37,7 +37,7 @@ const features = [
   },
   {
     icon: '🧠', title: 'Ravan AI Assistant',
-    desc: 'Voice-enabled neural interface that orchestrates every SecureVault operation. Encrypt, decrypt, hide, detect, and scan threats — all through natural language or voice commands.',
+    desc: 'Voice-enabled neural interface that orchestrates every NetraVault operation. Encrypt, decrypt, hide, detect, and scan threats — all through natural language or voice commands.',
     stats: [{ label: 'Interface', value: 'Voice + Text' }, { label: 'Backend', value: 'Groq LLM' }],
   },
   {
@@ -82,7 +82,7 @@ const Features = () => {
     <div className="feat-page" ref={pageRef}>
       {/* ── Navbar ── */}
       <nav className="feat-nav">
-        <span className="feat-nav-logo" onClick={() => navigate('/')}>SECUREVAULT</span>
+        <span className="feat-nav-logo" onClick={() => navigate('/')}>NETRAVAULT</span>
         <div className="feat-nav-links">
           <a href="#/features" className="feat-nav-link active">Features</a>
           <a href="#/security" className="feat-nav-link">Security</a>
@@ -154,7 +154,7 @@ const Features = () => {
       </section>
 
       <footer className="feat-footer">
-        <span>© {new Date().getFullYear()} SECUREVAULT ENGINE. ALL RIGHTS RESERVED.</span>
+        <span>© {new Date().getFullYear()} NETRAVAULT ENGINE. ALL RIGHTS RESERVED.</span>
       </footer>
     </div>
   );

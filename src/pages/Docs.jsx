@@ -6,30 +6,30 @@ import './Features.css';
 const sections = [
   {
     id: 'getting-started', title: '🚀 Getting Started', items: [
-      { q: 'What is SecureVault?', a: 'SecureVault is an AI-powered platform combining military-grade AES-256 encryption, LSB steganography, threat intelligence, and a neural AI assistant (Ravan) to enable completely invisible, secure communication.' },
+      { q: 'What is NetraVault?', a: 'NetraVault is an AI-powered platform combining military-grade AES-256 encryption, LSB steganography, threat intelligence, and a neural AI assistant (Ravan) to enable completely invisible, secure communication.' },
       { q: 'How do I create an account?', a: 'Click "Get Started" on the landing page, fill in your name, email, and password, then verify your email via the OTP sent to your inbox. Your AWS KMS master key is provisioned automatically.' },
-      { q: 'What do I need to get started?', a: 'Just a modern web browser. SecureVault runs entirely in the browser with cloud backend support. No software installation required.' },
+      { q: 'What do I need to get started?', a: 'Just a modern web browser. NetraVault runs entirely in the browser with cloud backend support. No software installation required.' },
     ]
   },
   {
     id: 'encryption', title: '🔐 Encryption & Decryption', items: [
       { q: 'How does encryption work?', a: 'Files and messages are encrypted using AES-256-CBC with a unique random key and IV per operation. The data key is then envelope-encrypted by your AWS KMS master key. The result is a .PEM key file you download — this is your only way to decrypt.' },
       { q: 'How do I decrypt a file?', a: 'Navigate to the Decrypt page or tell Ravan "decrypt this". Upload your .PEM key file and the system automatically unwraps the KMS-sealed data key, decrypts the ciphertext, and reconstitutes your original file.' },
-      { q: 'What is the .PEM key file?', a: 'It\'s a SecureVault Master Link Key containing your sealed AES key, IV, S3 reference, and asset metadata. Without this file, decryption is mathematically impossible. Store it securely.' },
+      { q: 'What is the .PEM key file?', a: 'It\'s a NetraVault Master Link Key containing your sealed AES key, IV, S3 reference, and asset metadata. Without this file, decryption is mathematically impossible. Store it securely.' },
     ]
   },
   {
     id: 'steganography', title: '🖼️ Steganography', items: [
       { q: 'What is steganography?', a: 'Steganography is the practice of hiding information within non-secret carriers — like embedding a text message inside an image\'s pixel data, invisible to the naked eye.' },
-      { q: 'How does SecureVault hide data?', a: 'We use optimised LSB (Least Significant Bit) insertion with randomised pixel selection. Your encrypted payload is distributed across the carrier image\'s colour channels at the sub-pixel level.' },
+      { q: 'How does NetraVault hide data?', a: 'We use optimised LSB (Least Significant Bit) insertion with randomised pixel selection. Your encrypted payload is distributed across the carrier image\'s colour channels at the sub-pixel level.' },
       { q: 'What carriers are supported?', a: 'Currently PNG and BMP images are supported as carrier formats. The payload can be text messages or files up to the carrier\'s embedding capacity (~12 KB per megapixel).' },
     ]
   },
   {
     id: 'detection', title: '🤖 AI Detection', items: [
       { q: 'How does steganalysis work?', a: 'Our TensorFlow-backed engine calculates Shannon entropy, neural variance, and chi-square statistics across image channels. Anomalous patterns indicate hidden data with 99.2% accuracy.' },
-      { q: 'Can it detect non-SecureVault steganography?', a: 'Yes. The AI heuristics detect any LSB-based steganographic insertion, regardless of the tool that created it. Spectral analysis catches patterns invisible to human eyes.' },
-      { q: 'What happens when hidden data is found?', a: 'If the carrier was created by SecureVault, the payload is automatically extracted and displayed. For third-party stego, an anomaly warning is shown with forensic details.' },
+      { q: 'Can it detect non-NetraVault steganography?', a: 'Yes. The AI heuristics detect any LSB-based steganographic insertion, regardless of the tool that created it. Spectral analysis catches patterns invisible to human eyes.' },
+      { q: 'What happens when hidden data is found?', a: 'If the carrier was created by NetraVault, the payload is automatically extracted and displayed. For third-party stego, an anomaly warning is shown with forensic details.' },
     ]
   },
   {
@@ -41,7 +41,7 @@ const sections = [
   },
   {
     id: 'ravan', title: '🧠 Ravan AI Assistant', items: [
-      { q: 'What is Ravan?', a: 'Ravan is SecureVault\'s AI-powered neural interface. It understands natural language and voice commands to orchestrate all platform operations — encrypt, decrypt, hide, detect, scan threats, and navigate.' },
+      { q: 'What is Ravan?', a: 'Ravan is NetraVault\'s AI-powered neural interface. It understands natural language and voice commands to orchestrate all platform operations — encrypt, decrypt, hide, detect, scan threats, and navigate.' },
       { q: 'What commands does Ravan support?', a: '"Encrypt this document", "decrypt my file", "hide my message in this photo", "scan this URL for threats", "detect steganography in this image" — and many more natural language variations.' },
       { q: 'Does Ravan support voice?', a: 'Yes. Click the microphone icon in the Ravan chat panel to activate voice recognition. Ravan processes your spoken command and responds with both text and text-to-speech audio.' },
     ]
@@ -73,7 +73,7 @@ const Docs = () => {
   return (
     <div className="feat-page">
       <nav className="feat-nav">
-        <span className="feat-nav-logo" onClick={() => navigate('/')}>SECUREVAULT</span>
+        <span className="feat-nav-logo" onClick={() => navigate('/')}>NETRAVAULT</span>
         <div className="feat-nav-links">
           <a href="#/features" className="feat-nav-link">Features</a>
           <a href="#/security" className="feat-nav-link">Security</a>
@@ -89,8 +89,8 @@ const Docs = () => {
       <header className="feat-hero" style={{ paddingBottom: '40px' }}>
         <div className="feat-hero-bg-text">DOCS</div>
         <span className="feat-badge">📖 DOCUMENTATION</span>
-        <h1 className="feat-hero-title">SecureVault <span className="lp-gradient-text">Documentation</span></h1>
-        <p className="feat-hero-sub">Everything you need to know about using SecureVault — from getting started to API reference.</p>
+        <h1 className="feat-hero-title">NetraVault <span className="lp-gradient-text">Documentation</span></h1>
+        <p className="feat-hero-sub">Everything you need to know about using NetraVault — from getting started to API reference.</p>
       </header>
 
       <section className="feat-section" style={{ maxWidth: '1100px' }}>
@@ -149,12 +149,12 @@ const Docs = () => {
 
       <section className="feat-cta">
         <h2>Need More <span className="lp-gradient-text">Help?</span></h2>
-        <p>Join SecureVault and use Ravan AI to guide you through any operation.</p>
+        <p>Join NetraVault and use Ravan AI to guide you through any operation.</p>
         <button className="feat-btn-solid feat-btn-lg" onClick={() => navigate('/register')}>Get Started Free</button>
       </section>
 
       <footer className="feat-footer">
-        <span>© {new Date().getFullYear()} SECUREVAULT ENGINE. ALL RIGHTS RESERVED.</span>
+        <span>© {new Date().getFullYear()} NETRAVAULT ENGINE. ALL RIGHTS RESERVED.</span>
       </footer>
     </div>
   );

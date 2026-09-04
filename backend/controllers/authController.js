@@ -22,9 +22,9 @@ exports.register = async (req, res) => {
     try {
       await sendEmail({
         email: user.email,
-        subject: 'Welcome to SecureVault Protocol',
+        subject: 'Welcome to NetraVault Protocol',
         message: `Welcome Operator. Your identity manifest has been successfully etched into the AWS RDS Ledger. Your vault is now ready for deployment.`,
-        link: `${process.env.FRONTEND_URL || 'https://securevault-omega.vercel.app'}/login`
+        link: `${process.env.FRONTEND_URL || 'https://netravault-omega.vercel.app'}/login`
       });
     } catch (e) {
       console.error('Welcome email dispatch failed during registration', e);
@@ -79,7 +79,7 @@ exports.forgotPassword = async (req, res) => {
       email: user.email,
       subject: 'Identity Recovery Protocol',
       message: `An identity recovery scan was initiated. Use the following 6-digit synchronization code to re-seal your vault:\n\nCODE: ${otp}\n\nThis code will expire in 10 minutes.`,
-      link: `${process.env.FRONTEND_URL || 'https://securevault-omega.vercel.app'}/reset-password`
+      link: `${process.env.FRONTEND_URL || 'https://netravault-omega.vercel.app'}/reset-password`
     });
 
 

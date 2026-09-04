@@ -150,7 +150,7 @@ const Web3Hero = () => {
 
         {/* Subtitle */}
         <p className="w3-subtitle w3-animate-in w3-delay-3">
-          SecureVault combines advanced steganography, AI-driven threat detection, 
+          NetraVault combines advanced steganography, AI-driven threat detection, 
           and military-grade encryption to protect your communications — invisible 
           to everyone except those who matter.
         </p>

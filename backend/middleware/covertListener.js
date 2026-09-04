@@ -2,7 +2,7 @@
  * ============================================================
  *  PEC COVERT LISTENER MIDDLEWARE
  *  Polymorphic ETag Cloaking Algorithm — Backend Interceptor
- *  SecureVaultOG | Application-Layer Steganography Engine
+ *  NetraVaultOG | Application-Layer Steganography Engine
  * ============================================================
  *
  *  This Express middleware intercepts ALL incoming GET requests.

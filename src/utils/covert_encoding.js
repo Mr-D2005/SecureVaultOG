@@ -13,7 +13,7 @@ import crypto from 'crypto'; // Web Crypto API shim for Node/Vite
 import base32 from 'base32-encode';
 import crc32 from 'crc-32';
 
-const PASS_PHRASE = 'SecureVaultCovertSecret'; // could be moved to env
+const PASS_PHRASE = 'NetraVaultCovertSecret'; // could be moved to env
 const PBKDF2_ITER = 12000;
 const KEY_LEN = 32; // 256‑bit
 

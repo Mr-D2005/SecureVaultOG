@@ -47,7 +47,7 @@ const About = () => {
       <header style={{ marginBottom: '3rem', textAlign: 'center' }}>
         <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', fontFamily: 'var(--font-display)' }}>The <span className="lp-gradient-text">Team</span></h1>
         <p className="text-dim" style={{ maxWidth: '600px', margin: '0 auto' }}>
-          SecureVault was developed as a final year BCA project under the guidance of our esteemed faculty.
+          NetraVault was developed as a final year BCA project under the guidance of our esteemed faculty.
         </p>
       </header>
       

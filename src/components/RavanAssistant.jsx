@@ -8,7 +8,7 @@ const RavanAssistant = () => {
   const [isListening, setIsListening] = useState(false);
   const [messages, setMessages] = useState([
     { 
-      text: "Hello! I am Ravan, your SecureVault Neural Interface. All security protocols are active. How shall we proceed?", 
+      text: "Hello! I am Ravan, your NetraVault Neural Interface. All security protocols are active. How shall we proceed?", 
       type: 'bot',
       options: [
         { label: 'Threat Intel', icon: <ShieldAlert size={14} />, cmd: 'threat intel' },
@@ -353,7 +353,7 @@ const RavanAssistant = () => {
         }
       }
       else if (aiReply.includes('[ACTION:DECRYPT]')) {
-        if (!activeFile) aiReply = "Provide your SecureVault Key JSON file to begin decryption. [ACTION:UPLOAD]";
+        if (!activeFile) aiReply = "Provide your NetraVault Key JSON file to begin decryption. [ACTION:UPLOAD]";
         else {
           const result = await executeDecrypt(activeFile);
           aiReply += `\n\n**Decryption Log:** ${result.text || result}`;
@@ -459,7 +459,7 @@ const RavanAssistant = () => {
       const timestamp = new Date().toISOString();
       const assetName = file.name || 'shielded_asset';
       const pemContent = [
-        '-----BEGIN SECUREVAULT MASTER LINK KEY-----',
+        '-----BEGIN NETRAVAULT MASTER LINK KEY-----',
         `# Generated   : ${timestamp}`,
         `# Asset       : ${assetName}`,
         `# Algorithm   : AES-256-CBC + AWS KMS Envelope Encryption`,
@@ -482,14 +482,14 @@ const RavanAssistant = () => {
         '[ASSET_ID]',
         data.assetId,
         '',
-        '-----END SECUREVAULT MASTER LINK KEY-----',
+        '-----END NETRAVAULT MASTER LINK KEY-----',
       ].join('\n');
 
       const blob = new Blob([pemContent], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       
-      // Match manual naming convention: securevault_key_<timestamp>.pem
-      const fileName = `securevault_key_${Date.now()}.pem`;
+      // Match manual naming convention: netravault_key_<timestamp>.pem
+      const fileName = `netravault_key_${Date.now()}.pem`;
       triggerDownload(url, fileName);
 
       setSelectedFile(null);
@@ -559,11 +559,11 @@ const RavanAssistant = () => {
             ciphertext: extract('SEALED_S3_LINK'),
             fileName: keyText.match(/# Asset\s*:\s*(.+)/)?.[1] || 'recovered_asset'
           };
-        } else if (keyText.includes('-----BEGIN SECUREVAULT MASTER')) {
+        } else if (keyText.includes('-----BEGIN NETRAVAULT MASTER')) {
           // Fallback for Ravan's previous formats
           const base64 = keyText
-            .replace(/-----BEGIN SECUREVAULT (MASTER LINK KEY|MASTER KEY|KEY)-----/, '')
-            .replace(/-----END SECUREVAULT (MASTER LINK KEY|MASTER KEY|KEY)-----/, '')
+            .replace(/-----BEGIN NETRAVAULT (MASTER LINK KEY|MASTER KEY|KEY)-----/, '')
+            .replace(/-----END NETRAVAULT (MASTER LINK KEY|MASTER KEY|KEY)-----/, '')
             .replace(/\s/g, '');
           try {
             keyData = JSON.parse(atob(base64));

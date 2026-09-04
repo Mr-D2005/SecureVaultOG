@@ -1,7 +1,7 @@
-﻿import React from 'react';
+import React from 'react';
 
 /**
- * VaultEyeIcon - The Cyber Guardian Eye & Encrypted Vault Logo in SecureVault Violet & Hyperblue Theme
+ * VaultEyeIcon - The Cyber Guardian Eye & Encrypted Vault Logo in NetraVault Violet & Hyperblue Theme
  */
 export const NetraEyeIcon = ({ size = 28, className = '', glow = true, style = {} }) => {
   return (
@@ -143,6 +143,6 @@ export const NetraLogo = ({
 };
 
 export const VaultEyeIcon = NetraEyeIcon;
-export const SecureVaultLogo = NetraLogo;
+export const NetraVaultLogo = NetraLogo;
 
 export default NetraLogo;

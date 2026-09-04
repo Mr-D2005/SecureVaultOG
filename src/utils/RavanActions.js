@@ -121,7 +121,7 @@ export const RavanActions = {
       if (!res.ok) throw new Error(data.msg || "Forensic Engine Rejection");
 
       if (data.stegoSource === 'clean') {
-        return "Extraction complete. The media appears to be clean of any SecureVault or common steganographic payloads.";
+        return "Extraction complete. The media appears to be clean of any NetraVault or common steganographic payloads.";
       }
 
       if (data.type === 'text') {

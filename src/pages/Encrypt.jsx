@@ -403,7 +403,7 @@ const Encrypt = () => {
 
       const timestamp = new Date().toISOString();
       const pem = [
-        '-----BEGIN SECUREVAULT MASTER LINK KEY-----',
+        '-----BEGIN NETRAVAULT MASTER LINK KEY-----',
         `# Generated   : ${timestamp}`,
         `# Asset       : ${targetName}`,
         `# Algorithm   : AES-256-CBC + AWS KMS Envelope Encryption`,
@@ -426,7 +426,7 @@ const Encrypt = () => {
         '[ASSET_ID]',
         data.assetId,
         '',
-        '-----END SECUREVAULT MASTER LINK KEY-----',
+        '-----END NETRAVAULT MASTER LINK KEY-----',
       ].join('\n');
 
       setPemKey(pem);
@@ -445,7 +445,7 @@ const Encrypt = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `securevault_key_${Date.now()}.pem`;
+    a.download = `netravault_key_${Date.now()}.pem`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -797,7 +797,7 @@ const Encrypt = () => {
 
               <div style={{ marginTop: '1.25rem', padding: '0.75rem 1rem', background: 'rgba(239,68,68,0.05)', borderRadius: 'var(--radius-sm)', border: '1px dashed rgba(239,68,68,0.3)' }}>
                 <p style={{ margin: 0, fontSize: '0.78rem', color: 'rgba(239,68,68,0.85)', lineHeight: 1.6 }}>
-                  ⚠ SecureVault does NOT store your private key. If this file is lost, the encrypted asset <strong>cannot be recovered</strong>.
+                  ⚠ NetraVault does NOT store your private key. If this file is lost, the encrypted asset <strong>cannot be recovered</strong>.
                 </p>
               </div>
             </SpotlightCard>

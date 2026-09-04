@@ -56,7 +56,7 @@ app.use(express.static(path.join(__dirname, '../dist')));
 
 // --- HEALTH CHECK ---
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'UP', service: 'SECUREVAULT_CORE_STABLE' });
+  res.status(200).json({ status: 'UP', service: 'NETRAVAULT_CORE_STABLE' });
 });
 
 // --- AWS CONNECTIVITY PROBE ---
@@ -144,13 +144,13 @@ app.get('*', (req, res) => {
 const PORT = process.env.PORT || 5001;
 
 // Ensure CRITICAL secrets have fallbacks to prevent registration crashes
-process.env.JWT_SECRET = process.env.JWT_SECRET || 'SECUREVAULT_CORE_EMERGENCY_SECRET_2026';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'NETRAVAULT_CORE_EMERGENCY_SECRET_2026';
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 
 const startServer = async () => {
   initDB();
   const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`--- [SECUREVAULT NODE ONLINE: PORT ${PORT}] ---`);
+    console.log(`--- [NETRAVAULT NODE ONLINE: PORT ${PORT}] ---`);
   });
 
   // Handle Unhandled Rejections (Prevents server from hanging on async errors)

@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  POLYMORPHIC ETAG CLOAKING (PEC) ALGORITHM  — v1.0
- *  SecureVaultOG | Application-Layer Steganography Engine
+ *  NetraVaultOG | Application-Layer Steganography Engine
  * ============================================================
  *
  *  NOVEL CONTRIBUTIONS (Patentable Elements):

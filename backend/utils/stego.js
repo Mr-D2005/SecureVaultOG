@@ -4,7 +4,7 @@ const MAGIC_START = Buffer.from('---SV_PAYLOAD_START---');
 const MAGIC_END   = Buffer.from('---SV_PAYLOAD_END---');
 
 /**
- * Native SecureVault Steganography Injection (Proprietary Deep-Bind)
+ * Native NetraVault Steganography Injection (Proprietary Deep-Bind)
  */
 const injectPayload = (carrierBuffer, payloadBuffer, password) => {
     const iv = crypto.randomBytes(16);
@@ -23,11 +23,11 @@ const injectPayload = (carrierBuffer, payloadBuffer, password) => {
 };
 
 /**
- * Native SecureVault Extraction
+ * Native NetraVault Extraction
  */
 const extractPayload = (carrierBuffer, password) => {
     const endIdx = carrierBuffer.lastIndexOf(MAGIC_END);
-    if (endIdx === -1) throw new Error('No SecureVault payload detected.');
+    if (endIdx === -1) throw new Error('No NetraVault payload detected.');
 
     const startIdx = carrierBuffer.lastIndexOf(MAGIC_START, endIdx);
     if (startIdx === -1) throw new Error('Payload corrupted: Missing start signature.');
@@ -92,12 +92,12 @@ const analyzeSteganographyAI = (buffer, fileName = '') => {
     const headerStr = buffer.subarray(0, sampleSize).toString('binary').toLowerCase();
     const footerStr = buffer.subarray(Math.max(0, len - sampleSize)).toString('binary').toLowerCase();
 
-    // ── LAYER 1: SECUREVAULT NATIVE SIGNATURE ──────────────────────────────
+    // ── LAYER 1: NETRAVAULT NATIVE SIGNATURE ──────────────────────────────
     const isSVStego = buffer.lastIndexOf(MAGIC_END) !== -1;
     if (isSVStego) {
         score = 100;
-        methods.push('SIGNATURE_SECUREVAULT');
-        detectedAlgorithm = 'SecureVault Deep-Bind (Native)';
+        methods.push('SIGNATURE_NETRAVAULT');
+        detectedAlgorithm = 'NetraVault Deep-Bind (Native)';
     }
 
     // ── LAYER 2: STRUCTURAL & TOOL-SPECIFIC SIGNATURES ──────────────────────

@@ -22,7 +22,7 @@ async function test() {
   const message = {
     from: process.env.SMTP_EMAIL, // Simplest possible sender
     to: process.env.SMTP_EMAIL,   // Send to self for test
-    subject: 'SECUREVAULT_DIAGNOSTIC_TEST',
+    subject: 'NETRAVAULT_DIAGNOSTIC_TEST',
     text: 'If you receive this, the SMTP pipeline is 100% operational.'
   };
 

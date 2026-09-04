@@ -1,8 +1,8 @@
 # render.yaml
-# Render configuration for SecureVaultOG (single Node.js service)
+# Render configuration for NetraVaultOG (single Node.js service)
 services:
   - type: web
-    name: securevault-og
+    name: netravault-og
     env: node
     region: singapore
     plan: free

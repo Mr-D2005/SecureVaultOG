@@ -28,7 +28,7 @@ const SystemShield = () => {
           Total AI Protection
         </span>
         <h1 style={{ fontSize: '3rem', fontWeight: 900, margin: '1rem 0', letterSpacing: '-1px' }}>
-          SecureVault <span style={{ color: '#00dc9c' }}>Antivirus</span>
+          NetraVault <span style={{ color: '#00dc9c' }}>Antivirus</span>
         </h1>
         <p style={{ color: '#888', maxWidth: '600px', margin: '0 auto 2.5rem', fontSize: '1.1rem', lineHeight: 1.6 }}>
           Download the world's first local security suite powered entirely by autonomous AI agents. 

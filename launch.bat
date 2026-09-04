@@ -26,6 +26,6 @@ echo ===================================================
 echo  ALL SYSTEMS ONLINE - VAULT IS ARMED
 echo  Python  : http://localhost:5002
 echo  Node.js  : http://localhost:5001
-echo  Frontend : http://localhost:5173/SecureVault/
+echo  Frontend : http://localhost:5173/NetraVault/
 echo ===================================================
 pause

@@ -8,9 +8,9 @@ const fs = require('fs');
  * @desc    Downloads the AI Total Defense Installer
  */
 router.get('/download', (req, res) => {
-    const filePath = path.join(__dirname, '../SecureVault_Antivirus_Setup.bat');
+    const filePath = path.join(__dirname, '../NetraVault_Antivirus_Setup.bat');
     if (fs.existsSync(filePath)) {
-        res.download(filePath, 'SecureVault_Antivirus_Setup.bat');
+        res.download(filePath, 'NetraVault_Antivirus_Setup.bat');
     } else {
         res.status(404).json({ success: false, error: "Installer not found." });
     }
@@ -31,10 +31,10 @@ router.get('/gui-script', (req, res) => {
 
 /**
  * @route   GET /api/system-shield/icon
- * @desc    Serves the SecureVault Logo (.ico) for the desktop shortcut
+ * @desc    Serves the NetraVault Logo (.ico) for the desktop shortcut
  */
 router.get('/icon', (req, res) => {
-    const filePath = path.join(__dirname, '../../public/securevault_logo.ico');
+    const filePath = path.join(__dirname, '../../public/netravault_logo.ico');
     if (fs.existsSync(filePath)) {
         res.download(filePath, 'logo.ico');
     } else {

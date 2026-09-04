@@ -137,7 +137,7 @@ router.post('/extract', async (req, res) => {
             });
         }
 
-        // 3. Execute SecureVault Deep-Bind Extraction (SV Format)
+        // 3. Execute NetraVault Deep-Bind Extraction (SV Format)
         const keysToTry = ['sv_default', 'sv_default_stego_key'];
         let decryptedPayload = null;
 
@@ -154,7 +154,7 @@ router.post('/extract', async (req, res) => {
         if (!decryptedPayload) {
             return res.json({
                 success: true,
-                stegoSource: 'securevault',
+                stegoSource: 'netravault',
                 aiAnalysis,
                 confidence: aiAnalysis.confidence,
                 heuristics: aiAnalysis.heuristics,
@@ -183,7 +183,7 @@ router.post('/extract', async (req, res) => {
         if (meta.startsWith('FILE:')) {
             res.json({
                 success: true,
-                stegoSource: 'securevault',
+                stegoSource: 'netravault',
                 aiAnalysis,
                 confidence: aiAnalysis.confidence,
                 heuristics: aiAnalysis.heuristics,
@@ -195,7 +195,7 @@ router.post('/extract', async (req, res) => {
         } else {
             res.json({
                 success: true,
-                stegoSource: 'securevault',
+                stegoSource: 'netravault',
                 aiAnalysis,
                 confidence: aiAnalysis.confidence,
                 heuristics: aiAnalysis.heuristics,

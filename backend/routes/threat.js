@@ -37,7 +37,7 @@ router.post('/scan', async (req, res) => {
         `> INITIATING INTERNAL_TRAP_VERIFICATION`,
         `> TARGET_TYPE: SENTINEL_DECOY_ASSET`,
         `> STATUS: VERIFIED_SAFE [INTERNAL_NEUTRALIZATION_NODE]`,
-        `> [AI SENTINEL ASSESSMENT]: This infrastructure is a verified internal decoy trap deployed by SecureVault. It is designed to capture and neutralize attackers.`,
+        `> [AI SENTINEL ASSESSMENT]: This infrastructure is a verified internal decoy trap deployed by NetraVault. It is designed to capture and neutralize attackers.`,
         `> FINAL_RISK_INDEX: 0%`
       ];
       return res.json({
@@ -244,7 +244,7 @@ router.get('/trap/:id', (req, res) => {
     'Connection': 'keep-alive'
   });
 
-  res.write("--- [SECUREVAULT IRON-TARPIT ENGAGED] ---\n");
+  res.write("--- [NETRAVAULT IRON-TARPIT ENGAGED] ---\n");
   res.write("STATUS: ATTACKER_NEUTRALIZED\n");
   res.write("LOGGING: ACTIVE_TRACE_IN_PROGRESS\n\n");
 

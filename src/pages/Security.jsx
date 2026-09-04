@@ -79,7 +79,7 @@ const Security = () => {
     <div className="sec-page" ref={pageRef}>
       {/* ── Navbar ── */}
       <nav className="sec-nav">
-        <span className="sec-nav-logo" onClick={() => navigate('/')}>SECUREVAULT</span>
+        <span className="sec-nav-logo" onClick={() => navigate('/')}>NETRAVAULT</span>
         <div className="sec-nav-links">
           <a href="#/features" className="sec-nav-link">Features</a>
           <a href="#/security" className="sec-nav-link active">Security</a>
@@ -258,7 +258,7 @@ const Security = () => {
       </section>
 
       <footer className="sec-footer">
-        <span>© {new Date().getFullYear()} SECUREVAULT ENGINE. ALL RIGHTS RESERVED.</span>
+        <span>© {new Date().getFullYear()} NETRAVAULT ENGINE. ALL RIGHTS RESERVED.</span>
       </footer>
     </div>
   );

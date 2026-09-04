@@ -1,9 +1,9 @@
 @echo off
-title SecureVault Ghost-Mount Gateway
+title NetraVault Ghost-Mount Gateway
 color 0B
 echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 echo !!                                                        !!
-echo !!        SECUREVAULT: GHOST-MOUNT GATEWAY v1.0           !!
+echo !!        NETRAVAULT: GHOST-MOUNT GATEWAY v1.0           !!
 echo !!        STATUS: AIR-GAP ISOLATION ACTIVE                !!
 echo !!                                                        !!
 echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -29,7 +29,7 @@ pip install psutil requests --quiet
 
 :: Fetch the Bridge script dynamically from the backend
 echo [GHOST_MOUNT] Fetching latest Forensic Engine script...
-powershell -Command "Invoke-WebRequest -Uri 'https://securevault-main.onrender.com/api/usb-lab/download-bridge' -OutFile 'usb_bridge.py' -ErrorAction SilentlyContinue"
+powershell -Command "Invoke-WebRequest -Uri 'https://netravault-main.onrender.com/api/usb-lab/download-bridge' -OutFile 'usb_bridge.py' -ErrorAction SilentlyContinue"
 if not exist usb_bridge.py (
     echo [WARNING] Could not fetch from cloud, trying local server...
     powershell -Command "Invoke-WebRequest -Uri 'http://localhost:5000/api/usb-lab/download-bridge' -OutFile 'usb_bridge.py' -ErrorAction SilentlyContinue"

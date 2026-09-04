@@ -2,7 +2,7 @@
  * ============================================================
  *  PEC DECODER — Backend (Node.js/Express)
  *  Polymorphic ETag Cloaking Algorithm — Decode Module
- *  SecureVaultOG | Application-Layer Steganography Engine
+ *  NetraVaultOG | Application-Layer Steganography Engine
  * ============================================================
  *
  *  This module is the server-side mirror of pec_algorithm.js.

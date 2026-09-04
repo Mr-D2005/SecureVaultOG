@@ -35,7 +35,7 @@ const HowItWorks = () => {
   return (
     <div className="feat-page" ref={pageRef}>
       <nav className="feat-nav">
-        <span className="feat-nav-logo" onClick={() => navigate('/')}>SECUREVAULT</span>
+        <span className="feat-nav-logo" onClick={() => navigate('/')}>NETRAVAULT</span>
         <div className="feat-nav-links">
           <a href="#/features" className="feat-nav-link">Features</a>
           <a href="#/security" className="feat-nav-link">Security</a>
@@ -51,7 +51,7 @@ const HowItWorks = () => {
       <header className="feat-hero">
         <div className="feat-hero-bg-text">WORKFLOW</div>
         <span className="feat-badge">⚙️ OPERATIONAL WORKFLOW</span>
-        <h1 className="feat-hero-title">How <span className="lp-gradient-text">SecureVault</span> Works</h1>
+        <h1 className="feat-hero-title">How <span className="lp-gradient-text">NetraVault</span> Works</h1>
         <p className="feat-hero-sub">Six steps to hide, encrypt, transmit, and decode a message — completely invisible to the outside world.</p>
       </header>
 
@@ -110,12 +110,12 @@ const HowItWorks = () => {
 
       <section className="feat-cta">
         <h2>See It in <span className="lp-gradient-text">Action</span></h2>
-        <p>Create your account and experience the full SecureVault pipeline.</p>
+        <p>Create your account and experience the full NetraVault pipeline.</p>
         <button className="feat-btn-solid feat-btn-lg" onClick={() => navigate('/register')}>Start Securing Now</button>
       </section>
 
       <footer className="feat-footer">
-        <span>© {new Date().getFullYear()} SECUREVAULT ENGINE. ALL RIGHTS RESERVED.</span>
+        <span>© {new Date().getFullYear()} NETRAVAULT ENGINE. ALL RIGHTS RESERVED.</span>
       </footer>
     </div>
   );
