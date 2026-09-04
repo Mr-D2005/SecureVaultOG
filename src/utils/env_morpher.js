@@ -4,6 +4,24 @@
  * The covert payload is injected into a specific header depending on the profile.
  */
 
+function hexToBase64(hexStr) {
+    let binary = '';
+    for (let i = 0; i < hexStr.length; i += 2) {
+        binary += String.fromCharCode(parseInt(hexStr.substr(i, 2), 16));
+    }
+    return btoa(binary);
+}
+
+function base64ToHex(b64) {
+    const raw = atob(b64);
+    let result = '';
+    for (let i = 0; i < raw.length; i++) {
+        const hex = raw.charCodeAt(i).toString(16);
+        result += (hex.length === 2 ? hex : '0' + hex);
+    }
+    return result;
+}
+
 export const PROFILES = {
     STANDARD_APACHE: 'standard_apache',
     YOUTUBE_TELEMETRY: 'youtube_telemetry',
@@ -23,12 +41,12 @@ export function morphHeaders(profile, payloadHex, token) {
             // YouTube playback telemetry mimicry
             headers['X-YouTube-Client-Name'] = '1';
             headers['X-YouTube-Client-Version'] = '2.20260522.01.00';
-            headers['X-Goog-Visitor-Id'] = 'CgtwMzY4ZmI1ZDg1Yyivm5i5BjIKCgJJThIEGgAgFQ%3D%3D';
+            headers['X-YouTube-Device'] = 'desktop';
             
             // YouTube nonces are usually base64/url-safe random strings. 
             // We format our hex payload to look like a nonce.
             payloadKey = 'X-Goog-Playback-Nonce';
-            formattedPayload = 'v-' + Buffer.from(payloadHex, 'hex').toString('base64').replace(/=/g, '');
+            formattedPayload = 'v-' + hexToBase64(payloadHex).replace(/=/g, '');
             if (token) headers['X-Goog-Session-Id'] = token;
             break;
 
@@ -80,7 +98,7 @@ export function unmorphPayload(profile, formattedPayload) {
             let b64 = formattedPayload.substring(2);
             // Re-pad base64 if needed
             while (b64.length % 4 !== 0) b64 += '=';
-            return Buffer.from(b64, 'base64').toString('hex');
+            return base64ToHex(b64);
 
         case PROFILES.MS_TEAMS_SYNC:
             // Strip hyphens
